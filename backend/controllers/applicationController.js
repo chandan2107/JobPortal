@@ -59,18 +59,38 @@ exports.getApplicantsForJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.jobId);
 
-if (!job || job.company.toString() !== req.user._id.toString()) {
-  return res.status(403).json({
-    message: "Not authorized to view applicants",
-  });
-}
+    if (!job || job.company.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized to view applicants",
+      });
+    }
 
-const applications = await Application.find({ job: req.params.jobId })
-  .populate("job", "title location category type description requirements")
-  .populate("applicant", "name email avatar resume");
+    const applications = await Application.find({ job: req.params.jobId })
+      .populate("job", "title location category type description requirements")
+      .populate("applicant", "name email avatar resume");
 
-res.json(applications);
+    res.json(applications);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
+// @desc Get all applicants across all jobs of the logged-in employer
+exports.getAllEmployerApplicants = async (req, res) => {
+  try {
+    if (req.user.role !== "employer") {
+      return res.status(403).json({ message: "Only employers can view all applicants" });
+    }
+
+    const employerJobs = await Job.find({ company: req.user._id }).select("_id");
+    const jobIds = employerJobs.map((j) => j._id);
+
+    const applications = await Application.find({ job: { $in: jobIds } })
+      .populate("job", "title location category type description requirements")
+      .populate("applicant", "name email avatar resume")
+      .sort({ createdAt: -1 });
+
+    res.json(applications);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

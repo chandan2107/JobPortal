@@ -141,7 +141,7 @@ const ApplicationViewer = () => {
       setLoading(true);
       const url = jobId
         ? API_PATHS.APPLICATIONS.GET_ALL_APPLICATIONS(jobId)
-        : "/api/applications/my-all";
+        : API_PATHS.APPLICATIONS.GET_ALL_EMPLOYER_APPLICATIONS;
       const response = await axiosInstance.get(url);
       const apps = response.data || [];
       setApplications(apps);
@@ -173,8 +173,13 @@ const ApplicationViewer = () => {
   // Group and sort applications per job
   const groupedApplications = useMemo(() => {
     const grouped = applications.reduce((acc, app) => {
-      const id = app.job._id;
-      if (!acc[id]) acc[id] = { job: app.job, applications: [] };
+      const id = app.job?._id || "general";
+      if (!acc[id]) {
+        acc[id] = {
+          job: app.job || { title: "General Applications", location: "N/A", type: "Full-time" },
+          applications: [],
+        };
+      }
       acc[id].applications.push(app);
       return acc;
     }, {});
@@ -217,9 +222,10 @@ const ApplicationViewer = () => {
 
   const handleATSScore = async (application) => {
     const appId = application._id;
+    const applicantName = application.applicant?.name || "Applicant";
     if (atsScores[appId]) {
       // Already scored — just show the modal
-      setAtsModal({ result: atsScores[appId], name: application.applicant.name });
+      setAtsModal({ result: atsScores[appId], name: applicantName });
       return;
     }
 
@@ -227,7 +233,7 @@ const ApplicationViewer = () => {
     try {
       const response = await axiosInstance.post(`/api/ats/score/${appId}`);
       setAtsScores((prev) => ({ ...prev, [appId]: response.data }));
-      setAtsModal({ result: response.data, name: application.applicant.name });
+      setAtsModal({ result: response.data, name: applicantName });
       toast.success("ATS Score generated and saved!");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to get ATS score. Please try again.");
@@ -343,22 +349,22 @@ const ApplicationViewer = () => {
                       >
                         {/* Applicant Info */}
                         <div className="flex items-center gap-4 flex-1 min-w-0">
-                          {application.applicant.avatar ? (
+                          {application.applicant?.avatar ? (
                             <img
                               src={application.applicant.avatar}
-                              alt={application.applicant.name}
+                              alt={application.applicant.name || "Applicant"}
                               className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm flex-shrink-0"
                             />
                           ) : (
                             <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
-                              {getInitials(application.applicant.name)}
+                              {getInitials(application.applicant?.name || "Applicant")}
                             </div>
                           )}
                           <div className="min-w-0">
                             <h3 className="text-sm font-bold text-gray-900 truncate">
-                              {application.applicant.name}
+                              {application.applicant?.name || "Anonymous Applicant"}
                             </h3>
-                            <p className="text-xs text-gray-500 truncate">{application.applicant.email}</p>
+                            <p className="text-xs text-gray-500 truncate">{application.applicant?.email || "No email"}</p>
                             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                               <span className="inline-flex items-center gap-1 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                                 <Calendar className="w-3 h-3" />
@@ -368,7 +374,7 @@ const ApplicationViewer = () => {
                               {cachedScore && (
                                 <span
                                   className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full cursor-pointer hover:opacity-80 transition-opacity ${scoreColors.badge}`}
-                                  onClick={() => setAtsModal({ result: cachedScore, name: application.applicant.name })}
+                                  onClick={() => setAtsModal({ result: cachedScore, name: application.applicant?.name || "Applicant" })}
                                 >
                                   <Zap className="w-3 h-3" />
                                   ATS {cachedScore.score}%

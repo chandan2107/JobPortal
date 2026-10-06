@@ -72,22 +72,22 @@ const ApplicantProfilePreview = ({
         <div className="p-6 space-y-5">
           {/* Applicant Info */}
           <div className="flex items-center gap-4">
-            {selectedApplicant.applicant.avatar ? (
+            {selectedApplicant?.applicant?.avatar ? (
               <img
                 src={selectedApplicant.applicant.avatar}
-                alt={selectedApplicant.applicant.name}
+                alt={selectedApplicant.applicant.name || "Applicant"}
                 className="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50 shadow-sm flex-shrink-0"
               />
             ) : (
               <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg flex-shrink-0">
-                {getInitials(selectedApplicant.applicant.name)}
+                {getInitials(selectedApplicant?.applicant?.name || "Applicant")}
               </div>
             )}
             <div className="min-w-0">
               <h4 className="font-bold text-gray-900 text-base truncate">
-                {selectedApplicant.applicant.name}
+                {selectedApplicant?.applicant?.name || "Applicant"}
               </h4>
-              <p className="text-sm text-gray-500 truncate">{selectedApplicant.applicant.email}</p>
+              <p className="text-sm text-gray-500 truncate">{selectedApplicant?.applicant?.email || "No email"}</p>
               <StatusBadge status={currentStatus} />
             </div>
           </div>
@@ -95,15 +95,15 @@ const ApplicantProfilePreview = ({
           {/* Job Info */}
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
             <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Applied Position</p>
-            <p className="font-semibold text-gray-900">{selectedApplicant.job.title}</p>
+            <p className="font-semibold text-gray-900">{selectedApplicant?.job?.title || "Position"}</p>
             <div className="flex items-center gap-3 text-sm text-gray-500">
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
-                {selectedApplicant.job.location}
+                {selectedApplicant?.job?.location || "Remote"}
               </span>
               <span className="flex items-center gap-1">
                 <Briefcase className="w-3.5 h-3.5" />
-                {selectedApplicant.job.type}
+                {selectedApplicant?.job?.type || "Full-time"}
               </span>
             </div>
           </div>

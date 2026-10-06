@@ -51,6 +51,7 @@ export const API_PATHS = {
     APPLY_TO_JOB: (id) => `/api/applications/${id}`,
     GET_ALL_APPLICATIONS: (id) => `/api/applications/job/${id}`,
     GET_MY_APPLICATIONS: "/api/applications/my",
+    GET_ALL_EMPLOYER_APPLICATIONS: "/api/applications/my-all",
     UPDATE_STATUS: (id) => `/api/applications/${id}/status`,
   },
 
