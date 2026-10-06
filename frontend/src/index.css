@@ -51,3 +51,80 @@
   width: 0;
   height: 0;
 }
+
+/* ───────────────────────────────────────────────────────────── */
+/*  PRINT STYLES FOR RESUME BUILDER                              */
+/* ───────────────────────────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Hide all application chrome and UI */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Reveal only the resume container and all its inner components */
+  #resume-print,
+  #resume-print * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Position resume perfectly at top-left at standard A4 scale */
+  #resume-print-parent {
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #resume-print {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 794px !important;
+    max-width: 100% !important;
+    transform: none !important;
+  }
+
+  /* Hide non-printable elements */
+  .no-print,
+  .no-print *,
+  header,
+  nav,
+  aside,
+  button,
+  .toaster,
+  [data-hot-toast] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Prevent page cuts across individual items */
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import {
-  ArrowLeft, Download, Share2, Eye, EyeOff, ChevronDown, ChevronUp,
+  ArrowLeft, Download, Printer, Share2, Eye, EyeOff, ChevronDown, ChevronUp,
   Plus, Trash2, Palette, User, Briefcase, GraduationCap,
   Code, FolderOpen, Award, Check, X, Calendar, Trophy, Sparkles,
   Wand2, Loader2, Bot, RefreshCw, Zap, FileText, Minus, Maximize2,
@@ -620,6 +620,28 @@ const ResumeEditorPage = () => {
     update({ sectionOrder: newOrder });
   };
 
+  const handleBrowserPrint = useCallback(() => {
+    const originalTitle = document.title;
+    const candidateName = resume.personalInfo?.fullName?.trim() || resume.title?.trim() || "Resume";
+    const cleanFileName = candidateName.replace(/[^a-zA-Z0-9_\-\s]/g, "").replace(/\s+/g, "_");
+    document.title = `${cleanFileName}_Resume`;
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
+  }, [resume.personalInfo?.fullName, resume.title]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        handleBrowserPrint();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleBrowserPrint]);
+
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: resume.personalInfo?.fullName || resume.title || "Resume",
@@ -800,8 +822,19 @@ const ResumeEditorPage = () => {
             </button>
 
             <button
+              type="button"
+              onClick={handleBrowserPrint}
+              title="Print Resume or Save as PDF (Ctrl+P)"
+              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Print</span>
+              <span className="sm:hidden">Print</span>
+            </button>
+
+            <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all"
+              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Download PDF</span>
@@ -1501,6 +1534,7 @@ const ResumeEditorPage = () => {
             }}
           >
             <div
+              id="resume-print-parent"
               style={{
                 width: "794px",
                 minHeight: "1123px",
@@ -1601,6 +1635,19 @@ const ResumeEditorPage = () => {
                 }`}
               >
                 100%
+              </button>
+
+              <div className="w-px h-3.5 bg-gray-700" />
+
+              {/* Print Button */}
+              <button
+                type="button"
+                onClick={handleBrowserPrint}
+                title="Print Resume or Save as PDF (Ctrl+P)"
+                className="px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1 hover:bg-gray-800 text-gray-300 hover:text-white transition-all cursor-pointer"
+              >
+                <Printer className="w-3 h-3 text-blue-400" />
+                <span>Print</span>
               </button>
             </div>
           </div>
