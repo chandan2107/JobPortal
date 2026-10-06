@@ -1,34 +1,75 @@
-const { Resend } = require("resend");
+const https = require("https");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-const FROM_EMAIL = process.env.EMAIL_FROM || "Job Portal <onboarding@resend.dev>";
 const CLIENT_URL = (process.env.CLIENT_URL || "http://localhost:5173").replace(/\/+$/, "");
+const SENDER_EMAIL = process.env.EMAIL_USER || "chandunaik2107@gmail.com";
+const SENDER_NAME = "Job Portal";
 
 /**
- * Generic email sender using Resend (HTTPS, Port 443 - Never blocked on Render)
+ * Generic email sender using Brevo HTTPS REST API (Port 443 - Never blocked on Render)
  */
 const sendEmail = async ({ to, subject, html }) => {
-  try {
-    const recipients = Array.isArray(to) ? to : [to];
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: recipients,
-      subject,
-      html,
+  const apiKey = process.env.BREVO_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("BREVO_API_KEY is not configured in environment variables.");
+  }
+
+  const recipients = (Array.isArray(to) ? to : [to]).map((email) => ({ email }));
+
+  const payload = JSON.stringify({
+    sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+    to: recipients,
+    subject,
+    htmlContent: html,
+  });
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: "api.brevo.com",
+        path: "/v3/smtp/email",
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "api-key": apiKey,
+          "content-type": "application/json",
+          "content-length": Buffer.byteLength(payload),
+        },
+        timeout: 15000,
+      },
+      (res) => {
+        let body = "";
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            try {
+              const parsed = JSON.parse(body);
+              console.log(`✉️ [Brevo] Email sent to ${recipients.map((r) => r.email).join(", ")} | ID: ${parsed.messageId}`);
+              resolve(parsed);
+            } catch {
+              resolve({ success: true });
+            }
+          } else {
+            console.error(`❌ [Brevo] API Error (${res.statusCode}):`, body);
+            reject(new Error(`Brevo API Error (${res.statusCode}): ${body}`));
+          }
+        });
+      }
+    );
+
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Brevo API request timed out"));
     });
 
-    if (error) {
-      console.error("❌ Resend API error:", error);
-      throw new Error(error.message || "Failed to send email via Resend");
-    }
+    req.on("error", (err) => {
+      console.error("❌ [Brevo] Network error:", err.message);
+      reject(err);
+    });
 
-    console.log(`✉️ Email successfully sent to ${recipients.join(", ")} | ID: ${data?.id}`);
-    return data;
-  } catch (err) {
-    console.error("❌ Email sending failed:", err.message);
-    throw err;
-  }
+    req.write(payload);
+    req.end();
+  });
 };
 
 /**
