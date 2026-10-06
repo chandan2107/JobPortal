@@ -27,7 +27,7 @@ exports.adminLogin = (req, res) => {
   }
   const token = generateAdminToken();
   res.cookie("adminToken", token, adminCookieOptions);
-  res.json({ message: "Admin logged in", email: ADMIN_EMAIL });
+  res.json({ message: "Admin logged in", email: ADMIN_EMAIL, token });
 };
 
 /* ─────────────── Admin Logout ─────────────── */

@@ -11,6 +11,23 @@ const axiosInstance = axios.create({
   },
 });
 
+// Request Interceptor — attach Bearer token from localStorage & handle FormData
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // If uploading FormData, delete Content-Type so the browser sets the boundary correctly
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
+
+    const token = localStorage.getItem("token") || localStorage.getItem("adminToken");
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Response Interceptor — handle errors globally
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -36,10 +53,12 @@ axiosInstance.interceptors.response.use(
           currentPath === "/find-jobs" ||
           currentPath === "/ats-scanner" ||
           currentPath === "/ats-score" ||
+          currentPath.startsWith("/resume-builder") ||
           currentPath.startsWith("/job/");
 
         // Only redirect if this is an unauthorized request on a protected page
         if (!isPublicPage && !isAuthCheck) {
+          localStorage.removeItem("token");
           window.location.href = "/login";
         }
       } else if (error.response.status === 500) {

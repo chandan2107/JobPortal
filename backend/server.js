@@ -24,6 +24,8 @@ const { initializeCollections: initRAG } = require("./services/ragService");
 
 const app = express();
 
+// Trust reverse proxy (Render, Heroku, Cloudflare) for secure cookies and accurate IPs
+app.set("trust proxy", 1);
 
 // Middleware to handle CORS
 const allowedOrigins = [
@@ -47,8 +49,8 @@ app.use(
       return callback(null, true);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
   })
 );
 

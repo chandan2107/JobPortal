@@ -13,7 +13,8 @@ const cookieOptions = {
 
 // Generate token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JT_SECRET, { expiresIn: "60d" });
+  const secret = process.env.JT_SECRET || process.env.JWT_SECRET;
+  return jwt.sign({ id }, secret, { expiresIn: "60d" });
 };
 
 // Generate a 6-digit numeric OTP
@@ -41,6 +42,7 @@ exports.register = async (req, res) => {
       companyDescription: user.companyDescription || "",
       companyLogo: user.companyLogo || "",
       resume: user.resume || "",
+      token,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -126,6 +128,7 @@ exports.verifyOtp = async (req, res) => {
       companyDescription: user.companyDescription || "",
       companyLogo: user.companyLogo || "",
       resume: user.resume || "",
+      token,
     });
   } catch (err) {
     console.error("Verify OTP error:", err);

@@ -4,12 +4,16 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-// Optional auth: populate req.user if token cookie is present, but don't reject guests
+// Optional auth: populate req.user if token cookie or Bearer token is present, but don't reject guests
 const optionalProtect = async (req, res, next) => {
   try {
-    const token = req.cookies?.token;
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
     if (token) {
-      const decoded = jwt.verify(token, process.env.JT_SECRET);
+      const secret = process.env.JT_SECRET || process.env.JWT_SECRET;
+      const decoded = jwt.verify(token, secret);
       req.user = await User.findById(decoded.id).select("-password");
     }
   } catch (err) {

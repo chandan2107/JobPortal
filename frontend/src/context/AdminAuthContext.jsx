@@ -24,17 +24,24 @@ export const AdminAuthProvider = ({ children }) => {
       setAdminUser(res.data);
     } catch {
       setAdminUser(null);
+      localStorage.removeItem("adminToken");
     } finally {
       setAdminLoading(false);
     }
   };
 
-  const adminLogin = (data) => setAdminUser(data);
+  const adminLogin = (data) => {
+    if (data?.token) {
+      localStorage.setItem("adminToken", data.token);
+    }
+    setAdminUser(data);
+  };
 
   const adminLogout = async () => {
     try {
       await axiosInstance.post(API_PATHS.ADMIN.LOGOUT);
     } catch {}
+    localStorage.removeItem("adminToken");
     setAdminUser(null);
     window.location.href = "/";
   };
