@@ -67,8 +67,17 @@ exports.login = async (req, res) => {
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    // Send OTP email
-    await sendOtpEmail(user.email, otp);
+    console.log(`\n========================================\n🔑 [LOGIN OTP] For: ${user.email} -> CODE: ${otp}\n========================================\n`);
+
+    // Send OTP email (non-hanging)
+    try {
+      await sendOtpEmail(user.email, otp);
+    } catch (mailErr) {
+      console.error("❌ Failed to send OTP email via Gmail:", mailErr.message);
+      return res.status(500).json({
+        message: "Failed to send email OTP: " + (mailErr.message || "Email service unavailable. Please check your credentials or server logs."),
+      });
+    }
 
     res.json({
       message: "OTP sent to your email",
