@@ -85,6 +85,15 @@ app.use("/api/rag", ragRoutes);
 app.use("/api/ai", aiAssistantRoutes);
 app.use("/api/resumes", resumeRoutes);
 
+// Root health check endpoint
+app.get("/", (req, res) => {
+  res.json({
+    status: "healthy",
+    message: "🚀 Job Portal API server is up and running!",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 
 //serve uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {}));
