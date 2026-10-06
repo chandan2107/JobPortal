@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 const User = require("../models/User");
-const { sendOtpEmail } = require("../config/mailer");
+const { sendOtpEmail, sendAdminVerificationRequestEmail } = require("../config/mailer");
 
 // Cookie options
 const cookieOptions = {
@@ -172,36 +171,12 @@ exports.requestVerification = async (req, res) => {
     user.verificationNote = "";
     await user.save();
 
-    // Email admin
-    const adminTransporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    });
-
-    await adminTransporter.sendMail({
-      from: `"Job Portal" <${process.env.EMAIL_USER}>`,
-      to: "darkn8546@gmail.com",
-      subject: `🔔 New Verification Request — ${user.companyName}`,
-      html: `
-        <div style="font-family:'Segoe UI',sans-serif;max-width:540px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(99,102,241,.12)">
-          <div style="background:linear-gradient(135deg,#6366f1,#4f46e5);padding:36px 32px;text-align:center">
-            <h1 style="color:#fff;margin:0;font-size:22px">📋 New Verification Request</h1>
-          </div>
-          <div style="padding:32px">
-            <p style="color:#374151;font-size:15px">A new employer has requested company verification on Job Portal.</p>
-            <table style="width:100%;border-collapse:collapse;margin-top:16px">
-              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px;width:140px">Company Name</td><td style="padding:8px 0;color:#111827;font-weight:600;font-size:14px">${user.companyName}</td></tr>
-              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Employer Email</td><td style="padding:8px 0;color:#111827;font-weight:600;font-size:14px">${user.email}</td></tr>
-              <tr><td style="padding:8px 0;color:#6b7280;font-size:14px">Employer Name</td><td style="padding:8px 0;color:#111827;font-weight:600;font-size:14px">${user.name}</td></tr>
-            </table>
-            <a href="http://localhost:5173/admin-login" style="display:inline-block;margin-top:24px;padding:12px 28px;background:#6366f1;color:#fff;border-radius:10px;font-weight:600;text-decoration:none">Open Admin Panel →</a>
-          </div>
-          <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center">
-            <p style="color:#9ca3af;font-size:12px;margin:0">© ${new Date().getFullYear()} Job Portal</p>
-          </div>
-        </div>
-      `,
-    });
+    // Email admin using Resend
+    try {
+      await sendAdminVerificationRequestEmail(user);
+    } catch (mailErr) {
+      console.warn("⚠️ Failed to email admin verification request:", mailErr.message);
+    }
 
     res.json({
       message: "Verification request submitted. Admin will review within 24 hours.",

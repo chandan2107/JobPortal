@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const { sendOtpEmail } = require("../config/mailer");  // reuse the transporter
+const { sendApprovalEmail, sendRejectionEmail } = require("../config/mailer");
 
 /* ─────────────── Admin credentials (from .env) ─────────────── */
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
@@ -108,59 +108,3 @@ exports.rejectEmployer = async (req, res) => {
   }
 };
 
-/* ─────────────── Email Helpers ─────────────── */
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-});
-
-const sendApprovalEmail = async (to, companyName) => {
-  await transporter.sendMail({
-    from: `"Job Portal Admin" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "✅ Company Verification Approved — Job Portal",
-    html: `
-      <div style="font-family:'Segoe UI',sans-serif;max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(34,197,94,.12)">
-        <div style="background:linear-gradient(135deg,#22c55e,#16a34a);padding:36px 32px;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:22px">🎉 Verification Approved!</h1>
-        </div>
-        <div style="padding:32px">
-          <p style="color:#374151;font-size:15px">Great news! <strong>${companyName}</strong> has been <strong>verified</strong> on Job Portal.</p>
-          <p style="color:#374151;font-size:15px">You can now <strong>post jobs</strong> and start hiring talented professionals.</p>
-          <a href="http://localhost:5173/post-job" style="display:inline-block;margin-top:16px;padding:12px 28px;background:#22c55e;color:#fff;border-radius:10px;font-weight:600;text-decoration:none">Start Posting Jobs →</a>
-        </div>
-        <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center">
-          <p style="color:#9ca3af;font-size:12px;margin:0">© ${new Date().getFullYear()} Job Portal</p>
-        </div>
-      </div>
-    `,
-  });
-};
-
-const sendRejectionEmail = async (to, companyName, reason) => {
-  await transporter.sendMail({
-    from: `"Job Portal Admin" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "Company Verification Update — Job Portal",
-    html: `
-      <div style="font-family:'Segoe UI',sans-serif;max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(239,68,68,.10)">
-        <div style="background:linear-gradient(135deg,#ef4444,#dc2626);padding:36px 32px;text-align:center">
-          <h1 style="color:#fff;margin:0;font-size:22px">Verification Update</h1>
-        </div>
-        <div style="padding:32px">
-          <p style="color:#374151;font-size:15px">We have reviewed the verification request for <strong>${companyName}</strong>.</p>
-          <p style="color:#374151;font-size:15px">Unfortunately, we could not approve it at this time.</p>
-          <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;margin:16px 0">
-            <p style="color:#991b1b;font-size:14px;margin:0"><strong>Reason:</strong> ${reason}</p>
-          </div>
-          <p style="color:#374151;font-size:15px">Please update your company profile and request verification again.</p>
-        </div>
-        <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center">
-          <p style="color:#9ca3af;font-size:12px;margin:0">© ${new Date().getFullYear()} Job Portal</p>
-        </div>
-      </div>
-    `,
-  });
-};
