@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Urbanist', sans-serif;
+  --breakpoint-3xl: 1920px;
+  --color-primary: #00A7F3;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+
+  }
+
+  body {
+    background-color: #f7fafe;
+    overflow-x: hidden;
+  }
+}
+
+/* ── Remove scrollbar arrow buttons, keep slim scrollable line ── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 99px;
+  border: none;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* Remove the arrow buttons at both ends */
+*::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}

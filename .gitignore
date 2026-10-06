@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+**/dist/
+
+# Uploads & temporary files
+uploads/
+**/uploads/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# System & IDE files
+.DS_Store
+.vscode/
+.idea/
+*.swp
