@@ -66,6 +66,8 @@ const extractTextFromResumeUrl = (resumeUrl) => {
   });
 };
 
+const { scoreApplicationATS } = require("../services/atsScoringService");
+
 // POST /api/ats/score/:applicationId
 // Employer only — scores a resume against the job description using Gemini
 router.post("/score/:applicationId", protect, async (req, res) => {
@@ -74,121 +76,7 @@ router.post("/score/:applicationId", protect, async (req, res) => {
       return res.status(403).json({ message: "Only employers can request ATS scores." });
     }
 
-    const application = await Application.findById(req.params.applicationId)
-      .populate("applicant", "name resume")
-      .populate("job", "title description requirements");
-
-    if (!application) {
-      return res.status(404).json({ message: "Application not found." });
-    }
-
-    // If ATS score has already been generated and saved for this application,
-    // return the permanent stored result directly without calling Gemini again.
-    if (
-      application.atsResult &&
-      typeof application.atsResult === "object" &&
-      typeof application.atsResult.score === "number" &&
-      application.atsResult.summary
-    ) {
-      console.log(`[ATS] Returning existing saved score (${application.atsResult.score}%) for application ${req.params.applicationId}`);
-      return res.json(application.atsResult);
-    }
-
-    // Get the best available resume URL (prefer current profile)
-    const resumeUrl = [application.applicant?.resume, application.resume]
-      .find((u) => u && typeof u === "string" && !u.startsWith("blob:"));
-
-    if (!resumeUrl) {
-      return res.status(400).json({ message: "No valid resume found for this applicant." });
-    }
-
-    console.log(`[ATS] Scoring application ${req.params.applicationId} with resumeUrl: ${resumeUrl}`);
-    const job = application.job;
-
-    // Extract text from PDF
-    let resumeText;
-    try {
-      resumeText = await extractTextFromResumeUrl(resumeUrl);
-    } catch (err) {
-      console.error("[ATS] Extraction error:", err);
-      return res.status(502).json({ message: "Could not read resume PDF. " + err.message });
-    }
-
-    if (!resumeText || resumeText.length < 50) {
-      return res.status(400).json({ message: "Resume appears to be empty or unreadable." });
-    }
-
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "your_gemini_api_key_here") {
-      return res.status(400).json({ message: "Gemini API key is not configured. Please add GEMINI_API_KEY in backend/.env." });
-    }
-
-    // Call Gemini API (with fallback if custom modelName fails)
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const modelName = process.env.GEMINI_MODEL || "gemini-3.5-flash";
-
-    const prompt = `You are an expert ATS (Applicant Tracking System) resume evaluator.
-
-Analyze the following resume against the job description and requirements, then provide an ATS compatibility score.
-
----
-JOB TITLE: ${job.title}
-
-JOB DESCRIPTION:
-${job.description}
-
-JOB REQUIREMENTS:
-${job.requirements}
-
----
-RESUME TEXT:
-${resumeText.slice(0, 4000)}
-
----
-Respond ONLY with a valid JSON object in this exact format (no markdown, no explanation):
-{
-  "score": <number from 0 to 100>,
-  "label": "<Poor|Fair|Good|Excellent>",
-  "summary": "<1-2 sentence summary of the match>",
-  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
-  "gaps": ["<gap 1>", "<gap 2>"]
-}`;
-
-    let result;
-    try {
-      console.log(`[ATS] Requesting Gemini with model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      result = await model.generateContent(prompt);
-    } catch (modelErr) {
-      console.warn(`[ATS] Model "${modelName}" failed (${modelErr.message}), falling back to "gemini-3-flash-preview"...`);
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
-      result = await fallbackModel.generateContent(prompt);
-    }
-
-    const rawText = result.response.text().trim();
-
-    // Parse JSON from Gemini response
-    let scoreData;
-    try {
-      const jsonText = rawText.replace(/^```json?\n?/, "").replace(/\n?```$/, "").trim();
-      scoreData = JSON.parse(jsonText);
-    } catch (parseErr) {
-      console.error("[ATS] JSON parse error on Gemini output:", rawText);
-      return res.status(500).json({ message: "Failed to parse Gemini response.", raw: rawText });
-    }
-
-    if (!scoreData || typeof scoreData.score !== "number" || !scoreData.summary) {
-      return res.status(500).json({ message: "Gemini returned invalid response structure.", raw: rawText });
-    }
-
-    // Ensure score is clamped between 0 and 100
-    scoreData.score = Math.max(0, Math.min(100, Math.round(scoreData.score)));
-
-    // Save ATS Score and result details to database
-    application.atsScore = scoreData.score;
-    application.atsResult = scoreData;
-    await application.save();
-
-    console.log(`[ATS] Successfully scored and saved ${scoreData.score}% for application ${req.params.applicationId}`);
+    const scoreData = await scoreApplicationATS(req.params.applicationId);
     res.json(scoreData);
   } catch (err) {
     console.error("ATS Score Error:", err.message);

@@ -1,35 +1,49 @@
 const Job = require("../models/Job");
 const Application = require("../models/Application");
 const { sendApplicationStatusEmail } = require("../config/mailer");
+const { scoreApplicationATS } = require("../services/atsScoringService");
 
 // @desc Apply to a job
 exports.applyToJob = async (req, res) => {
   try {
     if (req.user.role !== "jobSeeker") {
-  return res.status(403).json({
-    message: "Only job seekers can apply",
-  });
-}
+      return res.status(403).json({
+        message: "Only job seekers can apply",
+      });
+    }
 
-const existing = await Application.findOne({
-  job: req.params.jobId,
-  applicant: req.user._id,
-});
+    const existing = await Application.findOne({
+      job: req.params.jobId,
+      applicant: req.user._id,
+    });
 
-if (existing) {
-  return res.status(400).json({
-    message: "Already applied to this job",
-  });
-}
+    if (existing) {
+      return res.status(400).json({
+        message: "Already applied to this job",
+      });
+    }
 
-const application = await Application.create({
-  job: req.params.jobId,
-  applicant: req.user._id,
-  resume: req.user.resume, // assuming resume is stored in user profile
-});
+    const resume = req.body?.resume || req.user.resume || "";
 
-res.status(201).json(application);
+    const application = await Application.create({
+      job: req.params.jobId,
+      applicant: req.user._id,
+      resume,
+    });
 
+    // Return immediate response to the applicant so submission is instant
+    res.status(201).json(application);
+
+    // Automatically score the application in the background (Zero Clicks for Employer)
+    if (resume) {
+      scoreApplicationATS(application._id)
+        .then((result) =>
+          console.log(`⚡ [Auto-ATS] New application ${application._id} scored: ${result.score}% (${result.label})`)
+        )
+        .catch((err) =>
+          console.warn(`⚠️ [Auto-ATS] Auto-scoring failed for ${application._id}:`, err.message)
+        );
+    }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -70,6 +84,13 @@ exports.getApplicantsForJob = async (req, res) => {
       .populate("job", "title location category type description requirements")
       .populate("applicant", "name email avatar resume");
 
+    // Automatically score any unscored applications in the background
+    applications.forEach((app) => {
+      if (!app.atsScore && (app.resume || app.applicant?.resume)) {
+        scoreApplicationATS(app._id).catch(() => {});
+      }
+    });
+
     res.json(applications);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -90,6 +111,13 @@ exports.getAllEmployerApplicants = async (req, res) => {
       .populate("job", "title location category type description requirements")
       .populate("applicant", "name email avatar resume")
       .sort({ createdAt: -1 });
+
+    // Automatically score any unscored applications in the background
+    applications.forEach((app) => {
+      if (!app.atsScore && (app.resume || app.applicant?.resume)) {
+        scoreApplicationATS(app._id).catch(() => {});
+      }
+    });
 
     res.json(applications);
   } catch (err) {
