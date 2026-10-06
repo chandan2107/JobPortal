@@ -18,6 +18,7 @@ import { validateEmail } from '../../utils/helper';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 /* ─────────────────────────────────────────────────────── */
 /*  Shared slide animation variants                         */
@@ -203,11 +204,19 @@ const Login = () => {
     if (!validateForm()) return;
     setFormState((prev) => ({ ...prev, loading: true, errors: {} }));
     try {
-      await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email: formData.email,
         password: formData.password,
       });
       setFormState((prev) => ({ ...prev, loading: false }));
+      if (response.data?.devOtp) {
+        toast(`Demo OTP: ${response.data.devOtp}`, {
+          icon: '🔑',
+          duration: 15000,
+        });
+        const digits = response.data.devOtp.toString().split('').slice(0, 6);
+        setOtp(digits);
+      }
       setStep('otp');
     } catch (error) {
       setFormState((prev) => ({

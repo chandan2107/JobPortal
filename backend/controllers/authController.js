@@ -69,19 +69,21 @@ exports.login = async (req, res) => {
 
     console.log(`\n========================================\n🔑 [LOGIN OTP] For: ${user.email} -> CODE: ${otp}\n========================================\n`);
 
-    // Send OTP email (non-hanging)
+    // Send OTP email (non-blocking fallback for cloud free tier)
+    let emailSent = true;
     try {
       await sendOtpEmail(user.email, otp);
     } catch (mailErr) {
-      console.error("❌ Failed to send OTP email via Gmail:", mailErr.message);
-      return res.status(500).json({
-        message: "Failed to send email OTP: " + (mailErr.message || "Email service unavailable. Please check your credentials or server logs."),
-      });
+      console.warn("⚠️ SMTP delivery failed (Render free tier blocks SMTP):", mailErr.message);
+      emailSent = false;
     }
 
     res.json({
-      message: "OTP sent to your email",
+      message: emailSent
+        ? "OTP sent to your email"
+        : "OTP generated! (Email delivery blocked by cloud host - use OTP shown)",
       email: user.email,
+      ...(!emailSent ? { devOtp: otp } : {}),
     });
   } catch (err) {
     console.error("Login error:", err);
