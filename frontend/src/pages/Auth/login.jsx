@@ -209,14 +209,6 @@ const Login = () => {
         password: formData.password,
       });
       setFormState((prev) => ({ ...prev, loading: false }));
-      if (response.data?.devOtp) {
-        toast(`Demo OTP: ${response.data.devOtp}`, {
-          icon: '🔑',
-          duration: 15000,
-        });
-        const digits = response.data.devOtp.toString().split('').slice(0, 6);
-        setOtp(digits);
-      }
       setStep('otp');
     } catch (error) {
       setFormState((prev) => ({

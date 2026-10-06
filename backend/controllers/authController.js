@@ -66,23 +66,12 @@ exports.login = async (req, res) => {
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    console.log(`\n========================================\n🔑 [LOGIN OTP] For: ${user.email} -> CODE: ${otp}\n========================================\n`);
-
-    // Send OTP email (non-blocking fallback for cloud free tier)
-    let emailSent = true;
-    try {
-      await sendOtpEmail(user.email, otp);
-    } catch (mailErr) {
-      console.warn("⚠️ SMTP delivery failed (Render free tier blocks SMTP):", mailErr.message);
-      emailSent = false;
-    }
+    // Send OTP email via Resend
+    await sendOtpEmail(user.email, otp);
 
     res.json({
-      message: emailSent
-        ? "OTP sent to your email"
-        : "OTP generated! (Email delivery blocked by cloud host - use OTP shown)",
+      message: "OTP sent to your email",
       email: user.email,
-      ...(!emailSent ? { devOtp: otp } : {}),
     });
   } catch (err) {
     console.error("Login error:", err);
