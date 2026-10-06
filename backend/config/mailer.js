@@ -209,9 +209,139 @@ const sendRejectionEmail = async (to, companyName, reason) => {
     </div>
   `;
 
-  return sendEmail({
+    return sendEmail({
     to,
     subject: "Update Regarding Your Company Verification — Job Portal",
+    html,
+  });
+};
+
+/**
+ * Send applicant status change email notification via Brevo
+ */
+const sendApplicationStatusEmail = async ({
+  to,
+  applicantName,
+  jobTitle,
+  companyName,
+  newStatus,
+}) => {
+  if (!to) return;
+
+  const statusThemes = {
+    "In Review": {
+      title: "👀 Application In Review",
+      color1: "#3b82f6",
+      color2: "#2563eb",
+      badge: "In Review",
+      badgeBg: "#dbeafe",
+      badgeColor: "#1d4ed8",
+      message: `Great news! The hiring team at <strong>${companyName}</strong> is actively reviewing your application for the <strong>${jobTitle}</strong> position.`,
+      nextSteps: "We will notify you as soon as there are further updates on your candidacy.",
+    },
+    Shortlisted: {
+      title: "⭐ You've Been Shortlisted!",
+      color1: "#8b5cf6",
+      color2: "#6d28d9",
+      badge: "Shortlisted",
+      badgeBg: "#ede9fe",
+      badgeColor: "#5b21b6",
+      message: `Congratulations! Your profile has impressed the recruiting team at <strong>${companyName}</strong>, and you have been <strong>shortlisted</strong> for <strong>${jobTitle}</strong>!`,
+      nextSteps: "The hiring manager will reach out shortly regarding the next round of evaluations.",
+    },
+    Interview: {
+      title: "🎙️ Interview Stage",
+      color1: "#f59e0b",
+      color2: "#d97706",
+      badge: "Interviewing",
+      badgeBg: "#fef3c7",
+      badgeColor: "#92400e",
+      message: `Exciting news! <strong>${companyName}</strong> would like to invite you to an interview for the <strong>${jobTitle}</strong> position.`,
+      nextSteps: "Please keep an eye on your inbox for meeting invites, interview links, or scheduling times.",
+    },
+    Accepted: {
+      title: "🎉 Application Accepted / Offer!",
+      color1: "#10b981",
+      color2: "#059669",
+      badge: "Accepted",
+      badgeBg: "#d1fae5",
+      badgeColor: "#065f46",
+      message: `Fantastic news! <strong>${companyName}</strong> has accepted your application for the <strong>${jobTitle}</strong> position!`,
+      nextSteps: "The team will contact you directly with offer and onboarding instructions.",
+    },
+    Rejected: {
+      title: "Application Status Update",
+      color1: "#6b7280",
+      color2: "#4b5563",
+      badge: "Not Selected",
+      badgeBg: "#f3f4f6",
+      badgeColor: "#374151",
+      message: `Thank you for your interest and the time you invested in applying for <strong>${jobTitle}</strong> at <strong>${companyName}</strong>. After careful review, the team has decided to proceed with other candidates whose profiles align more closely with current requirements.`,
+      nextSteps: "We encourage you to explore other open opportunities on Job Portal that match your skillset.",
+    },
+  };
+
+  const theme = statusThemes[newStatus] || statusThemes["In Review"];
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body { margin: 0; padding: 0; background: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+          .wrapper { max-width: 540px; margin: 36px auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+          .header { background: linear-gradient(135deg, ${theme.color1} 0%, ${theme.color2} 100%); padding: 36px 32px 28px; text-align: center; }
+          .header h1 { color: #fff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+          .body { padding: 32px; }
+          .badge { display: inline-block; padding: 6px 14px; border-radius: 9999px; background: ${theme.badgeBg}; color: ${theme.badgeColor}; font-weight: 700; font-size: 13px; margin-bottom: 20px; }
+          .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin: 20px 0; }
+          .btn { display: inline-block; background: ${theme.color1}; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-weight: 600; font-size: 14px; margin-top: 12px; }
+          .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 32px; text-align: center; font-size: 12px; color: #94a3b8; }
+        </style>
+      </head>
+      <body>
+        <div class="wrapper">
+          <div class="header">
+            <h1>${theme.title}</h1>
+          </div>
+          <div class="body">
+            <span class="badge">Status: ${theme.badge}</span>
+            <p style="color: #334155; font-size: 15px; margin: 0 0 14px;">Hi <strong>${applicantName}</strong>,</p>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">${theme.message}</p>
+            
+            <div class="details-card">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="color: #64748b; font-size: 13px; padding: 6px 0;">Position:</td>
+                  <td style="color: #0f172a; font-weight: 600; font-size: 13px; text-align: right; padding: 6px 0;">${jobTitle}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b; font-size: 13px; padding: 6px 0;">Company:</td>
+                  <td style="color: #0f172a; font-weight: 600; font-size: 13px; text-align: right; padding: 6px 0;">${companyName}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b; font-size: 13px; padding: 6px 0;">New Status:</td>
+                  <td style="color: ${theme.badgeColor}; font-weight: 700; font-size: 13px; text-align: right; padding: 6px 0;">${newStatus}</td>
+                </tr>
+              </table>
+            </div>
+
+            <p style="color: #64748b; font-size: 13px; line-height: 1.5; margin: 16px 0 20px;">${theme.nextSteps}</p>
+
+            <a href="${CLIENT_URL}/profile" class="btn">View Application Details →</a>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Job Portal. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Application Update: ${jobTitle} at ${companyName} (${newStatus})`,
     html,
   });
 };
@@ -222,4 +352,5 @@ module.exports = {
   sendAdminVerificationRequestEmail,
   sendApprovalEmail,
   sendRejectionEmail,
+  sendApplicationStatusEmail,
 };

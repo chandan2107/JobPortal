@@ -10,8 +10,10 @@ import StatusBadge from "../layout/StatusBadge";
 const statusOptions = [
   { value: "Applied", label: "Applied", color: "bg-gray-100 text-gray-700" },
   { value: "In Review", label: "In Review", color: "bg-blue-50 text-blue-700" },
-  { value: "Rejected", label: "Rejected", color: "bg-red-50 text-red-700" },
+  { value: "Shortlisted", label: "Shortlisted", color: "bg-purple-50 text-purple-700" },
+  { value: "Interview", label: "Interview", color: "bg-yellow-50 text-yellow-700" },
   { value: "Accepted", label: "Accepted", color: "bg-green-50 text-green-700" },
+  { value: "Rejected", label: "Rejected", color: "bg-red-50 text-red-700" },
 ];
 
 const ApplicantProfilePreview = ({

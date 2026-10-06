@@ -1,5 +1,6 @@
 const Job = require("../models/Job");
 const Application = require("../models/Application");
+const { sendApplicationStatusEmail } = require("../config/mailer");
 
 // @desc Apply to a job
 exports.applyToJob = async (req, res) => {
@@ -128,25 +129,46 @@ res.json(app);
 };
 
 //@desc update application status (employer)
-
 exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-const app = await Application.findById(req.params.id).populate("job");
+    const app = await Application.findById(req.params.id)
+      .populate("job")
+      .populate("applicant", "name email avatar");
 
-if (!app || app.job.company.toString() !== req.user._id.toString()) {
-  return res.status(403).json({
-    message: "Not authorized to update this application",
-  });
-}
+    if (!app || app.job.company.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized to update this application",
+      });
+    }
 
-app.status = status;
-await app.save();
+    const previousStatus = app.status;
+    app.status = status;
+    await app.save();
 
-res.json({
-  message: "Application status updated", status });
+    // Trigger Brevo email notification to candidate asynchronously
+    if (previousStatus !== status && app.applicant?.email) {
+      try {
+        const companyName = req.user.companyName || req.user.name || "The Hiring Team";
+        await sendApplicationStatusEmail({
+          to: app.applicant.email,
+          applicantName: app.applicant.name || "Candidate",
+          jobTitle: app.job?.title || "your applied role",
+          companyName,
+          newStatus: status,
+        });
+        console.log(`✉️ [Brevo] Status email sent to ${app.applicant.email} -> ${status}`);
+      } catch (mailErr) {
+        console.warn("⚠️ Failed to send applicant status email:", mailErr.message);
+      }
+    }
 
+    res.json({
+      message: "Application status updated",
+      status: app.status,
+      application: app,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

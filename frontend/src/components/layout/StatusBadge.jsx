@@ -5,6 +5,9 @@ const statusConfig = {
   "In Review": {
     bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", dot: "bg-blue-500",
   },
+  Shortlisted: {
+    bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-500",
+  },
   Interview: {
     bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-100", dot: "bg-yellow-400",
   },

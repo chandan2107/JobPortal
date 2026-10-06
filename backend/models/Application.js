@@ -7,7 +7,7 @@ const applicationSchema = new mongoose.Schema(
         resume: {type: String},
         status: {
             type: String,
-            enum:["Applied","In Review", "Rejected", "Accepted"],
+            enum: ["Applied", "In Review", "Shortlisted", "Interview", "Accepted", "Rejected"],
             default: "Applied",
         },
         atsScore: { type: Number, default: null },
