@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { CATEGORIES, JOB_TYPES } from "../../../utils/data";
-import SalaryRangeSlider from "../../../components/Input/SalaryRangeSlider";
+import SalaryRangeSlider from "../../../components/input/SalaryRangeSlider";
 
 // Simple reusable section component
 const FilterSection = ({ title, children, isExpanded, onToggle }) => {
