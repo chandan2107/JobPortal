@@ -168,7 +168,7 @@ const TemplateMono = ({ data }) => {
       <div className="border-b border-neutral-300 pb-5 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
           <div>
-            <span className="text-[11px] text-neutral-400 font-normal">// RESUME / CURRICULUM VITAE</span>
+            
             <h1 className="text-3xl font-bold tracking-tight text-neutral-950 mt-1">
               {fullName || "Your Name"}
             </h1>

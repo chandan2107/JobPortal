@@ -1,57 +1,6 @@
-const https = require("https");
-const http = require("http");
-const pdfParseModule = require("pdf-parse");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Application = require("../models/Application");
-
-// Helper to parse PDF buffer supporting both pdf-parse v1 and v2
-const parsePdfBuffer = async (buffer) => {
-  if (typeof pdfParseModule === "function") {
-    const data = await pdfParseModule(buffer);
-    return typeof data === "string" ? data : data.text || "";
-  } else if (pdfParseModule && typeof pdfParseModule.PDFParse === "function") {
-    const parser = new pdfParseModule.PDFParse({ data: buffer });
-    const result = await parser.getText();
-    return typeof result === "string" ? result : result.text || "";
-  } else {
-    throw new Error("PDF parser module not recognized.");
-  }
-};
-
-// Helper: fetch PDF from Cloudinary / direct URL and extract text
-const extractTextFromResumeUrl = (resumeUrl) => {
-  return new Promise((resolve, reject) => {
-    const targetUrl = resumeUrl.includes("cloudinary.com")
-      ? `http://localhost:${process.env.PORT || 8000}/api/auth/proxy-resume?url=${encodeURIComponent(resumeUrl)}`
-      : resumeUrl;
-
-    const client = targetUrl.startsWith("https") ? https : http;
-
-    client.get(targetUrl, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return resolve(extractTextFromResumeUrl(res.headers.location));
-      }
-
-      if (res.statusCode !== 200) {
-        return reject(new Error(`Failed to fetch resume: HTTP ${res.statusCode}`));
-      }
-
-      const chunks = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", async () => {
-        try {
-          const buffer = Buffer.concat(chunks);
-          const extractedText = await parsePdfBuffer(buffer);
-          resolve(extractedText.trim());
-        } catch (err) {
-          reject(new Error("Failed to parse PDF: " + err.message));
-        }
-      });
-    }).on("error", (err) => {
-      reject(err);
-    });
-  });
-};
+const { extractTextFromResumeUrl } = require("../routes/atsHelpers");
 
 /**
  * Score an application using Gemini ATS evaluation and persist to MongoDB
@@ -101,13 +50,16 @@ const scoreApplicationATS = async (applicationId) => {
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const preferredModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+  const preferredModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const modelCandidates = [
     preferredModel,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-3.1-flash-lite",
     "gemini-3.5-flash",
     "gemini-3-flash-preview",
     "gemini-flash-latest",
-    "gemini-3.1-flash-lite",
+    "gemini-1.5-flash",
   ];
   const uniqueModels = [...new Set(modelCandidates)];
 

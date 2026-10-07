@@ -39,8 +39,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const clearResumeStorage = () => {
+    try {
+      localStorage.removeItem("resumes");
+      localStorage.removeItem("resumes_guest");
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("resumes_") || key === "resumes") {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
   // Called after successful login/register
   const login = (userData) => {
+    clearResumeStorage();
     if (userData?.token) {
       localStorage.setItem("token", userData.token);
     }
@@ -55,6 +70,7 @@ export const AuthProvider = ({ children }) => {
     } catch {
       // Ignore errors — clear local state regardless
     } finally {
+      clearResumeStorage();
       localStorage.removeItem("token");
       setUser(null);
       setIsAuthenticated(false);

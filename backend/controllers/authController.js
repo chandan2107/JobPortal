@@ -128,7 +128,6 @@ exports.verifyOtp = async (req, res) => {
       companyDescription: user.companyDescription || "",
       companyLogo: user.companyLogo || "",
       resume: user.resume || "",
-      token,
     });
   } catch (err) {
     console.error("Verify OTP error:", err);

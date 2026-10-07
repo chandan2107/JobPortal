@@ -29,7 +29,37 @@ exports.updateProfile = async (req, res) => {
 
     if (name !== undefined) user.name = name;
     if (avatar !== undefined) user.avatar = avatar;
-    if (resume !== undefined) user.resume = resume;
+    if (resume !== undefined) {
+      const isNewResume = Boolean(resume && resume !== user.resume);
+      user.resume = resume;
+
+      if (isNewResume) {
+        try {
+          const { analyzeResumeFromUrl } = require("../routes/atsHelpers");
+          const analysis = await analyzeResumeFromUrl(resume);
+          if (analysis.text) user.resumeExtractedText = analysis.text;
+          if (analysis.skills && analysis.skills.length > 0) {
+            user.resumeSkills = analysis.skills;
+            // Merge extracted skills into profile skills if not already present
+            const currentLower = new Set((user.skills || []).map((s) => s.toLowerCase()));
+            const merged = [...(user.skills || [])];
+            analysis.skills.forEach((s) => {
+              if (!currentLower.has(s.toLowerCase())) {
+                merged.push(s);
+                currentLower.add(s.toLowerCase());
+              }
+            });
+            user.skills = merged;
+          }
+          if (analysis.headline) {
+            user.resumeHeadline = analysis.headline;
+            if (!user.jobTitle) user.jobTitle = analysis.headline;
+          }
+        } catch (resumeErr) {
+          console.warn("[User Profile] Resume analysis upon upload warning:", resumeErr.message);
+        }
+      }
+    }
 
     // Career profile fields (for jobSeeker and general users)
     if (jobTitle !== undefined) user.jobTitle = jobTitle;
@@ -74,6 +104,8 @@ exports.updateProfile = async (req, res) => {
       linkedin: user.linkedin || "",
       github: user.github || "",
       website: user.website || "",
+      resumeSkills: user.resumeSkills || [],
+      resumeHeadline: user.resumeHeadline || "",
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -105,6 +137,9 @@ exports.deleteResume = async (req, res) => {
     }
 
     user.resume = "";
+    user.resumeExtractedText = "";
+    user.resumeSkills = [];
+    user.resumeHeadline = "";
     await user.save();
 
     res.json({ message: "Resume deleted successfully" });

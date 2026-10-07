@@ -2,6 +2,7 @@ const Job = require("../models/Job");
 const User = require("../models/User");
 const Application = require("../models/Application");
 const SavedJob = require("../models/Saved");
+const { analyzeResumeFromUrl, calculateJobMatch } = require("../routes/atsHelpers");
 
 // @desc Create a new job (Employer only)
 exports.createJob = async (req, res) => {
@@ -271,6 +272,127 @@ res.json({
 });
 
   } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc Get recommended jobs based on candidate's uploaded resume / profile skills
+exports.getRecommendedJobs = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "jobSeeker" && user.role !== "jobseeker") {
+      return res.status(403).json({ message: "Only job seekers can view recommended jobs" });
+    }
+
+    // If user has a resume URL but resume hasn't been parsed yet, parse it now
+    if (user.resume && (!user.resumeExtractedText || !user.resumeSkills || user.resumeSkills.length === 0)) {
+      try {
+        console.log(`[Job Recommendations] Parsing resume on-the-fly for user ${user._id}`);
+        const analysis = await analyzeResumeFromUrl(user.resume);
+        if (analysis.text) user.resumeExtractedText = analysis.text;
+        if (analysis.skills && analysis.skills.length > 0) {
+          user.resumeSkills = analysis.skills;
+          const currentLower = new Set((user.skills || []).map((s) => s.toLowerCase()));
+          const merged = [...(user.skills || [])];
+          analysis.skills.forEach((s) => {
+            if (!currentLower.has(s.toLowerCase())) {
+              merged.push(s);
+              currentLower.add(s.toLowerCase());
+            }
+          });
+          user.skills = merged;
+        }
+        if (analysis.headline) {
+          user.resumeHeadline = analysis.headline;
+          if (!user.jobTitle) user.jobTitle = analysis.headline;
+        }
+        await user.save();
+      } catch (parseErr) {
+        console.warn("[Job Recommendations] Resume parsing warning:", parseErr.message);
+      }
+    }
+
+    const candidateSkills = [
+      ...new Set([
+        ...(user.resumeSkills || []),
+        ...(user.skills || []),
+      ]),
+    ];
+    const candidateHeadline = user.resumeHeadline || user.jobTitle || "Developer";
+
+    // If user has no resume and no skills
+    if (!user.resume && candidateSkills.length === 0) {
+      return res.json({
+        hasResume: false,
+        resumeUrl: "",
+        resumeHeadline: "",
+        resumeSkills: [],
+        recommendedJobs: [],
+        message: "Upload your resume in Profile to receive tailored job recommendations.",
+      });
+    }
+
+    // Fetch all active open jobs
+    const jobs = await Job.find({ isClosed: false }).populate(
+      "company",
+      "name companyName companyLogo"
+    );
+
+    // Fetch user's saved and applied jobs for UI state
+    const savedJobs = await SavedJob.find({ jobSeeker: userId }).select("job");
+    const savedJobIds = savedJobs.map((s) => String(s.job));
+
+    const applications = await Application.find({ applicant: userId });
+    const appliedJobStatusMap = {};
+    applications.forEach((app) => {
+      appliedJobStatusMap[String(app.job)] = app.status;
+    });
+
+    // Score and annotate every active job
+    const scoredJobs = jobs.map((job) => {
+      const match = calculateJobMatch(
+        job,
+        candidateSkills,
+        candidateHeadline,
+        user.resumeExtractedText || ""
+      );
+      const jobIdStr = String(job._id);
+
+      return {
+        ...job.toObject(),
+        matchScore: match.matchScore,
+        matchedSkills: match.matchedSkills,
+        missingSkills: match.missingSkills,
+        matchBadge: match.matchBadge,
+        matchReason: match.matchReason,
+        isSaved: savedJobIds.includes(jobIdStr),
+        applicationStatus: appliedJobStatusMap[jobIdStr] || null,
+      };
+    });
+
+    // Sort by match score descending
+    scoredJobs.sort((a, b) => b.matchScore - a.matchScore);
+
+    // Filter to top matches (score >= 30, or at least top 6 if available)
+    const filteredRecommendations = scoredJobs.filter((j) => j.matchScore >= 30);
+    const topRecommended = (filteredRecommendations.length > 0 ? filteredRecommendations : scoredJobs).slice(0, 10);
+
+    res.json({
+      hasResume: Boolean(user.resume),
+      resumeUrl: user.resume || "",
+      resumeHeadline: candidateHeadline,
+      resumeSkills: candidateSkills,
+      recommendedJobs: topRecommended,
+      totalRecommended: topRecommended.length,
+    });
+  } catch (err) {
+    console.error("[Job Recommendations] Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 };

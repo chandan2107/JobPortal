@@ -118,7 +118,12 @@ exports.updateResume = async (req, res) => {
     const updateFields = req.body;
 
     if (!resume) {
-      // Upsert if client is saving a newly created customId resume
+      // If the ID is a MongoDB ObjectId that belongs to another user (or nonexistent), reject with 404
+      if (isValidObjectId(id)) {
+        return res.status(404).json({ message: "Resume not found or unauthorized" });
+      }
+
+      // Upsert only if client is saving a newly created customId resume
       const targetCustomId = updateFields.customId || updateFields.id || id;
       resume = new Resume({
         user: req.user._id,

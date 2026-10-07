@@ -31,32 +31,36 @@ const TEMPLATE_NAMES = {
 
 const ResumeListPage = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const userId = user?._id || user?.id;
+  const userStorageKey = userId ? `resumes_${userId}` : "resumes_guest";
+
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showSampleModal, setShowSampleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
-  // Load resumes from Cloud (MongoDB) or LocalStorage
+  // Clean legacy shared key on mount
   useEffect(() => {
+    try {
+      localStorage.removeItem("resumes");
+    } catch {}
+  }, []);
+
+  // Load resumes: from Cloud (MongoDB) for logged-in user, or local cache for guest
+  useEffect(() => {
+    if (authLoading) return; // Wait until auth state is resolved to prevent cross-account leaks
+
     const fetchResumes = async () => {
       setLoading(true);
-      const localStored = JSON.parse(localStorage.getItem("resumes") || "[]");
+      const localStored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
 
-      if (isAuthenticated && user) {
+      if (isAuthenticated && userId) {
         try {
-          let cloudData = [];
-          if (localStored.length > 0) {
-            // One-time sync/migration from localStorage to MongoDB
-            const syncRes = await axiosInstance.post(API_PATHS.RESUMES.SYNC, {
-              localResumes: localStored,
-            });
-            cloudData = syncRes.data || [];
-          } else {
-            const res = await axiosInstance.get(API_PATHS.RESUMES.GET_ALL);
-            cloudData = res.data || [];
-          }
+          // Strictly fetch resumes belonging to this authenticated user
+          const res = await axiosInstance.get(API_PATHS.RESUMES.GET_ALL);
+          const cloudData = res.data || [];
 
           // Format cloud data
           const formatted = cloudData.map((r) => ({
@@ -67,14 +71,14 @@ const ResumeListPage = () => {
           // Sort newest first
           formatted.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
           setResumes(formatted);
-          localStorage.setItem("resumes", JSON.stringify(formatted));
+          localStorage.setItem(userStorageKey, JSON.stringify(formatted));
         } catch (err) {
-          console.warn("[ResumeList] Cloud fetch error, using local fallback:", err);
+          console.warn("[ResumeList] Cloud fetch error, using user local fallback:", err);
           localStored.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
           setResumes(localStored);
         }
       } else {
-        // Guest mode
+        // Guest mode - scoped only to guest storage
         localStored.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
         setResumes(localStored);
       }
@@ -83,7 +87,7 @@ const ResumeListPage = () => {
     };
 
     fetchResumes();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, userId, authLoading, userStorageKey]);
 
   const createResume = async () => {
     const id = `resume_${Date.now()}`;
@@ -111,12 +115,12 @@ const ResumeListPage = () => {
       updatedAt: new Date().toISOString(),
     };
 
-    // Save to local cache first
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    // Save to user-scoped local cache first
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     stored.unshift(newResume);
-    localStorage.setItem("resumes", JSON.stringify(stored));
+    localStorage.setItem(userStorageKey, JSON.stringify(stored));
 
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       try {
         await axiosInstance.post(API_PATHS.RESUMES.CREATE, newResume);
       } catch (err) {
@@ -137,11 +141,11 @@ const ResumeListPage = () => {
       updatedAt: new Date().toISOString(),
     };
 
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     stored.unshift(newResume);
-    localStorage.setItem("resumes", JSON.stringify(stored));
+    localStorage.setItem(userStorageKey, JSON.stringify(stored));
 
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       try {
         await axiosInstance.post(API_PATHS.RESUMES.CREATE, newResume);
       } catch (err) {
@@ -171,17 +175,17 @@ const ResumeListPage = () => {
       updatedAt: new Date().toISOString(),
     };
 
-    // 1. Update local cache
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    // 1. Update user-scoped local cache
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     stored.unshift(clonedResume);
-    localStorage.setItem("resumes", JSON.stringify(stored));
+    localStorage.setItem(userStorageKey, JSON.stringify(stored));
 
     // 2. Update state immediately
     setResumes((prev) => [clonedResume, ...prev]);
     toast.success(`Duplicated "${newTitle}"!`);
 
     // 3. Persist to MongoDB cloud
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       try {
         const res = await axiosInstance.post(API_PATHS.RESUMES.CREATE, clonedResume);
         if (res.data?._id) {
@@ -196,13 +200,13 @@ const ResumeListPage = () => {
   const deleteResume = async (e, id) => {
     e.stopPropagation();
 
-    // Local remove
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    // Local remove from user-scoped storage
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     const updated = stored.filter(r => (r.id !== id && r.customId !== id && r._id !== id));
-    localStorage.setItem("resumes", JSON.stringify(updated));
+    localStorage.setItem(userStorageKey, JSON.stringify(updated));
     setResumes(updated);
 
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       try {
         await axiosInstance.delete(API_PATHS.RESUMES.DELETE(id));
       } catch (err) {
@@ -292,7 +296,7 @@ const ResumeListPage = () => {
 
       {/* ── Body ── */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
-        {loading ? (
+        {(loading || authLoading) ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-3" />
             <p className="text-sm font-bold text-gray-600">Loading your resumes from cloud...</p>

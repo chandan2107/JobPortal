@@ -18,6 +18,10 @@ skills: { type: [String], default: [] },
 linkedin: { type: String, default: "" },
 github: { type: String, default: "" },
 website: { type: String, default: "" },
+// Resume analysis & recommendation metadata
+resumeExtractedText: { type: String, default: "" },
+resumeSkills: { type: [String], default: [] },
+resumeHeadline: { type: String, default: "" },
 // for employer
 companyName: String,
 companyDescription: String,

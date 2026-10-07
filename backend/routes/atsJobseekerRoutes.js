@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { protect } = require("../middleware/authMiddleware");
-const { parsePdfBuffer } = require("./atsHelpers");
+const { extractTextFromPdfBuffer } = require("./atsHelpers");
 const ragService = require("../services/ragService");
 
 const router = express.Router();
@@ -53,13 +53,16 @@ const getGeminiResult = async (prompt) => {
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const preferredModel = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
+  const preferredModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const modelCandidates = [
     preferredModel,
-    "gemini-3-flash-preview",
-    "gemini-3.5-flash",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
     "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
     "gemini-flash-latest",
+    "gemini-1.5-flash",
   ];
 
   // Deduplicate candidate models
@@ -101,17 +104,12 @@ router.post("/jobseeker/scan", protect, upload.single("resume"), async (req, res
       return res.status(400).json({ message: "Please provide a job description (at least 20 characters)." });
     }
 
-    // Extract text from uploaded PDF
+    // Extract text from uploaded PDF (with universal pdf-parse + Gemini OCR fallback)
     const pdfBuffer = fs.readFileSync(filePath);
-    let resumeText;
-    try {
-      resumeText = await parsePdfBuffer(pdfBuffer);
-    } catch (err) {
-      return res.status(400).json({ message: "Could not read the uploaded PDF. It may be corrupted or image-based." });
-    }
+    let resumeText = await extractTextFromPdfBuffer(pdfBuffer);
 
     if (!resumeText || resumeText.trim().length < 50) {
-      return res.status(400).json({ message: "Resume appears empty or unreadable. Ensure it contains selectable text." });
+      return res.status(400).json({ message: "Resume appears empty or unreadable. Ensure it contains readable text." });
     }
 
     console.log(`[ATS-Seeker] Scanning resume (${resumeText.length} chars) against JD (${jobDescription.length} chars) for user ${req.user._id}`);

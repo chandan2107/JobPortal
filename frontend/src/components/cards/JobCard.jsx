@@ -1,4 +1,4 @@
-import { Bookmark, Building, Building2, Calendar, MapPin } from "lucide-react";
+import { Bookmark, Building, Building2, Calendar, MapPin, Sparkles, CheckCircle2 } from "lucide-react";
 import moment from "moment";
 import { useAuth } from "../../context/AuthContext";
 import StatusBadge from "../layout/StatusBadge";
@@ -24,52 +24,83 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-400 transition-all cursor-pointer relative group" onClick={onClick}>
-      {/* Company Logo / Fallback */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center flex-1">
-          {job?.company?.companyLogo ? (
-            <img
-              src={job?.company?.companyLogo}
-              alt="Company Logo"
-              className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1"
-            />
-          ) : (
-            <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 p-1">
-              <Building2 className="w-6 h-6 text-gray-400" />
-            </div>
-          )}
+    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-400 transition-all cursor-pointer relative group flex flex-col justify-between" onClick={onClick}>
+      <div>
+        {/* AI Resume Match Badge */}
+        {job?.matchScore != null && (
+          <div className="mb-3.5 inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 px-3 py-1 rounded-xl self-start">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600 animate-pulse flex-shrink-0" />
+            <span className="text-xs font-bold text-purple-700">{job.matchScore}% Match</span>
+            <span className="text-[10px] font-semibold text-purple-500 hidden sm:inline">• {job.matchBadge || "AI Recommended"}</span>
+          </div>
+        )}
 
-          {/* Title & Company */}
-          <div className="ml-4">
-            <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{job?.title}</h3>
-            <p className="flex items-center text-sm text-gray-600 mt-1">
-              <Building className="w-4 h-4 mr-1" />
-              {job?.company?.companyName}
-            </p>
+        {/* Company Logo / Fallback */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center flex-1 pr-8">
+            {job?.company?.companyLogo ? (
+              <img
+                src={job?.company?.companyLogo}
+                alt="Company Logo"
+                className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 flex-shrink-0"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 p-1 flex-shrink-0">
+                <Building2 className="w-6 h-6 text-gray-400" />
+              </div>
+            )}
+
+            {/* Title & Company */}
+            <div className="ml-4 min-w-0">
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{job?.title}</h3>
+              <p className="flex items-center text-sm text-gray-600 mt-1 truncate">
+                <Building className="w-4 h-4 mr-1 flex-shrink-0" />
+                <span className="truncate">{job?.company?.companyName}</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Save Button */}
-      {user && (
-        <button
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-50 transition-colors"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSave();
-          }}
-        >
-          <Bookmark
-            className={`w-5 h-5 transition-colors ${
-              job?.isSaved || saved ? "text-blue-600 fill-blue-600" : "text-gray-400 hover:text-blue-600"
-            }`}
-          />
-        </button>
-      )}
+        {/* Save Button */}
+        {user && (
+          <button
+            className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-50 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSave();
+            }}
+          >
+            <Bookmark
+              className={`w-5 h-5 transition-colors ${
+                job?.isSaved || saved ? "text-blue-600 fill-blue-600" : "text-gray-400 hover:text-blue-600"
+              }`}
+            />
+          </button>
+        )}
 
-      {/* Location, Type, Category */}
-      <div className="flex flex-wrap gap-2 mb-4">
+        {/* Matched Skills Chips */}
+        {job?.matchedSkills && job.matchedSkills.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
+            <span className="text-[10px] font-bold text-purple-700 bg-purple-100/70 px-1.5 py-0.5 rounded">Matching:</span>
+            {job.matchedSkills.slice(0, 3).map((skill, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md"
+              >
+                <CheckCircle2 className="w-2.5 h-2.5 text-purple-600 flex-shrink-0" />
+                {skill}
+              </span>
+            ))}
+            {job.matchedSkills.length > 3 && (
+              <span className="text-[10px] font-semibold text-gray-400">
+                +{job.matchedSkills.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Location, Type, Category */}
+        <div className="flex flex-wrap gap-2 mb-4">
         <span className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
           <MapPin className="w-4 h-4 mr-1" />
           {job?.location}
@@ -103,6 +134,7 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
             ? moment(job.createdAt).format("Do MMM YYYY")
             : "N/A"}
         </span>
+      </div>
       </div>
 
       {/* Salary + Status + Apply */}

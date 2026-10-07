@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, Grid, List, X } from "lucide-react";
+import {
+  Search, Filter, Grid, List, X, Sparkles, FileText,
+  ArrowRight, CheckCircle2, ChevronRight, Building2, RefreshCw
+} from "lucide-react";
 import LoadingSpinner from "../../components/layout/LoadingSpinner";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
@@ -15,6 +18,10 @@ const JobSeekerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
 
   const [jobs, setJobs] = useState([]);
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
+  const [recommendationData, setRecommendationData] = useState(null);
+  const [loadingRecommended, setLoadingRecommended] = useState(false);
+  const [activeTab, setActiveTab] = useState("all"); // "all" | "recommended"
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("grid");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -92,6 +99,29 @@ const JobSeekerDashboard = () => {
     return () => clearTimeout(timeoutId);
   }, [filters, user]);
 
+  // Fetch AI recommended jobs based on uploaded resume
+  const fetchRecommendedJobs = async () => {
+    if (!isAuthenticated || !user || user.role === "employer") return;
+    try {
+      setLoadingRecommended(true);
+      const res = await axiosInstance.get(API_PATHS.JOBS.GET_RECOMMENDED);
+      if (res.data) {
+        setRecommendationData(res.data);
+        setRecommendedJobs(res.data.recommendedJobs || []);
+      }
+    } catch (err) {
+      console.warn("Could not fetch recommended jobs:", err?.message);
+    } finally {
+      setLoadingRecommended(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && user && user.role !== "employer") {
+      fetchRecommendedJobs();
+    }
+  }, [isAuthenticated, user?._id, user?.resume]);
+
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
@@ -157,6 +187,7 @@ const JobSeekerDashboard = () => {
         toast.success("Job saved successfully!");
       }
       fetchJobs();
+      fetchRecommendedJobs();
     } catch (err) {
       console.log("Error:", err);
       toast.error("Something went wrong! Try again later");
@@ -175,12 +206,31 @@ const JobSeekerDashboard = () => {
         toast.success("Applied to job successfully!");
       }
       fetchJobs();
+      fetchRecommendedJobs();
     } catch (err) {
       console.log("Error:", err);
       const errorMsg = err?.response?.data?.message;
       toast.error(errorMsg || "Something went wrong! Try again later");
     }
   };
+
+  // Merge match score info into jobs for display
+  const matchMap = new Map((recommendedJobs || []).map((r) => [String(r._id), r]));
+  const enrichedJobs = jobs.map((j) => {
+    const rec = matchMap.get(String(j._id));
+    if (rec) {
+      return {
+        ...j,
+        matchScore: rec.matchScore,
+        matchedSkills: rec.matchedSkills,
+        matchBadge: rec.matchBadge,
+        matchReason: rec.matchReason,
+      };
+    }
+    return j;
+  });
+
+  const displayedJobs = activeTab === "recommended" ? recommendedJobs : enrichedJobs;
 
   if (jobs.length === 0 && loading) {
     return <LoadingSpinner />;
@@ -213,11 +263,32 @@ const JobSeekerDashboard = () => {
           {/* Main Content */}
           <div className="w-full lg:w-3/4">
             {/* Results Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-              <div>
-                <p className="text-gray-500 font-medium">
-                  Showing <span className="font-bold text-gray-900">{jobs.length}</span> jobs
-                </p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === "all"
+                      ? "bg-gray-900 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  All Jobs ({jobs.length})
+                </button>
+
+                {recommendationData?.hasResume && recommendedJobs.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab("recommended")}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      activeTab === "recommended"
+                        ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm"
+                        : "bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200"
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                    Recommended ({recommendedJobs.length})
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-4">
@@ -256,46 +327,47 @@ const JobSeekerDashboard = () => {
               </div>
             </div>
 
-                {/* Job Grid */}
-{jobs.length === 0 ? (
-  <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-200 flex flex-col items-center relative overflow-hidden">
-    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-50 rounded-full blur-[80px] pointer-events-none"></div>
-    <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-50 rounded-full blur-[80px] pointer-events-none"></div>
+            {/* Job Grid */}
+            {displayedJobs.length === 0 ? (
+              <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-200 flex flex-col items-center relative overflow-hidden">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-50 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-50 rounded-full blur-[80px] pointer-events-none"></div>
 
-    <div className="w-24 h-24 bg-white shadow-sm border border-gray-200 rounded-3xl flex items-center justify-center mb-6 relative z-10">
-      <Search className="w-10 h-10 text-blue-600" />
-    </div>
-    <h3 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight relative z-10">
-      No jobs found
-    </h3>
-    <p className="text-lg text-gray-500 mb-8 max-w-md relative z-10 font-medium">
-      Try adjusting your search criteria or filters to find what you're looking for.
-    </p>
-    <button onClick={clearAllFilters} className="px-8 py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative z-10">
-      Clear All Filters
-    </button>
-  </div>
-) : (
-  <>
-  <div className={
-    viewMode === "grid"
-    ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6"
-    : "space-y-4 lg:space-y-6"
-  }
-  >
-    {jobs.map((job) => (
-<JobCard
-key={job._id}
-job={job}
-onClick={() => navigate(`/job/${job._id}`)}
-onToggleSave={() => toggleSaveJob(job._id, job.isSaved)}
-onApply={() => applyToJob(job._id)}
-/>
-))}
-</div>
-</>
-   
-)}
+                <div className="w-24 h-24 bg-white shadow-sm border border-gray-200 rounded-3xl flex items-center justify-center mb-6 relative z-10">
+                  <Search className="w-10 h-10 text-blue-600" />
+                </div>
+                <h3 className="text-3xl font-extrabold text-gray-900 mb-3 tracking-tight relative z-10">
+                  {activeTab === "recommended" ? "No recommendations yet" : "No jobs found"}
+                </h3>
+                <p className="text-lg text-gray-500 mb-8 max-w-md relative z-10 font-medium">
+                  {activeTab === "recommended"
+                    ? "Try updating your resume with more skills or exploring all open jobs."
+                    : "Try adjusting your search criteria or filters to find what you're looking for."}
+                </p>
+                <button
+                  onClick={activeTab === "recommended" ? () => setActiveTab("all") : clearAllFilters}
+                  className="px-8 py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative z-10"
+                >
+                  {activeTab === "recommended" ? "View All Jobs" : "Clear All Filters"}
+                </button>
+              </div>
+            ) : (
+              <div className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6"
+                  : "space-y-4 lg:space-y-6"
+              }>
+                {displayedJobs.map((job) => (
+                  <JobCard
+                    key={job._id}
+                    job={job}
+                    onClick={() => navigate(`/job/${job._id}`)}
+                    onToggleSave={() => toggleSaveJob(job._id, job.isSaved)}
+                    onApply={() => applyToJob(job._id)}
+                  />
+                ))}
+              </div>
+            )}
 
           </div>
         </div>

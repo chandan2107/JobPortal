@@ -1,6 +1,5 @@
 import toast from "react-hot-toast";
-
-const BACKEND_URL = "http://localhost:8000";
+import { BASE_URL } from "./apiPaths";
 
 // validation functions
 export const validateEmail = (email) => {
@@ -48,7 +47,7 @@ export const openResumeUrl = (url) => {
     toast.error("No resume found. Please upload your resume on the Profile page.");
     return;
   }
-  const proxyUrl = `http://localhost:8000/api/auth/proxy-resume?url=${encodeURIComponent(url)}`;
+  const proxyUrl = `${BASE_URL}/api/auth/proxy-resume?url=${encodeURIComponent(url)}`;
   window.open(proxyUrl, "_blank", "noopener,noreferrer");
 };
 

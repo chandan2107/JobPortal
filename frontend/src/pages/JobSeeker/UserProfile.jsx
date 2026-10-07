@@ -122,9 +122,20 @@ const UserProfile = () => {
 
       const response = await axiosInstance.put(API_PATHS.AUTH.UPDATE_PROFILE, updatedData);
       if (response.status === 200) {
-        setProfileData(updatedData);
-        updateUser(updatedData);
-        toast.success(`${type === "avatar" ? "Photo" : "Resume"} uploaded successfully!`);
+        const returnedUser = response.data ? { ...updatedData, ...response.data } : updatedData;
+        setProfileData(returnedUser);
+        updateUser(returnedUser);
+        if (type === "resume") {
+          toast.success(
+            <div>
+              <p className="font-semibold text-sm">Resume uploaded & analyzed!</p>
+              <p className="text-xs text-gray-500 mt-0.5">Check your Dashboard for personalized job recommendations.</p>
+            </div>,
+            { duration: 5000 }
+          );
+        } else {
+          toast.success("Photo uploaded successfully!");
+        }
       }
     } catch (error) {
       toast.error(`Failed to upload ${type}`);

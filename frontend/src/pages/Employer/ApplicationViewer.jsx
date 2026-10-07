@@ -514,7 +514,7 @@ const ApplicationViewer = () => {
           /*  KANBAN PIPELINE BOARD VIEW                                 */
           /* ─────────────────────────────────────────────────────────── */
           <div className="overflow-x-auto pb-4">
-            <div className="flex gap-4 min-w-[1280px] items-start">
+            <div className="flex gap-4 min-w-[1340px] items-start">
               {KANBAN_STAGES.map((stage) => {
                 const stageApps = kanbanColumns[stage.id] || [];
                 const isOver = dragOverStage === stage.id;
@@ -525,7 +525,7 @@ const ApplicationViewer = () => {
                     onDragOver={(e) => handleDragOver(e, stage.id)}
                     onDragLeave={() => handleDragLeave(stage.id)}
                     onDrop={(e) => handleDrop(e, stage.id)}
-                    className={`flex-1 min-w-[210px] max-w-[240px] rounded-2xl border transition-all duration-200 flex flex-col ${
+                    className={`flex-1 min-w-[220px] max-w-[260px] rounded-2xl border transition-all duration-200 flex flex-col ${
                       isOver
                         ? "bg-blue-50/50 border-blue-400 ring-2 ring-blue-300 ring-offset-1"
                         : "bg-gray-50/70 border-gray-200 hover:border-gray-300"
@@ -639,19 +639,19 @@ const ApplicationViewer = () => {
                               </div>
 
                               {/* Actions & Move Dropdown */}
-                              <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100">
+                              <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 w-full min-w-0">
                                 <button
                                   onClick={() => setSelectedApplicant(app)}
-                                  className="flex-1 py-1 px-2 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
+                                  className="flex-1 min-w-0 py-1 px-2 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 truncate"
                                 >
-                                  <Eye className="w-3 h-3" />
-                                  View
+                                  <Eye className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">View</span>
                                 </button>
                                 
                                 {app.applicant?.resume || app.resume ? (
                                   <button
                                     onClick={() => handleDownloadResume(app.applicant?.resume || app.resume)}
-                                    className="py-1 px-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center"
+                                    className="shrink-0 py-1 px-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center"
                                     title="View Resume"
                                   >
                                     <FileText className="w-3 h-3" />
@@ -659,18 +659,19 @@ const ApplicationViewer = () => {
                                 ) : null}
 
                                 {/* Quick Move Menu for accessibility / non-drag */}
-                                <div className="relative group/menu">
+                                <div className="relative shrink-0">
                                   <select
                                     value={stage.id}
                                     onChange={(e) => handleStatusChange(appId, e.target.value)}
-                                    className="text-[10px] font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg px-1.5 py-1 outline-none cursor-pointer"
+                                    className="appearance-none w-[68px] text-[10px] font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg pl-2 pr-4 py-1 outline-none cursor-pointer transition-colors truncate"
                                     title="Move stage directly"
                                   >
-                                    <option disabled value={stage.id}>Move ▾</option>
+                                    <option disabled value={stage.id}>Move</option>
                                     {KANBAN_STAGES.filter((s) => s.id !== stage.id).map((s) => (
                                       <option key={s.id} value={s.id}>➔ {s.label}</option>
                                     ))}
                                   </select>
+                                  <ChevronDown className="w-2.5 h-2.5 text-gray-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 </div>
                               </div>
                             </div>

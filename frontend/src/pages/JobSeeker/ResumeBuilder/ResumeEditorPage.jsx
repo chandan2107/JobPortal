@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import {
-  ArrowLeft, Download, Printer, Share2, Eye, EyeOff, ChevronDown, ChevronUp,
+  ArrowLeft, Download, Share2, Eye, EyeOff, ChevronDown, ChevronUp,
   Plus, Trash2, Palette, User, Briefcase, GraduationCap,
   Code, FolderOpen, Award, Check, X, Calendar, Trophy, Sparkles,
   Wand2, Loader2, Bot, RefreshCw, Zap, FileText, Minus, Maximize2,
@@ -222,7 +222,16 @@ const ResumeEditorPage = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [showTemplates, setShowTemplates] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const userId = user?._id || user?.id;
+  const userStorageKey = userId ? `resumes_${userId}` : "resumes_guest";
+
+  // Clean legacy shared key on mount
+  useEffect(() => {
+    try {
+      localStorage.removeItem("resumes");
+    } catch {}
+  }, []);
 
   // ── Cloud Persistence State ──
   const [cloudStatus, setCloudStatus] = useState("saved"); // "saved" | "saving" | "local" | "error"
@@ -499,12 +508,12 @@ const ResumeEditorPage = () => {
     toast.success("Profile details imported into resume!");
   };
 
-  // 1. Initial Load: check localStorage first for instant rendering, then fetch from MongoDB
+  // 1. Initial Load: check user-scoped storage first for instant rendering, then fetch from MongoDB
   useEffect(() => {
-    if (!id) return;
+    if (!id || authLoading) return;
 
-    // Fast local restore
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    // Fast local restore from user's isolated storage
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     const localFound = stored.find(r => (r.id === id || r.customId === id || r._id === id));
     if (localFound) {
       setResume(localFound);
@@ -513,7 +522,7 @@ const ResumeEditorPage = () => {
     }
 
     // Cloud fetch if authenticated
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       axiosInstance.get(API_PATHS.RESUMES.GET_BY_ID(id))
         .then((res) => {
           if (res.data) {
@@ -523,20 +532,27 @@ const ResumeEditorPage = () => {
             };
             setResume(cloudResume);
 
-            // Update local cache
+            // Update user-scoped local cache
             const idx = stored.findIndex(r => (r.id === id || r.customId === id || r._id === id));
             if (idx >= 0) stored[idx] = cloudResume;
             else stored.unshift(cloudResume);
-            localStorage.setItem("resumes", JSON.stringify(stored));
+            localStorage.setItem(userStorageKey, JSON.stringify(stored));
             setCloudStatus("saved");
           }
         })
         .catch((err) => {
-          // If 404 on cloud and we have localFound, push localFound to cloud
-          if (err.response?.status === 404 && localFound) {
-            axiosInstance.put(API_PATHS.RESUMES.UPDATE(id), localFound)
-              .then(() => setCloudStatus("saved"))
-              .catch(() => setCloudStatus("error"));
+          // If 404 on cloud:
+          // Check if this was a locally drafted resume created by THIS user
+          if (err.response?.status === 404) {
+            if (localFound && (localFound.id === id || localFound.customId === id)) {
+              // Create it in MongoDB for this user
+              axiosInstance.post(API_PATHS.RESUMES.CREATE, localFound)
+                .then(() => setCloudStatus("saved"))
+                .catch(() => setCloudStatus("error"));
+            } else {
+              toast.error("Resume not found or belongs to another user.");
+              navigate("/resume-builder");
+            }
           } else {
             setCloudStatus("local");
           }
@@ -544,20 +560,20 @@ const ResumeEditorPage = () => {
     } else {
       setCloudStatus("local");
     }
-  }, [id, isAuthenticated, user]);
+  }, [id, isAuthenticated, userId, authLoading, userStorageKey, navigate]);
 
   // 2. Debounced Cloud Save & Immediate Local Cache
   const saveResume = useCallback((updated) => {
-    // Immediate local cache save
-    const stored = JSON.parse(localStorage.getItem("resumes") || "[]");
+    // Immediate user-scoped local cache save
+    const stored = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
     const idx = stored.findIndex(r => (r.id === id || r.customId === id || r._id === id));
     const toSave = { ...updated, id, updatedAt: new Date().toISOString() };
     if (idx >= 0) stored[idx] = toSave;
     else stored.push({ ...toSave, createdAt: new Date().toISOString() });
-    localStorage.setItem("resumes", JSON.stringify(stored));
+    localStorage.setItem(userStorageKey, JSON.stringify(stored));
 
     // Cloud persistence if logged in
-    if (isAuthenticated && user) {
+    if (isAuthenticated && userId) {
       setCloudStatus("saving");
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
@@ -573,7 +589,7 @@ const ResumeEditorPage = () => {
     } else {
       setCloudStatus("local");
     }
-  }, [id, isAuthenticated, user]);
+  }, [id, isAuthenticated, userId, userStorageKey]);
 
   const update = (patch) => {
     const next = { ...resume, ...patch };
@@ -620,32 +636,68 @@ const ResumeEditorPage = () => {
     update({ sectionOrder: newOrder });
   };
 
-  const handleBrowserPrint = useCallback(() => {
-    const originalTitle = document.title;
-    const candidateName = resume.personalInfo?.fullName?.trim() || resume.title?.trim() || "Resume";
-    const cleanFileName = candidateName.replace(/[^a-zA-Z0-9_\-\s]/g, "").replace(/\s+/g, "_");
-    document.title = `${cleanFileName}_Resume`;
-    window.print();
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1500);
-  }, [resume.personalInfo?.fullName, resume.title]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        handleBrowserPrint();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleBrowserPrint]);
-
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: resume.personalInfo?.fullName || resume.title || "Resume",
-    pageStyle: `@page { size: A4; margin: 0; } body { margin: 0; } @media print { body * { visibility: hidden; } #resume-print, #resume-print * { visibility: visible; } #resume-print { position: absolute; left: 0; top: 0; width: 100%; transform: none !important; } .no-print { display: none !important; } }`,
+    pageStyle: `
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      @media print {
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 100% !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        #resume-print {
+          position: static !important;
+          display: block !important;
+          margin: 0 auto !important;
+          padding: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-height: auto !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 0 !important;
+          overflow: visible !important;
+          transform: none !important;
+          filter: none !important;
+          -webkit-filter: none !important;
+          backdrop-filter: none !important;
+          page-break-after: auto;
+          break-after: auto;
+          -webkit-user-select: text !important;
+          user-select: text !important;
+          -webkit-touch-callout: default !important;
+        }
+        #resume-print,
+        #resume-print * {
+          font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          filter: none !important;
+          -webkit-filter: none !important;
+          backdrop-filter: none !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        .no-print {
+          display: none !important;
+          visibility: hidden !important;
+        }
+      }
+    `,
   });
 
   const handleShare = async () => {
@@ -822,19 +874,8 @@ const ResumeEditorPage = () => {
             </button>
 
             <button
-              type="button"
-              onClick={handleBrowserPrint}
-              title="Print Resume or Save as PDF (Ctrl+P)"
-              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Print</span>
-              <span className="sm:hidden">Print</span>
-            </button>
-
-            <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Download PDF</span>
@@ -1534,7 +1575,6 @@ const ResumeEditorPage = () => {
             }}
           >
             <div
-              id="resume-print-parent"
               style={{
                 width: "794px",
                 minHeight: "1123px",
@@ -1546,8 +1586,14 @@ const ResumeEditorPage = () => {
               <div
                 id="resume-print"
                 ref={printRef}
-                className="bg-white shadow-2xl rounded-sm overflow-hidden relative"
-                style={{ width: "794px", minHeight: "1123px" }}
+                className="bg-white shadow-2xl rounded-sm overflow-hidden relative select-text"
+                style={{
+                  width: "794px",
+                  minHeight: "1123px",
+                  WebkitUserSelect: "text",
+                  userSelect: "text",
+                  WebkitTouchCallout: "default",
+                }}
               >
                 <ActiveTemplate data={resume} />
 
@@ -1635,19 +1681,6 @@ const ResumeEditorPage = () => {
                 }`}
               >
                 100%
-              </button>
-
-              <div className="w-px h-3.5 bg-gray-700" />
-
-              {/* Print Button */}
-              <button
-                type="button"
-                onClick={handleBrowserPrint}
-                title="Print Resume or Save as PDF (Ctrl+P)"
-                className="px-2 py-0.5 rounded-md font-semibold text-[11px] flex items-center gap-1 hover:bg-gray-800 text-gray-300 hover:text-white transition-all cursor-pointer"
-              >
-                <Printer className="w-3 h-3 text-blue-400" />
-                <span>Print</span>
               </button>
             </div>
           </div>
