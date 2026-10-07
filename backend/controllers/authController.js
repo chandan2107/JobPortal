@@ -42,6 +42,8 @@ exports.register = async (req, res) => {
       companyDescription: user.companyDescription || "",
       companyLogo: user.companyLogo || "",
       resume: user.resume || "",
+      verificationStatus: user.verificationStatus || "none",
+      verificationNote: user.verificationNote || "",
       token,
     });
   } catch (err) {
@@ -128,6 +130,9 @@ exports.verifyOtp = async (req, res) => {
       companyDescription: user.companyDescription || "",
       companyLogo: user.companyLogo || "",
       resume: user.resume || "",
+      verificationStatus: user.verificationStatus || "none",
+      verificationNote: user.verificationNote || "",
+      token,
     });
   } catch (err) {
     console.error("Verify OTP error:", err);

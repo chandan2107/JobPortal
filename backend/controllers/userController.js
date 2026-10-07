@@ -106,6 +106,8 @@ exports.updateProfile = async (req, res) => {
       website: user.website || "",
       resumeSkills: user.resumeSkills || [],
       resumeHeadline: user.resumeHeadline || "",
+      verificationStatus: user.verificationStatus || "none",
+      verificationNote: user.verificationNote || "",
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

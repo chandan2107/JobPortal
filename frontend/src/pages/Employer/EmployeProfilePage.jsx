@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Building2, Mail, Edit3, User, FileText, ArrowLeft,
   ShieldCheck, ShieldX, Clock, ShieldAlert, CheckCircle, Loader, AlertCircle
@@ -54,7 +54,7 @@ const VERIFY_CONFIG = {
 };
 
 const EmployerProfilePage = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
 
   const [profileData, setProfileData] = useState({
@@ -68,6 +68,31 @@ const EmployerProfilePage = () => {
 
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({ ...profileData });
+
+  // Sync latest user verification status and profile data on mount
+  useEffect(() => {
+    if (checkAuthStatus) {
+      checkAuthStatus();
+    }
+  }, []);
+
+  // Keep state updated if user context refreshes
+  useEffect(() => {
+    if (user) {
+      const data = {
+        name: user.name || "",
+        email: user.email || "",
+        avatar: user.avatar || "",
+        companyName: user.companyName || "",
+        companyDescription: user.companyDescription || "",
+        companyLogo: user.companyLogo || "",
+      };
+      setProfileData(data);
+      if (!editMode) {
+        setFormData(data);
+      }
+    }
+  }, [user, editMode]);
   const [uploading, setUploading] = useState({ avatar: false, logo: false });
   const [saving, setSaving] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);

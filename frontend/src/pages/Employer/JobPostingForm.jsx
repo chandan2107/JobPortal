@@ -21,7 +21,24 @@ const JobPostingForm = () => {
   const searchParams = new URLSearchParams(location.search);
   const jobId = location.state?.jobId || searchParams.get("jobId") || null;
   const initialJobData = location.state?.jobData || null;
-  const { user } = useAuth();
+  const { user, checkAuthStatus } = useAuth();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Sync latest user verification status on page load
+  useEffect(() => {
+    const syncStatus = async () => {
+      try {
+        if (checkAuthStatus) {
+          await checkAuthStatus();
+        }
+      } catch (err) {
+        console.warn("Failed to sync auth status:", err);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    syncStatus();
+  }, []);
 
   const verificationStatus = user?.verificationStatus || "none";
   const isVerified = verificationStatus === "approved";
@@ -147,6 +164,17 @@ const JobPostingForm = () => {
     return (
       <DashboardLayout activeMenu="post-job">
         <JobPostingPreview formData={formData} setIsPreview={setIsPreview} />
+      </DashboardLayout>
+    );
+  }
+
+  if (checkingAuth) {
+    return (
+      <DashboardLayout activeMenu="post-job">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500 font-medium">Verifying access...</p>
+        </div>
       </DashboardLayout>
     );
   }
