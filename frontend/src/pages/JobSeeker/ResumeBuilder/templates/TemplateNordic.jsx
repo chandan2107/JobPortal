@@ -1,19 +1,7 @@
 import React from "react";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from "../sectionConfig";
-
-const Link = ({ href, children }) =>
-  href ? (
-    <a
-      href={href.startsWith("http") ? href : `https://${href}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-stone-700 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-700 transition-colors"
-    >
-      {children}
-    </a>
-  ) : (
-    <span>{children}</span>
-  );
+import { formatDateRange, formatResumeDate } from "../dateUtils";
+import Link from "../ResumeLink";
 
 const TemplateNordic = ({ data }) => {
   const {
@@ -35,37 +23,37 @@ const TemplateNordic = ({ data }) => {
 
   const sections = {
     summary: summary && visibility.summary !== false && (
-      <div key="summary" className="max-w-2xl mx-auto mb-9 text-center">
-        <p className="text-xs text-stone-600 leading-relaxed font-light italic">
+      <div key="summary" className="max-w-2xl mx-auto mb-6 text-center">
+        <p className="text-[13.5px] text-black leading-relaxed italic font-normal">
           "{summary}"
         </p>
       </div>
     ),
 
     experience: experience.length > 0 && visibility.experience !== false && (
-      <div key="experience" className="mb-9">
-        <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-900">
+      <div key="experience" className="mb-6">
+        <div className="flex items-center gap-3 mb-3.5">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Experience
           </h2>
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-0.5 bg-black" />
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {experience.map((exp, i) => (
-            <div key={i} className="space-y-1.5">
+            <div key={i} className="space-y-0.5">
               <div className="flex items-baseline justify-between flex-wrap gap-2">
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-sm font-medium text-stone-900">{exp.title || "Job Title"}</h3>
-                  <span className="text-xs text-stone-500 font-light">at {exp.company}</span>
+                  <h3 className="text-[14px] font-semibold text-black">{exp.title || "Job Title"}</h3>
+                  <span className="text-[13.5px] text-zinc-800 font-medium">at {exp.company}</span>
                 </div>
-                <span className="text-[11px] text-stone-400 font-light tracking-wide">
-                  {exp.startDate}{exp.endDate ? ` — ${exp.endDate}` : exp.current ? " — Present" : ""}
+                <span className="text-[13.5px] text-black font-medium">
+                  {formatDateRange(exp.startDate, exp.endDate, exp.current)}
                   {exp.location ? ` | ${exp.location}` : ""}
                 </span>
               </div>
               {exp.description && (
-                <p className="text-xs text-stone-600 leading-relaxed font-light whitespace-pre-line pl-0.5">
+                <p className="text-[13.5px] text-black leading-relaxed whitespace-pre-line pl-0.5 font-normal">
                   {exp.description}
                 </p>
               )}
@@ -76,26 +64,26 @@ const TemplateNordic = ({ data }) => {
     ),
 
     education: education.length > 0 && visibility.education !== false && (
-      <div key="education" className="mb-9">
-        <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-900">
+      <div key="education" className="mb-6">
+        <div className="flex items-center gap-3 mb-3.5">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Education
           </h2>
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-0.5 bg-black" />
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {education.map((edu, i) => (
             <div key={i} className="flex items-baseline justify-between flex-wrap gap-2">
               <div>
-                <h3 className="text-sm font-medium text-stone-900">{edu.degree}</h3>
-                <p className="text-xs text-stone-500 font-light">
+                <h3 className="text-[13.5px] font-semibold text-black">{edu.degree}</h3>
+                <p className="text-[13.5px] text-zinc-800 font-medium">
                   {edu.school}{edu.location ? `, ${edu.location}` : ""}
-                  {edu.gpa && <span className="ml-2 text-stone-400">• GPA {edu.gpa}</span>}
+                  {edu.gpa && <span className="ml-2 text-black font-normal text-[11px]">• GPA {edu.gpa}</span>}
                 </p>
               </div>
-              <span className="text-[11px] text-stone-400 font-light">
-                {edu.startDate}{edu.endDate ? ` — ${edu.endDate}` : ""}
+              <span className="text-[13.5px] text-black font-medium">
+                {formatDateRange(edu.startDate, edu.endDate)}
               </span>
             </div>
           ))}
@@ -104,32 +92,30 @@ const TemplateNordic = ({ data }) => {
     ),
 
     projects: projects.length > 0 && visibility.projects !== false && (
-      <div key="projects" className="mb-9">
-        <div className="flex items-center gap-3 mb-5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-900">
+      <div key="projects" className="mb-6">
+        <div className="flex items-center gap-3 mb-3.5">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Projects
           </h2>
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-0.5 bg-black" />
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-3.5">
           {projects.map((proj, i) => (
-            <div key={i} className="space-y-1">
+            <div key={i} className="space-y-0.5">
               <div className="flex items-baseline justify-between flex-wrap gap-2">
-                <h3 className="text-sm font-medium text-stone-900">{proj.name}</h3>
+                <h3 className="text-[13.5px] font-semibold text-black">{proj.name}</h3>
                 {proj.link && (
-                  <span className="text-xs font-light">
-                    <Link href={proj.link}>View Project ↗</Link>
-                  </span>
+                  <Link href={proj.link} className="text-black font-medium text-[11px] underline underline-offset-2">Link</Link>
                 )}
               </div>
               {proj.technologies?.length > 0 && (
-                <p className="text-[11px] text-stone-400 font-light">
+                <p className="text-[13.5px] text-zinc-800 font-normal">
                   {Array.isArray(proj.technologies) ? proj.technologies.join(" · ") : proj.technologies}
                 </p>
               )}
               {proj.description && (
-                <p className="text-xs text-stone-600 leading-relaxed font-light">
+                <p className="text-[13.5px] text-black leading-relaxed font-normal">
                   {proj.description}
                 </p>
               )}
@@ -140,18 +126,18 @@ const TemplateNordic = ({ data }) => {
     ),
 
     skills: skills.length > 0 && visibility.skills !== false && (
-      <div key="skills" className="mb-8">
-        <div className="flex items-center gap-3 mb-3.5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-900">
+      <div key="skills" className="mb-5">
+        <div className="flex items-center gap-3 mb-2.5">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Skills & Competencies
           </h2>
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-0.5 bg-black" />
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {skills.map((skill, sIdx) => (
             <span
               key={sIdx}
-              className="text-xs font-light text-stone-700 bg-stone-200/60 border border-stone-200 px-2.5 py-1 rounded-full"
+              className="text-[13.5px] font-medium text-black bg-zinc-100 border border-zinc-300 px-2.5 py-0.5 rounded-full"
             >
               {skill}
             </span>
@@ -161,19 +147,19 @@ const TemplateNordic = ({ data }) => {
     ),
 
     certifications: certifications.length > 0 && visibility.certifications !== false && (
-      <div key="certifications" className="mb-8">
-        <div className="flex items-center gap-3 mb-3.5">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-900">
+      <div key="certifications" className="mb-5">
+        <div className="flex items-center gap-3 mb-2.5">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Certifications
           </h2>
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-0.5 bg-black" />
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {certifications.map((cert, i) => (
-            <p key={i} className="text-xs text-stone-700 font-light">
-              <span className="font-medium text-stone-900">{cert.name}</span>
+            <p key={i} className="text-[13.5px] text-black">
+              <span className="text-[13.5px] font-semibold text-black">{cert.name}</span>
               {cert.issuer && ` — ${cert.issuer}`}
-              {cert.date && <span className="text-stone-400 ml-1.5">({cert.date})</span>}
+              {cert.date && <span className="text-black font-normal ml-1.5 text-[11px]">({formatResumeDate(cert.date)})</span>}
             </p>
           ))}
         </div>
@@ -183,29 +169,29 @@ const TemplateNordic = ({ data }) => {
 
   return (
     <div
-      className="bg-[#faf9f6] w-full text-stone-800 px-12 pt-12 pb-20 min-h-[1123px]"
+      className="bg-white w-full text-black px-12 pt-10 pb-16 min-h-[1123px]"
       style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}
     >
-      {/* Nordic Centered & Airy Header */}
-      <div className="text-center max-w-xl mx-auto mb-10">
-        <h1 className="text-3xl sm:text-4xl font-light tracking-wide text-stone-900 mb-2">
+      {/* Nordic Centered Header */}
+      <div className="text-center max-w-xl mx-auto mb-7">
+        <h1 className="text-[26px] font-bold text-black mb-1 leading-tight">
           {fullName || "Your Name"}
         </h1>
         {jobTitle && (
-          <p className="text-xs font-medium uppercase tracking-[0.25em] text-stone-500 mb-4">
+          <p className="text-[13.5px] font-medium uppercase text-black mb-2">
             {jobTitle}
           </p>
         )}
-        <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-xs text-stone-500 font-light">
-          {email && <span>{email}</span>}
-          {phone && <span>• {phone}</span>}
-          {location && <span>• {location}</span>}
-          {linkedin && <span>• <Link href={linkedin}>LinkedIn</Link></span>}
-          {website && <span>• <Link href={website}>Portfolio</Link></span>}
+        <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-[13.5px] text-black font-normal">
+          {email && <Link href={`mailto:${email.trim()}`} className="text-black">{email}</Link>}
+          {phone && <Link href={`tel:${phone.trim()}`} className="text-black">{phone}</Link>}
+          {location && <span>{location}</span>}
+          {linkedin && <Link href={linkedin} className="text-black font-medium underline underline-offset-2">LinkedIn</Link>}
+          {website && <Link href={website} className="text-black font-medium underline underline-offset-2">Portfolio</Link>}
         </div>
       </div>
 
-      <div className="w-16 h-px bg-stone-300 mx-auto mb-9" />
+      <div className="w-16 h-0.5 bg-black mx-auto mb-6" />
 
       {/* Dynamic Ordered & Visible Sections */}
       {order.map(key => sections[key] || null)}

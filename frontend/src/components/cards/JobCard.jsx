@@ -1,10 +1,13 @@
-import { Bookmark, Building, Building2, Calendar, MapPin, Sparkles, CheckCircle2 } from "lucide-react";
+import { Bookmark, Building, Building2, Calendar, MapPin, Sparkles } from "lucide-react";
 import moment from "moment";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import StatusBadge from "../layout/StatusBadge";
 
 const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
   const { user } = useAuth();
+
+  const isSaved = Boolean(job?.isSaved || saved);
 
   const formatSalary = (min, max) => {
     if (!min && !max) return "Salary negotiable";
@@ -24,142 +27,142 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-400 transition-all cursor-pointer relative group flex flex-col justify-between" onClick={onClick}>
+    <div
+      onClick={onClick}
+      className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 hover:border-zinc-300 dark:hover:border-zinc-700 p-5 shadow-xs hover:shadow-md transition-all cursor-pointer relative group flex flex-col justify-between backdrop-blur-xs text-zinc-900 dark:text-zinc-100"
+    >
       <div>
-        {/* AI Resume Match Badge */}
-        {job?.matchScore != null && (
-          <div className="mb-3.5 inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 px-3 py-1 rounded-xl self-start">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600 animate-pulse flex-shrink-0" />
-            <span className="text-xs font-bold text-purple-700">{job.matchScore}% Match</span>
-            <span className="text-[10px] font-semibold text-purple-500 hidden sm:inline">• {job.matchBadge || "AI Recommended"}</span>
-          </div>
-        )}
-
-        {/* Company Logo / Fallback */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center flex-1 pr-8">
+        {/* Company Logo, Title, and Bookmark Button */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
             {job?.company?.companyLogo ? (
               <img
                 src={job?.company?.companyLogo}
                 alt="Company Logo"
-                className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 flex-shrink-0"
+                className="w-11 h-11 rounded-xl object-contain bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-1 flex-shrink-0 shadow-xs"
               />
             ) : (
-              <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 p-1 flex-shrink-0">
-                <Building2 className="w-6 h-6 text-gray-400" />
+              <div className="w-11 h-11 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center border border-zinc-200 dark:border-zinc-700 p-1 flex-shrink-0">
+                <Building2 className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
               </div>
             )}
 
-            {/* Title & Company */}
-            <div className="ml-4 min-w-0">
-              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{job?.title}</h3>
-              <p className="flex items-center text-sm text-gray-600 mt-1 truncate">
-                <Building className="w-4 h-4 mr-1 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-[17px] font-bold text-zinc-950 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1 leading-snug">
+                {job?.title}
+              </h3>
+              <p className="flex items-center text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
+                <Building className="w-3.5 h-3.5 mr-1 flex-shrink-0 text-zinc-400 dark:text-zinc-500" />
                 <span className="truncate">{job?.company?.companyName}</span>
               </p>
             </div>
           </div>
+
+          {/* Animated Bookmark Save Button */}
+          {user && (
+            <motion.button
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.82 }}
+              className={`p-2 -mr-1 -mt-1 rounded-xl transition-colors cursor-pointer flex-shrink-0 ${
+                isSaved
+                  ? "bg-blue-50 dark:bg-blue-950/60"
+                  : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSave();
+              }}
+              aria-label={isSaved ? "Remove from saved jobs" : "Save job"}
+            >
+              <motion.div
+                animate={
+                  isSaved
+                    ? { scale: [1, 1.4, 0.9, 1], rotate: [0, -15, 6, 0] }
+                    : { scale: 1, rotate: 0 }
+                }
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <Bookmark
+                  className={`w-4.5 h-4.5 transition-colors duration-200 ${
+                    isSaved
+                      ? "text-blue-600 fill-blue-600"
+                      : "text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400"
+                  }`}
+                />
+              </motion.div>
+            </motion.button>
+          )}
         </div>
 
-        {/* Save Button */}
-        {user && (
-          <button
-            className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-50 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleSave();
-            }}
-          >
-            <Bookmark
-              className={`w-5 h-5 transition-colors ${
-                job?.isSaved || saved ? "text-blue-600 fill-blue-600" : "text-gray-400 hover:text-blue-600"
-              }`}
-            />
-          </button>
-        )}
+        {/* Tags Row: AI Match Pill + Location + Type + Category */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {job?.matchScore != null && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/60 px-2 py-0.5 rounded-lg">
+              <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+              {job.matchScore}% Match
+            </span>
+          )}
 
-        {/* Matched Skills Chips */}
-        {job?.matchedSkills && job.matchedSkills.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 mb-3.5">
-            <span className="text-[10px] font-bold text-purple-700 bg-purple-100/70 px-1.5 py-0.5 rounded">Matching:</span>
-            {job.matchedSkills.slice(0, 3).map((skill, idx) => (
-              <span
-                key={idx}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md"
-              >
-                <CheckCircle2 className="w-2.5 h-2.5 text-purple-600 flex-shrink-0" />
-                {skill}
-              </span>
-            ))}
-            {job.matchedSkills.length > 3 && (
-              <span className="text-[10px] font-semibold text-gray-400">
-                +{job.matchedSkills.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Location, Type, Category */}
-        <div className="flex flex-wrap gap-2 mb-4">
-        <span className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
-          <MapPin className="w-4 h-4 mr-1" />
-          {job?.location}
-        </span>
-        <span
-          className={`px-3 py-1 rounded-full font-medium ${
-            job?.type === "Full-Time"
-              ? "bg-green-100 text-green-800 border border-green-200"
-              : job?.type === "Part-Time"
-              ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-              : job?.type === "Contract"
-              ? "bg-purple-100 text-purple-800 border border-purple-200"
-              : "bg-blue-100 text-blue-800 border border-blue-200"
-          }`}
-        >
-          {job?.type}
-        </span>
-        <span className="text-sm font-medium text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">{job?.category}</span>
-        {job?.vacancies && (
-          <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">
-            {job.vacancies} {Number(job.vacancies) === 1 ? "Opening" : "Openings"}
+          <span className="inline-flex items-center text-[11px] text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-0.5 rounded-lg border border-zinc-200/80 dark:border-zinc-700/80">
+            <MapPin className="w-3 h-3 mr-1 text-zinc-400" />
+            {job?.location}
           </span>
-        )}
+
+          <span
+            className={`inline-flex items-center text-[11px] px-2.5 py-0.5 rounded-lg font-semibold border ${
+              job?.type === "Full-Time"
+                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60"
+                : job?.type === "Part-Time"
+                ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"
+                : job?.type === "Contract"
+                ? "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60"
+                : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800/60"
+            }`}
+          >
+            {job?.type}
+          </span>
+
+          <span className="inline-flex items-center text-[11px] font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-0.5 rounded-lg border border-zinc-200/80 dark:border-zinc-700/80">
+            {job?.category}
+          </span>
+
+          {job?.vacancies && (
+            <span className="inline-flex items-center text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800/60">
+              {job.vacancies} {Number(job.vacancies) === 1 ? "Opening" : "Openings"}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Posted Date */}
-      <div className="flex items-center text-sm text-gray-500 mb-6 mt-4 border-t border-gray-200 pt-4">
-        <span className="flex items-center">
-          <Calendar className="w-4 h-4 mr-1" />
-          {job?.createdAt
-            ? moment(job.createdAt).format("Do MMM YYYY")
-            : "N/A"}
-        </span>
-      </div>
-      </div>
+      {/* Anchored Bottom Footer: Salary + Posted Date on left, Status + Apply on right */}
+      <div className="mt-4 pt-3.5 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between gap-3">
+        <div className="flex flex-col min-w-0">
+          <div className="text-base sm:text-[17px] font-bold font-mono text-zinc-950 dark:text-white truncate">
+            {formatSalary(job?.salaryMin, job?.salaryMax)}
+          </div>
+          <div className="flex items-center text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+            <Calendar className="w-3 h-3 mr-1 text-zinc-400" />
+            <span>{job?.createdAt ? moment(job.createdAt).fromNow() : "Recently posted"}</span>
+          </div>
+        </div>
 
-      {/* Salary + Status + Apply */}
-      <div className="flex items-center justify-between">
-        <div className="text-lg font-bold text-gray-900">{formatSalary(job?.salaryMin, job?.salaryMax)}</div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {!saved && job?.applicationStatus && (
+            <StatusBadge status={job?.applicationStatus} />
+          )}
 
-        {!saved && (
-          <>
-            {job?.applicationStatus && (
-              <StatusBadge status={job?.applicationStatus} />
-            )}
-
-            {!hideApply && (
-              <button
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm ml-auto"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onApply();
-                }}
-              >
-                Apply Now
-              </button>
-            )}
-          </>
-        )}
+          {!saved && !hideApply && (
+            <button
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onApply();
+              }}
+            >
+              Apply Now
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

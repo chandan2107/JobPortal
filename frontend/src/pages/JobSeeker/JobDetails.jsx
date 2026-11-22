@@ -1,4 +1,5 @@
-import { MapPin, IndianRupee, Building2, Clock, Calendar, CheckCircle2, ArrowLeft, Bookmark, Users } from "lucide-react";
+import { MapPin, IndianRupee, Building2, Clock, Calendar, CheckCircle2, ArrowLeft, Bookmark, Users, Bot } from "lucide-react";
+import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axiosInstance";
@@ -181,18 +182,42 @@ const JobDetails = () => {
                   {/* Actions: Save & Apply / Status */}
                   <div className="flex items-center gap-3 sm:flex-shrink-0">
                     {user && (
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.94 }}
                         onClick={toggleSaveJob}
-                        className={`flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm border transition-all ${
+                        className={`flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm border transition-all cursor-pointer ${
                           jobDetails?.isSaved
-                            ? "bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100"
-                            : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+                            ? "bg-blue-50 dark:bg-blue-950/60 border-blue-300 dark:border-blue-850 text-blue-700 dark:text-blue-300 hover:bg-blue-100"
+                            : "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-zinc-400"
                         }`}
                         title={jobDetails?.isSaved ? "Remove from saved jobs" : "Save job"}
                       >
-                        <Bookmark className={`w-4 h-4 ${jobDetails?.isSaved ? "fill-blue-600 text-blue-600" : "text-gray-500"}`} />
+                        <motion.div
+                          animate={
+                            jobDetails?.isSaved
+                              ? { scale: [1, 1.35, 0.9, 1], rotate: [0, -15, 6, 0] }
+                              : { scale: 1, rotate: 0 }
+                          }
+                          transition={{ duration: 0.35, ease: "easeOut" }}
+                        >
+                          <Bookmark className={`w-4 h-4 ${jobDetails?.isSaved ? "fill-blue-600 text-blue-600" : "text-zinc-400"}`} />
+                        </motion.div>
                         <span>{jobDetails?.isSaved ? "Saved" : "Save Job"}</span>
-                      </button>
+                      </motion.button>
+                    )}
+
+                    {user && (
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.94 }}
+                        onClick={() => navigate(`/mock-interview?jobId=${jobDetails?._id}`)}
+                        className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all cursor-pointer shadow-xs"
+                        title="Practice AI voice interview for this job posting"
+                      >
+                        <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                        <span className="hidden sm:inline">Practice Interview</span>
+                      </motion.button>
                     )}
 
                     {jobDetails?.applicationStatus ? (

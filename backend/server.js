@@ -18,6 +18,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const ragRoutes = require("./routes/ragRoutes");
 const aiAssistantRoutes = require("./routes/aiAssistantRoutes");
 const resumeRoutes = require("./routes/resumeRoutes");
+const mockInterviewRoutes = require("./routes/mockInterviewRoutes");
 const { initializeCollections: initRAG } = require("./services/ragService");
 
 
@@ -69,7 +70,8 @@ connectDB().then(() => {
 
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
 
 //routes
@@ -86,6 +88,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/rag", ragRoutes);
 app.use("/api/ai", aiAssistantRoutes);
 app.use("/api/resumes", resumeRoutes);
+app.use("/api/mock-interview", mockInterviewRoutes);
 
 // Root health check endpoint
 app.get("/", (req, res) => {

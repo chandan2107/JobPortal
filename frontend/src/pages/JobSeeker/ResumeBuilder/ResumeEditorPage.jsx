@@ -252,9 +252,10 @@ const ResumeEditorPage = () => {
 
   // ── Focus Mode (Full-width writing mode) ──
   const [focusMode, setFocusMode] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // ── Preview Zoom & A4 Page Indicator State ──
-  const [zoom, setZoom] = useState(85);
+  const [zoom, setZoom] = useState(100);
   const [isFitScreen, setIsFitScreen] = useState(false);
   const [contentHeight, setContentHeight] = useState(1123);
   const previewContainerRef = useRef(null);
@@ -296,6 +297,13 @@ const ResumeEditorPage = () => {
   const handleZoomOut = () => {
     setIsFitScreen(false);
     setZoom((prev) => Math.max(50, Math.round((prev - 10) / 10) * 10));
+  };
+
+  // ── Font Size Scale State (90% to 130%) ──
+  const currentFontScale = resume.fontScale || 105;
+  const handleFontScaleChange = (delta) => {
+    const next = Math.max(90, Math.min(130, currentFontScale + delta));
+    update({ fontScale: next });
   };
 
   const hasExistingData = Boolean(
@@ -700,6 +708,59 @@ const ResumeEditorPage = () => {
     `,
   });
 
+  // Vector PDF download using Puppeteer (Razor-sharp text & native clickable links)
+  const handleDownloadPdf = async () => {
+    const element = printRef.current;
+    if (!element) return;
+
+    setIsDownloading(true);
+    const toastId = toast.loading("Generating razor-sharp vector PDF with Puppeteer...");
+
+    try {
+      const cleanName = (resume.personalInfo?.fullName || "Resume").replace(/[^a-zA-Z0-9_-]/g, "_");
+      const filename = `${cleanName}_Resume.pdf`;
+
+      // Clone element to clean up UI-only markers (.no-print)
+      const clone = element.cloneNode(true);
+      clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+
+      // Call backend Puppeteer vector PDF generator
+      const response = await axiosInstance.post(
+        API_PATHS.RESUMES.EXPORT_PDF,
+        {
+          html: clone.outerHTML,
+          title: resume.personalInfo?.fullName || resume.title || "Resume",
+          fontScale: resume.fontScale || 105,
+        },
+        {
+          responseType: "blob",
+          timeout: 45000,
+        }
+      );
+
+      // Trigger instant native vector PDF download
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      toast.success("Resume downloaded successfully!", { id: toastId });
+    } catch (err) {
+      console.error("Puppeteer server export failed:", err);
+      toast.error(
+        err.response?.data?.message || "Failed to generate PDF with Puppeteer. Please check the backend connection.",
+        { id: toastId }
+      );
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -719,65 +780,37 @@ const ResumeEditorPage = () => {
     { id: "education",      label: "Education",   icon: GraduationCap,  accent: "text-violet-500" },
     { id: "skills",         label: "Skills",      icon: Code,           accent: "text-amber-500" },
     { id: "projects",       label: "Projects",    icon: FolderOpen,     accent: "text-indigo-500" },
-    { id: "certifications", label: "Certs",       icon: Award,          accent: "text-orange-500" },
+    { id: "certifications", label: "Certs",       icon: Award,          accent: "text-blue-600" },
   ];
 
-  // Helper bar for Section Visibility & Reorder inside each tab
-  const SectionHeaderBar = ({ sectionKey, title }) => {
+  // Helper bar for Section Visibility
+  const SectionHeaderBar = ({ sectionKey, title, children }) => {
     const isVisible = resume.sectionVisibility?.[sectionKey] !== false;
     return (
-      <div className="mb-3 space-y-2">
-        <div className="flex items-center justify-between p-2.5 bg-gray-50/90 border border-gray-200/90 rounded-xl text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-700">Section Visibility:</span>
+      <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-sm font-semibold text-zinc-900 flex items-center gap-1.5">
+            <span>{title}</span>
             <button
               type="button"
               onClick={() => toggleSectionVisibility(sectionKey)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                isVisible
-                  ? "bg-white text-blue-700 border border-blue-200 shadow-2xs hover:bg-blue-50"
-                  : "bg-gray-200/80 text-gray-600 border border-gray-300 hover:bg-gray-300"
-              }`}
+              className="p-1 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors cursor-pointer"
+              title={isVisible ? "Visible on resume (click to hide)" : "Hidden from resume (click to show)"}
             >
               {isVisible ? (
-                <>
-                  <Eye className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Visible on Resume</span>
-                </>
+                <Eye className="w-4 h-4 text-zinc-600 hover:text-blue-600" />
               ) : (
-                <>
-                  <EyeOff className="w-3.5 h-3.5 text-gray-500" />
-                  <span>Hidden from Resume</span>
-                </>
+                <EyeOff className="w-4 h-4 text-zinc-400" />
               )}
             </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowReorderModal(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-blue-700 hover:underline cursor-pointer"
-          >
-            <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
-            <span>Reorder Sections</span>
-          </button>
-        </div>
-
-        {!isVisible && (
-          <div className="p-3 bg-rose-50/80 border border-rose-200 rounded-xl flex items-center justify-between text-xs text-rose-900 shadow-2xs">
-            <span className="flex items-center gap-2">
-              <EyeOff className="w-4 h-4 text-rose-600 flex-shrink-0" />
-              <span>This section is currently <strong>hidden</strong> from your resume preview and PDF export.</span>
+          </h3>
+          {!isVisible && (
+            <span className="text-[10px] font-medium text-zinc-500 bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded">
+              Hidden
             </span>
-            <button
-              type="button"
-              onClick={() => toggleSectionVisibility(sectionKey)}
-              className="px-2.5 py-1 text-xs font-bold text-rose-800 bg-white border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors cursor-pointer"
-            >
-              Show Section
-            </button>
-          </div>
-        )}
+          )}
+        </div>
+        {children}
       </div>
     );
   };
@@ -873,13 +906,31 @@ const ResumeEditorPage = () => {
               <span className="hidden sm:inline">Share</span>
             </button>
 
+
             <button
-              onClick={handlePrint}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all"
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isDownloading}
+              className={`flex items-center gap-1.5 text-xs font-bold px-3 sm:px-4 py-2 rounded-lg shadow-sm transition-all cursor-pointer ${
+                isDownloading
+                  ? "bg-blue-400 text-white cursor-wait"
+                  : "bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md"
+              }`}
+              title="Download PDF with clickable links (LinkedIn, Portfolio, Projects, etc.)"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Download PDF</span>
-              <span className="sm:hidden">PDF</span>
+              {isDownloading ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span className="hidden sm:inline">Generating PDF...</span>
+                  <span className="sm:hidden">PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Download PDF</span>
+                  <span className="sm:hidden">PDF</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -951,19 +1002,31 @@ const ResumeEditorPage = () => {
                     className={`flex-shrink-0 flex items-center transition-all whitespace-nowrap cursor-pointer ${
                       focusMode
                         ? "gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs hover:shadow-xs"
-                        : "gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                        : "gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
                     } ${
                       activeTab === t.id
                         ? "bg-white text-blue-700 shadow-sm border border-blue-200"
                         : isSectionHidden
-                        ? "text-gray-400 hover:bg-white hover:text-gray-600 line-through"
-                        : "text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-xs"
+                        ? "text-zinc-400 hover:bg-white hover:text-zinc-600"
+                        : "text-zinc-600 hover:bg-white hover:text-zinc-900 hover:shadow-xs"
                     }`}
                   >
-                    <t.icon className={`${focusMode ? "w-4 h-4 sm:w-4.5 sm:h-4.5" : "w-3.5 h-3.5"} ${activeTab === t.id ? t.accent : isSectionHidden ? "text-gray-300" : "text-gray-400"}`} />
+                    <t.icon className={`${focusMode ? "w-4 h-4 sm:w-4.5 sm:h-4.5" : "w-3.5 h-3.5"} ${activeTab === t.id ? t.accent : isSectionHidden ? "text-zinc-300" : "text-zinc-400"}`} />
                     <span>{t.label}</span>
-                    {isSectionHidden && (
-                      <EyeOff className="w-3 h-3 text-rose-400 ml-0.5" title="Hidden on resume" />
+                    {t.id !== "personal" && (
+                      <span
+                        role="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSectionVisibility(t.id);
+                        }}
+                        className={`p-0.5 rounded hover:bg-black/5 transition-colors cursor-pointer ${
+                          isSectionHidden ? "text-zinc-400 hover:text-rose-600" : "text-zinc-400 hover:text-blue-600"
+                        }`}
+                        title={isSectionHidden ? `Section hidden from resume (click to show)` : `Section visible on resume (click to hide)`}
+                      >
+                        {isSectionHidden ? <EyeOff className="w-3.5 h-3.5 text-zinc-400" /> : <Eye className="w-3.5 h-3.5" />}
+                      </span>
                     )}
                   </button>
                 );
@@ -975,11 +1038,11 @@ const ResumeEditorPage = () => {
               <button
                 type="button"
                 onClick={() => setShowReorderModal(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-gray-700 bg-white hover:text-blue-700 hover:bg-blue-50/50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all cursor-pointer shadow-2xs"
-                title="Reorder Sections & Toggle Visibility (👁)"
+                className="flex items-center justify-center p-2 text-zinc-700 bg-white hover:text-zinc-900 hover:bg-zinc-50 rounded-lg border border-zinc-300 transition-all cursor-pointer shadow-2xs"
+                title="Reorder Sections & Toggle Visibility"
+                aria-label="Reorder Sections"
               >
-                <ArrowUpDown className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden lg:inline">Reorder</span>
+                <ArrowUpDown className="w-4 h-4 text-blue-600" />
               </button>
 
               {/* Quick Focus Mode toggle icon */}
@@ -1001,21 +1064,6 @@ const ResumeEditorPage = () => {
           {/* Form scroll area */}
           <div className={`flex-1 overflow-y-auto ${focusMode ? "px-6 sm:px-10 lg:px-14 py-6" : "px-5 sm:px-8 py-5"} space-y-4`}>
             <div className={focusMode ? "max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto w-full space-y-6" : "w-full space-y-4"}>
-              {focusMode && (
-                <div className="px-5 py-3 bg-gradient-to-r from-blue-50/90 via-indigo-50/40 to-blue-50/90 border border-blue-200/80 rounded-2xl flex items-center justify-between text-xs sm:text-sm text-blue-900 shadow-2xs">
-                  <span className="flex items-center gap-2.5 font-medium">
-                    <Maximize2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                    <span><strong>Expanded View:</strong> High-productivity workspace with expanded inputs and full section spacing.</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setFocusMode(false)}
-                    className="font-bold text-blue-700 hover:text-blue-800 bg-white px-3 py-1.5 rounded-xl border border-blue-200 hover:bg-blue-50 shadow-2xs transition-colors cursor-pointer text-xs"
-                  >
-                    Show Preview ⇥
-                  </button>
-                </div>
-              )}
 
             {/* ─ Personal ─ */}
             {activeTab === "personal" && (
@@ -1035,28 +1083,24 @@ const ResumeEditorPage = () => {
                     value={resume.personalInfo.linkedin}
                     onChange={v => updatePersonal("linkedin", v)}
                     placeholder="linkedin.com/in/johndoe"
-                    hint="Will show as clickable 'LinkedIn' in the resume"
+                    
                   />
                   <Field
                     label="Website / Portfolio URL"
                     value={resume.personalInfo.website}
                     onChange={v => updatePersonal("website", v)}
                     placeholder="johndoe.dev"
-                    hint="Will show as clickable 'Portfolio' in the resume"
+                    
                   />
                 </div>
                 {/* Professional Summary with AI Generator */}
                 <div className="border-t border-gray-100 pt-3 space-y-2.5">
-                  <SectionHeaderBar sectionKey="summary" title="Professional Summary" />
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wide">
-                      Professional Summary
-                    </label>
+                  <SectionHeaderBar sectionKey="summary" title="Professional Summary">
                     <button
                       type="button"
                       onClick={handleAiGenerateSummaries}
                       disabled={aiLoading.generatingSummary}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-violet-700 bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 hover:from-violet-100 hover:to-indigo-100 border border-violet-200 rounded-lg shadow-2xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg shadow-2xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                       title="Analyze your role, skills & background to create 3 polished summaries"
                     >
                       {aiLoading.generatingSummary ? (
@@ -1071,7 +1115,7 @@ const ResumeEditorPage = () => {
                         </>
                       )}
                     </button>
-                  </div>
+                  </SectionHeaderBar>
 
                   {/* AI Generated Summaries Tray */}
                   {aiSummaries && (
@@ -1271,51 +1315,40 @@ const ResumeEditorPage = () => {
             {/* ─ Skills ─ */}
             {activeTab === "skills" && (
               <div className="space-y-4">
-                <SectionHeaderBar sectionKey="skills" title="Skills & Competencies" />
-                {/* AI Suggest Skills Card */}
-                <div className="p-3.5 bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3 shadow-2xs">
-                  <div>
-                    <p className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                      AI Skill Suggestions
-                    </p>
-                    <p className="text-[11px] text-amber-800 mt-0.5">
-                      Get 10–15 trending skills for{" "}
-                      <strong>{resume.personalInfo?.jobTitle || "your target role"}</strong>
-                    </p>
-                  </div>
+                <SectionHeaderBar sectionKey="skills" title="Skills & Competencies">
                   <button
                     type="button"
                     onClick={handleAiSuggestSkills}
                     disabled={aiLoading.suggestingSkills}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 flex-shrink-0 cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-lg text-xs font-semibold transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                    title="Get AI suggested skills based on your role"
                   >
                     {aiLoading.suggestingSkills ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                         <span>Searching...</span>
                       </>
                     ) : (
                       <>
-                        <Wand2 className="w-3.5 h-3.5" />
+                        <Sparkles className="w-3.5 h-3.5 text-white" />
                         <span>Suggest Skills</span>
                       </>
                     )}
                   </button>
-                </div>
+                </SectionHeaderBar>
 
                 {/* Suggested Skills Tray */}
                 {suggestedSkills.length > 0 && (
-                  <div className="p-3 bg-white border border-amber-200 rounded-xl space-y-2 shadow-2xs animate-in fade-in slide-in-from-top-1">
+                  <div className="p-3 bg-white border border-blue-200 rounded-xl space-y-2 shadow-2xs animate-in fade-in slide-in-from-top-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wide">
+                      <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wide">
                         Recommended for {resume.personalInfo?.jobTitle || "Your Role"} ({suggestedSkills.length})
                       </span>
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={handleAddAllSuggestedSkills}
-                          className="text-[11px] font-bold text-amber-700 hover:text-amber-900 hover:underline cursor-pointer"
+                          className="text-[11px] font-bold text-blue-700 hover:text-blue-900 hover:underline cursor-pointer"
                         >
                           + Add All
                         </button>
@@ -1336,9 +1369,9 @@ const ResumeEditorPage = () => {
                           key={skIdx}
                           type="button"
                           onClick={() => handleAddSuggestedSkill(skill)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 rounded-lg text-xs font-semibold transition-all hover:scale-105 cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 rounded-lg text-xs font-semibold transition-all hover:scale-105 cursor-pointer shadow-2xs"
                         >
-                          <Plus className="w-3 h-3 text-amber-600" />
+                          <Plus className="w-3 h-3 text-blue-600" />
                           {skill}
                         </button>
                       ))}
@@ -1465,15 +1498,15 @@ const ResumeEditorPage = () => {
                 <div className="flex gap-2 mb-3">
                   <button
                     onClick={() => addItem("certifications", { ...EMPTY_CERT, type: "certification" })}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-dashed border-amber-300 text-amber-700 bg-amber-50 rounded-xl text-xs font-bold hover:bg-amber-100 transition cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-dashed border-blue-300 text-blue-700 bg-blue-50/70 rounded-xl text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
                   >
-                    <Award className="w-3.5 h-3.5" /> Add Certification
+                    <Award className="w-3.5 h-3.5 text-blue-600" /> Add Certification
                   </button>
                   <button
                     onClick={() => addItem("certifications", { ...EMPTY_CERT, type: "hackathon" })}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-dashed border-orange-300 text-orange-700 bg-orange-50 rounded-xl text-xs font-bold hover:bg-orange-100 transition cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-dashed border-blue-300 text-blue-700 bg-blue-50/70 rounded-xl text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
                   >
-                    <Trophy className="w-3.5 h-3.5" /> Add Hackathon
+                    <Trophy className="w-3.5 h-3.5 text-blue-600" /> Add Hackathon
                   </button>
                 </div>
 
@@ -1483,13 +1516,13 @@ const ResumeEditorPage = () => {
                     title={
                       <span className="flex items-center gap-1.5">
                         {cert.type === "hackathon"
-                          ? <Trophy className="w-3.5 h-3.5 text-orange-500" />
-                          : <Award className="w-3.5 h-3.5 text-amber-500" />}
+                          ? <Trophy className="w-3.5 h-3.5 text-blue-600" />
+                          : <Award className="w-3.5 h-3.5 text-blue-600" />}
                         {cert.name || (cert.type === "hackathon" ? `Hackathon ${i + 1}` : `Certification ${i + 1}`)}
                       </span>
                     }
                     defaultOpen={i === 0}
-                    accent="text-amber-500"
+                    accent="text-blue-600"
                     draggable
                     onDragStart={() => setDraggingItem({ section: "certifications", index: i })}
                     onDragOver={(e) => {
@@ -1510,13 +1543,11 @@ const ResumeEditorPage = () => {
                           onClick={() => updateItem("certifications", i, { type })}
                           className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg border transition-all capitalize cursor-pointer ${
                             cert.type === type
-                              ? type === "hackathon"
-                                ? "bg-orange-100 border-orange-300 text-orange-700"
-                                : "bg-amber-100 border-amber-300 text-amber-700"
+                              ? "bg-blue-50 border-blue-300 text-blue-700 shadow-2xs"
                               : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
                           }`}
                         >
-                          {type === "hackathon" ? "🏆 Hackathon" : "📜 Certification"}
+                          {type === "hackathon" ? "Hackathon" : "Certification"}
                         </button>
                       ))}
                     </div>
@@ -1583,6 +1614,11 @@ const ResumeEditorPage = () => {
               }}
               className="relative flex-shrink-0"
             >
+              <style>{`
+                #resume-print {
+                  --rf-scale: ${(resume.fontScale || 105) / 100};
+                }
+              `}</style>
               <div
                 id="resume-print"
                 ref={printRef}
@@ -1593,6 +1629,7 @@ const ResumeEditorPage = () => {
                   WebkitUserSelect: "text",
                   userSelect: "text",
                   WebkitTouchCallout: "default",
+                  color: "#000000",
                 }}
               >
                 <ActiveTemplate data={resume} />
@@ -1603,27 +1640,24 @@ const ResumeEditorPage = () => {
                   const topPos = pageNum * 1123;
                   return (
                     <div
-  key={pageNum}
-  className="no-print absolute left-0 right-0 pointer-events-none z-30"
-  style={{ top: `${topPos - 12}px` }}
->
-  <div className="border-t border-dashed border-gray-300" />
-
-  <span className="absolute left-1/2 -translate-x-1/2 -top-2 bg-white px-2 text-[9px] text-gray-400">
-    Page {pageNum}
-  </span>
-</div>
+                      key={pageNum}
+                      className="no-print absolute left-0 right-0 pointer-events-none z-30"
+                      style={{ top: `${topPos - 12}px` }}
+                    >
+                      <div className="border-t border-dashed border-gray-300" />
+                      <span className="absolute left-1/2 -translate-x-1/2 -top-2 bg-white px-2 text-[9px] text-gray-400">
+                        Page {pageNum}
+                      </span>
+                    </div>
                   );
                 })}
               </div>
             </div>
           </div>
 
-          
-
-          {/* Floating Zoom & Fit Pill */}
+          {/* Floating Zoom, Font Size & Fit Pill */}
           <div className="sticky bottom-4 z-40 flex items-center justify-center pointer-events-none mt-4 pb-2">
-            <div className="pointer-events-auto bg-gray-900/90 hover:bg-gray-900 text-white backdrop-blur-md px-3 py-1.5 rounded-full shadow-2xl border border-gray-700/60 flex items-center gap-2 text-xs transition-all select-none">
+            <div className="pointer-events-auto bg-gray-900/95 hover:bg-gray-900 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full shadow-2xl border border-gray-700/60 flex items-center gap-2 text-xs transition-all select-none">
               {/* Zoom Out Button */}
               <button
                 type="button"
@@ -1639,8 +1673,8 @@ const ResumeEditorPage = () => {
               <button
                 type="button"
                 onClick={() => { setZoom(100); setIsFitScreen(false); }}
-                title="Click to reset to 100%"
-                className="w-11 text-center font-bold text-[11px] hover:text-blue-400 transition-colors cursor-pointer"
+                title="Click to reset zoom to 100%"
+                className="w-10 text-center font-bold text-[11px] hover:text-blue-400 transition-colors cursor-pointer"
               >
                 {Math.round(zoom)}%
               </button>
@@ -1655,8 +1689,6 @@ const ResumeEditorPage = () => {
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
-
-              <div className="w-px h-3.5 bg-gray-700" />
 
               {/* Fit to Screen Button */}
               <button

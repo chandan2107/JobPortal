@@ -8,9 +8,13 @@ const {
   updateResume,
   deleteResume,
   syncResumes,
+  exportResumePdf,
 } = require("../controllers/resumeController");
 
-// All resume routes are protected
+// Public PDF export (supports both logged-in and guest drafting users)
+router.post("/export-pdf", exportResumePdf);
+
+// All other resume routes are protected
 router.use(protect);
 
 router.route("/")

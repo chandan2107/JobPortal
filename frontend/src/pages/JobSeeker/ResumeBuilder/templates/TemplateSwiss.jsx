@@ -1,19 +1,7 @@
 import React from "react";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from "../sectionConfig";
-
-const Link = ({ href, children }) =>
-  href ? (
-    <a
-      href={href.startsWith("http") ? href : `https://${href}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="underline underline-offset-2 hover:text-black transition-colors"
-    >
-      {children}
-    </a>
-  ) : (
-    <span>{children}</span>
-  );
+import { formatDateRange, formatResumeDate } from "../dateUtils";
+import Link from "../ResumeLink";
 
 const TemplateSwiss = ({ data }) => {
   const {
@@ -35,41 +23,41 @@ const TemplateSwiss = ({ data }) => {
 
   const sections = {
     summary: summary && visibility.summary !== false && (
-      <div key="summary" className="mb-7 grid grid-cols-[140px_1fr] gap-6 items-start">
-        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400">
+      <div key="summary" className="mb-5 grid grid-cols-[140px_1fr] gap-5 items-start">
+        <h2 className="text-[15px] font-bold uppercase text-black">
           Profile
-        </span>
-        <p className="text-xs text-zinc-700 leading-relaxed font-normal">
+        </h2>
+        <p className="text-[13.5px] font-normal text-black leading-relaxed">
           {summary}
         </p>
       </div>
     ),
 
     experience: experience.length > 0 && visibility.experience !== false && (
-      <div key="experience" className="mb-7">
-        <div className="border-t border-zinc-200 pt-3 mb-4 flex items-center justify-between">
-          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-900">
+      <div key="experience" className="mb-5">
+        <div className="border-t-2 border-black pt-2 mb-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Experience
           </h2>
-          <span className="text-[10px] text-zinc-400 font-mono">Work History</span>
+          <span className="text-[11px] text-zinc-700 font-mono font-medium">Work History</span>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {experience.map((exp, i) => (
-            <div key={i} className="grid grid-cols-[140px_1fr] gap-6">
-              <div className="text-xs text-zinc-400 font-mono pt-0.5">
-                <p>{exp.startDate}{exp.endDate ? ` — ${exp.endDate}` : exp.current ? " — Present" : ""}</p>
-                {exp.location && <p className="text-zinc-500 text-[11px] mt-0.5">{exp.location}</p>}
+            <div key={i} className="grid grid-cols-[140px_1fr] gap-5">
+              <div className="text-[13.5px] text-black font-mono font-medium pt-0.5">
+                <p>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</p>
+                {exp.location && <p className="text-zinc-700 text-[11.5px] mt-0.5 font-normal">{exp.location}</p>}
               </div>
               <div>
                 <div className="flex items-baseline justify-between">
-                  <h3 className="text-sm font-bold text-zinc-900 tracking-tight">
+                  <h3 className="text-[14px] font-semibold text-black">
                     {exp.title || "Job Title"}
                   </h3>
-                  <span className="text-xs font-semibold text-zinc-600">{exp.company}</span>
+                  <span className="text-[13.5px] font-medium text-zinc-800">{exp.company}</span>
                 </div>
                 {exp.description && (
-                  <p className="text-xs text-zinc-600 mt-2 leading-relaxed whitespace-pre-line">
+                  <p className="text-[13.5px] font-normal text-black mt-1 leading-relaxed whitespace-pre-line">
                     {exp.description}
                   </p>
                 )}
@@ -81,25 +69,25 @@ const TemplateSwiss = ({ data }) => {
     ),
 
     education: education.length > 0 && visibility.education !== false && (
-      <div key="education" className="mb-7">
-        <div className="border-t border-zinc-200 pt-3 mb-4 flex items-center justify-between">
-          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-900">
+      <div key="education" className="mb-5">
+        <div className="border-t-2 border-black pt-2 mb-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Education
           </h2>
-          <span className="text-[10px] text-zinc-400 font-mono">Academic</span>
+          <span className="text-[11px] text-zinc-700 font-mono font-medium">Academic</span>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {education.map((edu, i) => (
-            <div key={i} className="grid grid-cols-[140px_1fr] gap-6">
-              <div className="text-xs text-zinc-400 font-mono pt-0.5">
-                {edu.startDate}{edu.endDate ? ` — ${edu.endDate}` : ""}
+            <div key={i} className="grid grid-cols-[140px_1fr] gap-5">
+              <div className="text-[13.5px] text-black font-mono font-medium pt-0.5">
+                {formatDateRange(edu.startDate, edu.endDate)}
               </div>
               <div>
-                <h3 className="text-sm font-bold text-zinc-900">{edu.degree}</h3>
-                <p className="text-xs text-zinc-600 mt-0.5">
+                <h3 className="text-[13.5px] font-semibold text-black">{edu.degree}</h3>
+                <p className="text-[13.5px] font-medium text-zinc-800 mt-0.5">
                   {edu.school}{edu.location ? `, ${edu.location}` : ""}
-                  {edu.gpa && <span className="ml-2 font-mono text-zinc-400">• GPA {edu.gpa}</span>}
+                  {edu.gpa && <span className="ml-2 font-mono text-[11px] text-black font-normal">• GPA {edu.gpa}</span>}
                 </p>
               </div>
             </div>
@@ -109,31 +97,31 @@ const TemplateSwiss = ({ data }) => {
     ),
 
     projects: projects.length > 0 && visibility.projects !== false && (
-      <div key="projects" className="mb-7">
-        <div className="border-t border-zinc-200 pt-3 mb-4 flex items-center justify-between">
-          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-900">
+      <div key="projects" className="mb-5">
+        <div className="border-t-2 border-black pt-2 mb-3 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Selected Works
           </h2>
-          <span className="text-[10px] text-zinc-400 font-mono">Projects</span>
+          <span className="text-[11px] text-zinc-700 font-mono font-medium">Projects</span>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {projects.map((proj, i) => (
-            <div key={i} className="grid grid-cols-[140px_1fr] gap-6">
-              <div className="text-xs text-zinc-400 font-mono pt-0.5">
-                {proj.link ? <Link href={proj.link}>View ↗</Link> : `Project 0${i + 1}`}
+            <div key={i} className="grid grid-cols-[140px_1fr] gap-5">
+              <div className="text-[13.5px] text-black font-mono font-medium pt-0.5">
+                {proj.link ? <Link href={proj.link} className="text-black font-medium text-[11px] underline underline-offset-2">Link</Link> : `Project 0${i + 1}`}
               </div>
               <div>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-sm font-bold text-zinc-900">{proj.name}</h3>
+                  <h3 className="text-[13.5px] font-semibold text-black">{proj.name}</h3>
                 </div>
                 {proj.technologies?.length > 0 && (
-                  <p className="text-[11px] font-mono text-zinc-500 mt-0.5">
+                  <p className="text-[13.5px] font-mono font-normal text-zinc-800 mt-0.5">
                     [{Array.isArray(proj.technologies) ? proj.technologies.join(" / ") : proj.technologies}]
                   </p>
                 )}
                 {proj.description && (
-                  <p className="text-xs text-zinc-600 mt-1.5 leading-relaxed">
+                  <p className="text-[13.5px] font-normal text-black mt-1 leading-relaxed">
                     {proj.description}
                   </p>
                 )}
@@ -145,20 +133,20 @@ const TemplateSwiss = ({ data }) => {
     ),
 
     skills: skills.length > 0 && visibility.skills !== false && (
-      <div key="skills" className="mb-7">
-        <div className="border-t border-zinc-200 pt-3 mb-3 flex items-center justify-between">
-          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-900">
+      <div key="skills" className="mb-5">
+        <div className="border-t-2 border-black pt-2 mb-2.5 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Capabilities
           </h2>
-          <span className="text-[10px] text-zinc-400 font-mono">Competencies</span>
+          <span className="text-[11px] text-zinc-700 font-mono font-medium">Competencies</span>
         </div>
-        <div className="grid grid-cols-[140px_1fr] gap-6">
-          <span className="text-xs text-zinc-400 font-mono">Technical</span>
+        <div className="grid grid-cols-[140px_1fr] gap-5">
+          <span className="text-[13.5px] text-black font-mono font-medium">Technical</span>
           <div className="flex flex-wrap gap-1.5">
             {skills.map((skill, sIdx) => (
               <span
                 key={sIdx}
-                className="text-[11px] font-medium text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-sm"
+                className="text-[13.5px] font-medium text-black bg-zinc-100 border border-zinc-300 px-2.5 py-0.5 rounded-sm"
               >
                 {skill}
               </span>
@@ -169,21 +157,21 @@ const TemplateSwiss = ({ data }) => {
     ),
 
     certifications: certifications.length > 0 && visibility.certifications !== false && (
-      <div key="certifications" className="mb-7">
-        <div className="border-t border-zinc-200 pt-3 mb-3 flex items-center justify-between">
-          <h2 className="text-[11px] font-black uppercase tracking-widest text-zinc-900">
+      <div key="certifications" className="mb-5">
+        <div className="border-t-2 border-black pt-2 mb-2.5 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold uppercase text-black">
             Honors & Certs
           </h2>
-          <span className="text-[10px] text-zinc-400 font-mono">Credentials</span>
+          <span className="text-[11px] text-zinc-700 font-mono font-medium">Credentials</span>
         </div>
-        <div className="grid grid-cols-[140px_1fr] gap-6">
-          <span className="text-xs text-zinc-400 font-mono">Verified</span>
+        <div className="grid grid-cols-[140px_1fr] gap-5">
+          <span className="text-[13.5px] text-black font-mono font-medium">Verified</span>
           <div className="space-y-1">
             {certifications.map((cert, i) => (
-              <p key={i} className="text-xs text-zinc-700">
-                <span className="font-semibold text-zinc-900">{cert.name}</span>
+              <p key={i} className="text-[13.5px] text-black">
+                <span className="text-[13.5px] font-semibold text-black">{cert.name}</span>
                 {cert.issuer && ` — ${cert.issuer}`}
-                {cert.date && <span className="text-zinc-400 font-mono ml-2">({cert.date})</span>}
+                {cert.date && <span className="text-black font-mono font-normal ml-2 text-[11px]">({formatResumeDate(cert.date)})</span>}
               </p>
             ))}
           </div>
@@ -194,28 +182,28 @@ const TemplateSwiss = ({ data }) => {
 
   return (
     <div
-      className="bg-white w-full text-zinc-900 px-12 pt-11 pb-20 min-h-[1123px]"
+      className="bg-white w-full text-black px-12 pt-10 pb-16 min-h-[1123px]"
       style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
     >
       {/* Swiss Asymmetric Header */}
-      <div className="border-b-2 border-zinc-900 pb-6 mb-7">
-        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4">
+      <div className="border-b-4 border-black pb-4 mb-5">
+        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 uppercase">
+            <h1 className="text-[26px] font-bold text-black uppercase leading-tight">
               {fullName || "Your Name"}
             </h1>
             {jobTitle && (
-              <p className="text-sm font-semibold tracking-wider text-zinc-600 uppercase mt-1">
+              <p className="text-[13.5px] font-medium text-black uppercase mt-1">
                 {jobTitle}
               </p>
             )}
           </div>
-          <div className="flex flex-wrap md:flex-col md:items-end gap-x-4 gap-y-1 text-xs font-medium text-zinc-500">
-            {email && <span>{email}</span>}
-            {phone && <span>{phone}</span>}
+          <div className="flex flex-wrap md:flex-col md:items-end gap-x-3 gap-y-1 text-[13.5px] font-normal text-black">
+            {email && <Link href={`mailto:${email.trim()}`} className="text-black">{email}</Link>}
+            {phone && <Link href={`tel:${phone.trim()}`} className="text-black">{phone}</Link>}
             {location && <span>{location}</span>}
-            {linkedin && <Link href={linkedin}>LinkedIn</Link>}
-            {website && <Link href={website}>Portfolio</Link>}
+            {linkedin && <Link href={linkedin} className="text-black font-medium underline underline-offset-2">LinkedIn</Link>}
+            {website && <Link href={website} className="text-black font-medium underline underline-offset-2">Portfolio</Link>}
           </div>
         </div>
       </div>

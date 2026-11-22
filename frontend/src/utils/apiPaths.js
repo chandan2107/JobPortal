@@ -79,6 +79,17 @@ export const API_PATHS = {
     UPDATE: (id) => `/api/resumes/${id}`,
     DELETE: (id) => `/api/resumes/${id}`,
     SYNC: "/api/resumes/sync",
+    EXPORT_PDF: "/api/resumes/export-pdf",
+  },
+
+  MOCK_INTERVIEW: {
+    GET_CONFIG: "/api/mock-interview/config",
+    START: "/api/mock-interview/start",
+    SAVE_TRANSCRIPT: (id) => `/api/mock-interview/${id}/save-transcript`,
+    GENERATE_REPORT: (id) => `/api/mock-interview/${id}/generate-report`,
+    GET_HISTORY: "/api/mock-interview/history",
+    GET_BY_ID: (id) => `/api/mock-interview/${id}`,
+    DELETE: (id) => `/api/mock-interview/${id}`,
   },
 };
 

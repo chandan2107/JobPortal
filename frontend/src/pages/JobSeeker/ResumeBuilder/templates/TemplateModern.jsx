@@ -1,12 +1,7 @@
 import React from "react";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from "../sectionConfig";
-
-const Link = ({ href, children }) =>
-  href ? (
-    <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
-      {children}
-    </a>
-  ) : <span>{children}</span>;
+import { formatDateRange, formatResumeDate } from "../dateUtils";
+import Link from "../ResumeLink";
 
 const TemplateModern = ({ data }) => {
   const {
@@ -29,29 +24,33 @@ const TemplateModern = ({ data }) => {
   const rightSectionsMap = {
     summary: summary && visibility.summary !== false && (
       <div key="summary" className="mb-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1.5">About Me</h2>
-        <div className="w-6 h-0.5 bg-blue-400 mb-2" />
-        <p className="text-xs text-gray-700 leading-relaxed">{summary}</p>
+        <h2 className="text-[15px] font-bold uppercase text-black mb-1.5 flex items-center gap-2">
+          <span>About Me</span>
+          <span className="flex-1 h-0.5 bg-black" />
+        </h2>
+        <p className="text-[13.5px] font-normal text-black leading-relaxed">{summary}</p>
       </div>
     ),
 
     experience: experience.length > 0 && visibility.experience !== false && (
       <div key="experience" className="mb-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1.5">Experience</h2>
-        <div className="w-6 h-0.5 bg-blue-400 mb-3" />
-        <div className="space-y-4">
+        <h2 className="text-[15px] font-bold uppercase text-black mb-2 flex items-center gap-2">
+          <span>Experience</span>
+          <span className="flex-1 h-0.5 bg-black" />
+        </h2>
+        <div className="space-y-3.5">
           {experience.map((exp, i) => (
-            <div key={i} className="border-l-2 border-blue-100 pl-3">
+            <div key={i} className="border-l-2 border-zinc-900 pl-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-xs font-bold text-gray-900">{exp.title || "Job Title"}</h3>
-                  <p className="text-[11px] text-gray-500">{exp.company}{exp.location ? ` · ${exp.location}` : ""}</p>
+                  <h3 className="text-[14px] font-semibold text-black">{exp.title || "Job Title"}</h3>
+                  <p className="text-[13.5px] font-medium text-zinc-800">{exp.company}{exp.location ? ` · ${exp.location}` : ""}</p>
                 </div>
-                <span className="text-[10px] text-gray-400 shrink-0 ml-3 bg-gray-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-                  {exp.startDate}{exp.endDate ? ` – ${exp.endDate}` : exp.current ? " – Present" : ""}
+                <span className="text-[13.5px] font-medium text-black shrink-0 ml-2 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-300">
+                  {formatDateRange(exp.startDate, exp.endDate, exp.current)}
                 </span>
               </div>
-              {exp.description && <p className="text-[11px] text-gray-600 mt-1 leading-relaxed whitespace-pre-line">{exp.description}</p>}
+              {exp.description && <p className="text-[13.5px] font-normal text-black mt-1 leading-relaxed whitespace-pre-line">{exp.description}</p>}
             </div>
           ))}
         </div>
@@ -60,27 +59,29 @@ const TemplateModern = ({ data }) => {
 
     projects: projects.length > 0 && visibility.projects !== false && (
       <div key="projects" className="mb-5">
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1.5">Projects</h2>
-        <div className="w-6 h-0.5 bg-blue-400 mb-3" />
+        <h2 className="text-[15px] font-bold uppercase text-black mb-2 flex items-center gap-2">
+          <span>Projects</span>
+          <span className="flex-1 h-0.5 bg-black" />
+        </h2>
         <div className="space-y-3">
           {projects.map((proj, i) => (
-            <div key={i} className="border-l-2 border-blue-100 pl-3">
+            <div key={i} className="border-l-2 border-zinc-900 pl-3">
               <div className="flex justify-between items-start">
-                <h3 className="text-xs font-bold text-gray-900">{proj.name}</h3>
+                <h3 className="text-[13.5px] font-semibold text-black">{proj.name}</h3>
                 {proj.link && (
-                  <Link href={proj.link}>
-                    <span className="text-[10px] text-blue-500 ml-2">View →</span>
+                  <Link href={proj.link} className="text-black font-medium text-[11px] underline underline-offset-2">
+                    Link
                   </Link>
                 )}
               </div>
               {proj.technologies?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-0.5">
+                <div className="flex flex-wrap gap-1 mt-1">
                   {(Array.isArray(proj.technologies) ? proj.technologies : [proj.technologies]).filter(Boolean).map((t, ti) => (
-                    <span key={ti} className="text-[9px] bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded-full">{t}</span>
+                    <span key={ti} className="text-[13.5px] font-normal bg-zinc-100 text-black border border-zinc-300 px-2 py-0.5 rounded">{t}</span>
                   ))}
                 </div>
               )}
-              {proj.description && <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">{proj.description}</p>}
+              {proj.description && <p className="text-[13.5px] font-normal text-black mt-1 leading-relaxed">{proj.description}</p>}
             </div>
           ))}
         </div>
@@ -91,33 +92,33 @@ const TemplateModern = ({ data }) => {
   return (
     <div className="bg-white w-full flex min-h-[1123px]" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Left Sidebar */}
-      <div className="w-[32%] bg-slate-800 text-white flex-shrink-0 px-5 py-7">
-        <h1 className="text-xl font-bold text-white leading-tight">
+      <div className="w-[34%] bg-slate-900 text-white flex-shrink-0 px-5 py-7">
+        <h1 className="text-[26px] font-bold text-white leading-tight">
           {fullName || "Your Name"}
         </h1>
         {jobTitle && (
-          <p className="text-blue-300 text-xs font-semibold mt-1 leading-snug">{jobTitle}</p>
+          <p className="text-slate-200 text-[13.5px] font-medium mt-1 leading-snug">{jobTitle}</p>
         )}
 
         {/* Contact */}
-        <div className="mt-5 border-t border-slate-600 pt-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-300 mb-2">Contact</h3>
-          <div className="space-y-1.5 text-[11px] text-slate-300">
-            {email && <p className="break-all">{email}</p>}
-            {phone && <p>{phone}</p>}
+        <div className="mt-5 border-t border-slate-700 pt-3.5">
+          <h3 className="text-[15px] font-bold uppercase text-slate-100 mb-2">Contact</h3>
+          <div className="space-y-1.5 text-[13.5px] text-slate-200 font-normal">
+            {email && <p className="break-all"><Link href={`mailto:${email.trim()}`} style={{ color: "#ffffff" }} className="hover:text-slate-200">{email}</Link></p>}
+            {phone && <p><Link href={`tel:${phone.trim()}`} style={{ color: "#ffffff" }} className="hover:text-slate-200">{phone}</Link></p>}
             {location && <p>{location}</p>}
-            {linkedin && <p><Link href={linkedin}><span className="text-blue-300 hover:text-blue-200">LinkedIn</span></Link></p>}
-            {website && <p><Link href={website}><span className="text-blue-300 hover:text-blue-200">Portfolio</span></Link></p>}
+            {linkedin && <p><Link href={linkedin} style={{ color: "#ffffff" }} className="font-medium underline underline-offset-2 hover:text-slate-200">LinkedIn</Link></p>}
+            {website && <p><Link href={website} style={{ color: "#ffffff" }} className="font-medium underline underline-offset-2 hover:text-slate-200">Portfolio</Link></p>}
           </div>
         </div>
 
         {/* Skills */}
         {skills.length > 0 && visibility.skills !== false && (
-          <div className="mt-5 border-t border-slate-600 pt-4">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-300 mb-2">Skills</h3>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="mt-5 border-t border-slate-700 pt-3.5">
+            <h3 className="text-[15px] font-bold uppercase text-slate-100 mb-2">Skills</h3>
+            <div className="flex flex-wrap gap-1">
               {skills.map((skill, i) => (
-                <span key={i} className="text-[10px] bg-slate-700 text-slate-200 px-2 py-0.5 rounded-full border border-slate-600">
+                <span key={i} className="text-[13.5px] font-normal bg-slate-800 text-slate-100 px-2 py-0.5 rounded border border-slate-700">
                   {skill}
                 </span>
               ))}
@@ -127,16 +128,16 @@ const TemplateModern = ({ data }) => {
 
         {/* Education */}
         {education.length > 0 && visibility.education !== false && (
-          <div className="mt-5 border-t border-slate-600 pt-4">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-300 mb-2">Education</h3>
-            <div className="space-y-3">
+          <div className="mt-5 border-t border-slate-700 pt-3.5">
+            <h3 className="text-[15px] font-bold uppercase text-slate-100 mb-2">Education</h3>
+            <div className="space-y-2.5">
               {education.map((edu, i) => (
                 <div key={i}>
-                  <p className="text-[11px] font-bold text-white leading-tight">{edu.degree}</p>
-                  <p className="text-[10px] text-slate-300 mt-0.5">{edu.school}</p>
-                  {edu.location && <p className="text-[10px] text-slate-400">{edu.location}</p>}
-                  <p className="text-[10px] text-slate-400 mt-0.5">{edu.startDate}{edu.endDate ? ` – ${edu.endDate}` : ""}</p>
-                  {edu.gpa && <p className="text-[10px] text-blue-300">GPA: {edu.gpa}</p>}
+                  <p className="text-[13.5px] font-semibold text-white leading-tight">{edu.degree}</p>
+                  <p className="text-[13.5px] text-slate-200 font-medium mt-0.5">{edu.school}</p>
+                  {edu.location && <p className="text-[13.5px] text-slate-300">{edu.location}</p>}
+                  <p className="text-[13.5px] text-slate-300 font-normal mt-0.5">{formatDateRange(edu.startDate, edu.endDate)}</p>
+                  {edu.gpa && <p className="text-[11px] text-slate-200 font-medium">GPA: {edu.gpa}</p>}
                 </div>
               ))}
             </div>
@@ -145,21 +146,21 @@ const TemplateModern = ({ data }) => {
 
         {/* Certifications */}
         {certifications.length > 0 && visibility.certifications !== false && (
-          <div className="mt-5 border-t border-slate-600 pt-4">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-300 mb-2">
-              Certs & Hackathons
+          <div className="mt-5 border-t border-slate-700 pt-3.5">
+            <h3 className="text-[15px] font-bold uppercase text-slate-100 mb-2">
+              Certs
             </h3>
             <div className="space-y-2">
               {certifications.map((cert, i) => (
                 <div key={i}>
-                  <p className="text-[11px] font-semibold text-white leading-tight">
+                  <p className="text-[13.5px] font-semibold text-white leading-tight">
                     {cert.name}
                     {cert.type === "hackathon" && (
-                      <span className="ml-1.5 text-[9px] bg-orange-400/30 text-orange-300 px-1.5 py-0.5 rounded font-bold">Hackathon</span>
+                      <span className="ml-1.5 text-[9.5px] bg-blue-500/30 text-blue-200 px-1 py-0.5 rounded font-medium">Hackathon</span>
                     )}
                   </p>
-                  {cert.issuer && <p className="text-[10px] text-slate-400">{cert.issuer}</p>}
-                  {cert.date && <p className="text-[10px] text-slate-500">{cert.date}</p>}
+                  {cert.issuer && <p className="text-[13.5px] text-slate-300">{cert.issuer}</p>}
+                  {cert.date && <p className="text-[11px] text-slate-300 font-normal">{formatResumeDate(cert.date)}</p>}
                 </div>
               ))}
             </div>
@@ -168,7 +169,7 @@ const TemplateModern = ({ data }) => {
       </div>
 
       {/* Right Main Content */}
-      <div className="flex-1 px-6 py-7 pb-14">
+      <div className="flex-1 px-6 py-6 pb-12">
         {order.filter(key => rightSectionsMap[key]).map(key => rightSectionsMap[key])}
       </div>
     </div>

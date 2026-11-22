@@ -1,116 +1,196 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, ArrowRight, Users, Building2, TrendingUp } from "lucide-react";
+import { Search, MapPin, ArrowRight, Bot, FileText, FileCheck2, ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-
+import toast from "react-hot-toast";
 
 const Hero = () => {
-  const {user, isAuthenticated} = useAuth()
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
 
-  const stats = [
-    { icon: Users, label: "Active Job Seekers", value: "10K+" },
-    { icon: Building2, label: "Companies", value: "500+" },
-    { icon: TrendingUp, label: "Jobs Posted", value: "10K+" },
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.append("query", keyword.trim());
+    if (location.trim()) params.append("location", location.trim());
+    navigate(`/find-jobs?${params.toString()}`);
+  };
+
+  const trendingTags = ["Remote", "Frontend", "Full Stack", "Design", "DevOps"];
+
+  const handleFeatureClick = (feature) => {
+    if (!isAuthenticated) {
+      toast.error(`Please login to access ${feature.title}`);
+      navigate("/login");
+      return;
+    }
+
+    if (feature.route) {
+      navigate(feature.route);
+    } else {
+      toast.success(`${feature.title} feature coming soon!`);
+    }
+  };
+
+  const featureBoxes = [
+    {
+      icon: Bot,
+      title: "AI Mock Interview",
+      desc: "Simulate technical & behavioral rounds with real-time feedback.",
+      badge: "AI",
+      route: "/mock-interview",
+    },
+    {
+      icon: FileText,
+      title: "Resume Builder",
+      desc: "Create clean, ATS-optimized resumes ready to export.",
+      badge: "Resume",
+      route: "/resume-builder",
+    },
+    {
+      icon: FileCheck2,
+      title: "ATS Scanner",
+      desc: "Scan your resume against job postings to boost your match score.",
+      badge: "ATS",
+      route: "/ats-scanner",
+    },
   ];
 
   return (
-    <div>
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-white min-h-screen flex items-center overflow-hidden">
-        {/* subtle background elements */}
-        <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 rounded-full blur-[120px] mix-blend-multiply"></div>
-            <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-purple-100/40 rounded-full blur-[120px] mix-blend-multiply"></div>
-            <div className="absolute top-[20%] right-[15%] w-[30%] h-[30%] bg-sky-100/30 rounded-full blur-[100px] mix-blend-multiply"></div>
+    <section className="relative w-full flex-1 flex flex-col justify-center px-6 lg:px-12 py-12 lg:py-20 bg-white dark:bg-[#090c15] transition-colors overflow-hidden">
+      
+      {/* Subtle Architectural Dot Grid Background */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] dark:bg-[radial-gradient(#1e2638_1px,transparent_1px)] [background-size:24px_24px] opacity-70 dark:opacity-40" />
+
+      <div className="relative z-10 w-full max-w-5xl mx-auto text-center space-y-8">
+        
+        {/* Headline & Subtitle */}
+        <div className="space-y-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.12]"
+          >
+            Find your next tech role with{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-400">
+              transparent pay.
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-base sm:text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto leading-relaxed font-normal"
+          >
+            Curated engineering, product, and design roles. Upfront compensation, direct recruiter pipelines, and zero ghosting.
+          </motion.p>
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Main heading */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight"
-            >
-              Find Your Dream Job or
-              <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mt-2 pb-2">Perfect Hire</span>
-            </motion.h1>
-
-            {/* Subheading */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-lg md:text-xl text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
-            >
-              Connecting Talent with Opportunity - Your Gateway to Success
-            </motion.p>
-
-            {/* CTA buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
-            >
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="group w-full sm:w-auto bg-gray-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-800 transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center space-x-2"
-                onClick={() => navigate("/find-jobs")}
-              >
-                <Search className="w-5 h-5 text-gray-300" />
-                <span>Find Jobs</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-gray-300" />
-              </motion.button>
-
-             <motion.button
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.98 }}
-  className="w-full sm:w-auto bg-white border border-gray-200 text-gray-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 shadow-sm"
-  onClick={() =>
-    navigate(
-      isAuthenticated && user?.role === "employer"
-        ? "/employer-dashboard"
-        : "/login"
-    )
-  }
->
-                Post a Job
-              </motion.button>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto"
-            >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
-                  className="flex flex-col items-center space-y-3 p-6 rounded-3xl bg-white/80 backdrop-blur-md border border-gray-100/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300"
-                >
-                  <div className="w-14 h-14 bg-blue-50/80 rounded-2xl flex items-center justify-center mb-1">
-                    <stat.icon className="w-7 h-7 text-blue-600" />
-                  </div>
-                  <div className="text-3xl font-extrabold text-gray-900 tracking-tight">{stat.value}</div>
-                  <div className="text-sm text-gray-500 font-medium uppercase tracking-wider">{stat.label}</div>
-                </motion.div>
-              ))}
-            </motion.div>
+        {/* Search Console */}
+        <motion.form
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          onSubmit={handleSearch}
+          className="max-w-3xl mx-auto rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-xs p-2 shadow-sm flex flex-col sm:flex-row gap-2 transition-colors focus-within:ring-2 focus-within:ring-sky-500/20"
+        >
+          <div className="flex-1 flex items-center gap-3 px-3.5 py-2">
+            <Search className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Job title, tech skill, or keyword..."
+              className="w-full bg-transparent text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none"
+            />
           </div>
-        </div>
 
+          <div className="sm:border-l border-zinc-200 dark:border-zinc-800 flex-1 flex items-center gap-3 px-3.5 py-2">
+            <MapPin className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="City, or 'Remote'..."
+              className="w-full bg-transparent text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none"
+            />
+          </div>
 
-      </section>
-    </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="px-6 py-3 rounded-xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 text-xs font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs whitespace-nowrap"
+          >
+            <span>Search Jobs</span>
+            <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </motion.form>
+
+        {/* Quick Tags */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="flex flex-wrap items-center justify-center gap-2 text-xs"
+        >
+          <span className="text-zinc-400 dark:text-zinc-500 font-medium">Popular:</span>
+          {trendingTags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => navigate(`/find-jobs?query=${tag}`)}
+              className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors font-medium cursor-pointer shadow-xs"
+            >
+              {tag}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* 3 Core Tools: AI Mock Interview, Resume Builder, ATS Scanner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="pt-8 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-zinc-200/80 dark:border-zinc-800/80"
+        >
+          {featureBoxes.map((feature, i) => (
+            <div
+              key={i}
+              onClick={() => handleFeatureClick(feature)}
+              className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 p-4 sm:p-5 text-left shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm transition-all cursor-pointer group flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/60 flex items-center justify-center text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors">
+                    <feature.icon className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/70 dark:border-zinc-700/60">
+                      {feature.badge}
+                    </span>
+                    <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors" />
+                  </div>
+                </div>
+
+                <h3 className="text-sm sm:text-[15px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-1.5 leading-relaxed font-normal">
+                  {feature.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+
+      </div>
+    </section>
   );
 };
 

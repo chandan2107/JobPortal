@@ -1,22 +1,18 @@
-import React from 'react'
-import Hero from './components/Hero'
-import Features from './components/Features'
-import Analytics from './components/Analytics'
-import Header from './components/Header'
-import Footer from './components/Footer'
-
-
+import React from "react";
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Footer from "./components/Footer";
 
 const LandingPage = () => {
   return (
-    <div className='min-h-screen'>
-      <Header/>
-      <Hero/>
-      <Features/>
-      <Analytics/>
-      <Footer/>
+    <div className="w-full min-h-screen bg-white dark:bg-[#090c15] text-zinc-900 dark:text-zinc-100 transition-colors duration-200 flex flex-col justify-between">
+      <Header />
+      <main className="w-full flex-1 flex flex-col justify-center">
+        <Hero />
+      </main>
+      <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default LandingPage
+export default LandingPage;

@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   RefreshCw,
   ArrowLeft,
-  Briefcase,
+  ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { validateEmail } from '../../utils/helper';
@@ -24,9 +24,9 @@ import toast from 'react-hot-toast';
 /*  Shared slide animation variants                         */
 /* ─────────────────────────────────────────────────────── */
 const slideIn = {
-  initial: { opacity: 0, x: 40 },
-  animate: { opacity: 1, x: 0, transition: { duration: 0.35, ease: 'easeOut' } },
-  exit:    { opacity: 0, x: -40, transition: { duration: 0.25, ease: 'easeIn' } },
+  initial: { opacity: 0, x: 20 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  exit:    { opacity: 0, x: -20, transition: { duration: 0.2, ease: 'easeIn' } },
 };
 
 /* ─────────────────────────────────────────────────────── */
@@ -75,7 +75,7 @@ const OtpInput = ({ otp, setOtp, hasError }) => {
   };
 
   return (
-    <div className="flex justify-center gap-3 my-6">
+    <div className="flex justify-center gap-2.5 sm:gap-3 my-6">
       {Array.from({ length: OTP_LENGTH }).map((_, i) => (
         <motion.input
           key={i}
@@ -88,17 +88,17 @@ const OtpInput = ({ otp, setOtp, hasError }) => {
           onKeyDown={(e) => handleKeyDown(e, i)}
           onPaste={handlePaste}
           onFocus={(e) => e.target.select()}
-          whileFocus={{ scale: 1.08 }}
+          whileFocus={{ scale: 1.05 }}
           className={`
-            w-11 h-14 text-center text-xl font-bold rounded-xl border-2 outline-none
-            transition-all duration-200 caret-transparent
+            w-10 sm:w-12 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border outline-none
+            transition-all caret-transparent
             ${hasError
-              ? 'border-red-400 bg-red-50 text-red-700'
+              ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400'
               : otp[i]
-                ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md shadow-blue-100'
-                : 'border-gray-200 bg-white text-gray-800 hover:border-gray-300'
+                ? 'border-blue-500 bg-blue-50/60 dark:bg-blue-950/40 text-blue-600 dark:text-blue-300 ring-2 ring-blue-500/20'
+                : 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-600'
             }
-            focus:border-blue-500 focus:bg-blue-50 focus:shadow-md focus:shadow-blue-100
+            focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
           `}
         />
       ))}
@@ -128,9 +128,9 @@ const ResendTimer = ({ email, onResend }) => {
 
   if (seconds > 0) {
     return (
-      <p className="text-sm text-center text-gray-500">
-        Resend OTP in{' '}
-        <span className="font-semibold text-blue-600 tabular-nums">{seconds}s</span>
+      <p className="text-xs text-center text-zinc-500 dark:text-zinc-400">
+        Resend code in{' '}
+        <span className="font-semibold font-mono text-blue-600 dark:text-blue-400 tabular-nums">{seconds}s</span>
       </p>
     );
   }
@@ -140,14 +140,14 @@ const ResendTimer = ({ email, onResend }) => {
       type="button"
       onClick={handleResend}
       disabled={resending}
-      className="w-full flex items-center justify-center gap-2 text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors disabled:opacity-50"
+      className="w-full flex items-center justify-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors disabled:opacity-50 cursor-pointer"
     >
       {resending ? (
-        <Loader className="w-4 h-4 animate-spin" />
+        <Loader className="w-3.5 h-3.5 animate-spin" />
       ) : (
-        <RefreshCw className="w-4 h-4" />
+        <RefreshCw className="w-3.5 h-3.5" />
       )}
-      {resending ? 'Sending…' : 'Resend OTP'}
+      {resending ? 'Sending code…' : 'Resend OTP'}
     </button>
   );
 };
@@ -204,7 +204,7 @@ const Login = () => {
     if (!validateForm()) return;
     setFormState((prev) => ({ ...prev, loading: true, errors: {} }));
     try {
-      const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+      await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email: formData.email,
         password: formData.password,
       });
@@ -257,29 +257,31 @@ const Login = () => {
       });
       setOtp(Array(6).fill(''));
       setOtpState({ loading: false, error: '' });
+      toast.success('New OTP sent to your email');
     } catch {
-      /* silently ignore — user can retry */
+      toast.error('Failed to resend code');
     }
   };
 
   /* ── Success screen ── */
   if (step === 'success') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-zinc-50 dark:bg-[#090c15] text-zinc-900 dark:text-zinc-100 flex items-center justify-center px-4 relative overflow-hidden transition-colors">
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] dark:bg-[radial-gradient(#1e2638_1px,transparent_1px)] [background-size:24px_24px] opacity-70 dark:opacity-40" />
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center max-w-sm w-full"
+          className="relative z-10 bg-white dark:bg-zinc-900/90 p-8 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 text-center max-w-sm w-full"
         >
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-500" />
+          <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-800/40 rounded-2xl flex items-center justify-center mx-auto mb-4 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h2>
-          <p className="text-gray-600 mb-4">You have been successfully logged in.</p>
-          <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-            <Loader className="w-4 h-4 animate-spin" />
-            Redirecting to your dashboard…
-          </p>
+          <h2 className="text-xl font-extrabold text-zinc-900 dark:text-white mb-2 tracking-tight">Welcome Back</h2>
+          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-5 leading-relaxed">You have been successfully authenticated.</p>
+          <div className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center justify-center gap-2">
+            <Loader className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
+            <span>Redirecting to your dashboard…</span>
+          </div>
         </motion.div>
       </div>
     );
@@ -287,9 +289,19 @@ const Login = () => {
 
   /* ── Main card ── */
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm sm:rounded-2xl sm:px-10 border border-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-zinc-50 dark:bg-[#090c15] text-zinc-900 dark:text-zinc-100 flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors">
+      
+      {/* Background Dot Grid */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] dark:bg-[radial-gradient(#1e2638_1px,transparent_1px)] [background-size:24px_24px] opacity-70 dark:opacity-40" />
+
+      {/* Main Container */}
+      <div className="relative z-10 w-full max-w-md">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/90 shadow-sm p-6 sm:p-8 backdrop-blur-xs transition-colors"
+        >
 
           {/* ── Step indicator ── */}
           <div className="flex items-center justify-center gap-2 mb-6">
@@ -298,17 +310,17 @@ const Login = () => {
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                     step === s
-                      ? 'bg-blue-600 text-white scale-110 shadow-md shadow-blue-200'
+                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/30'
                       : i < ['credentials', 'otp'].indexOf(step)
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-100 text-gray-400'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
                   }`}
                 >
                   {i < ['credentials', 'otp'].indexOf(step) ? '✓' : i + 1}
                 </div>
                 {i < 1 && (
-                  <div className={`h-0.5 w-8 rounded-full transition-all duration-500 ${
-                    step === 'otp' ? 'bg-blue-400' : 'bg-gray-200'
+                  <div className={`h-0.5 w-8 rounded-full transition-all duration-300 ${
+                    step === 'otp' ? 'bg-blue-500 dark:bg-blue-400' : 'bg-zinc-200 dark:bg-zinc-800'
                   }`} />
                 )}
               </React.Fragment>
@@ -320,18 +332,24 @@ const Login = () => {
             {/* ═══════════ STEP 1 — Credentials ═══════════ */}
             {step === 'credentials' && (
               <motion.div key="credentials" {...slideIn}>
-                <div className="text-center mb-7">
-                  <h2 className="text-3xl font-extrabold text-gray-900">Welcome Back</h2>
-                  <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
+                <div className="text-center mb-6">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-950 dark:text-white">
+                    Welcome back
+                  </h1>
+                  <p className="mt-1.5 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                    Sign in to your account to continue
+                  </p>
                 </div>
 
-                <form onSubmit={handleCredentialsSubmit} className="space-y-5">
+                <form onSubmit={handleCredentialsSubmit} className="space-y-4">
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <div className="relative mt-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-gray-400" />
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <Mail className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                       </div>
                       <input
                         id="login-email"
@@ -339,27 +357,29 @@ const Login = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
+                        className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                           formState.errors.email
-                            ? 'border-red-500'
-                            : 'border-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-500'
-                        } transition-colors duration-200`}
-                        placeholder="Enter your email"
+                            ? 'border-rose-500 dark:border-rose-500 bg-rose-50/30 dark:bg-rose-950/20 text-rose-900 dark:text-rose-100'
+                            : 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20'
+                        } focus:outline-none`}
+                        placeholder="you@company.com"
                       />
                     </div>
                     {formState.errors.email && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" /> {formState.errors.email}
+                      <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" /> {formState.errors.email}
                       </p>
                     )}
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <div className="relative mt-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-400" />
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <Lock className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                       </div>
                       <input
                         id="login-password"
@@ -367,59 +387,65 @@ const Login = () => {
                         name="password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        className={`w-full pl-10 pr-10 py-3 rounded-lg border ${
-                          formState.errors.password ? 'border-red-500' : 'border-gray-300'
-                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200`}
-                        placeholder="Enter your password"
+                        className={`w-full pl-10 pr-10 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                          formState.errors.password
+                            ? 'border-rose-500 dark:border-rose-500 bg-rose-50/30 dark:bg-rose-950/20 text-rose-900 dark:text-rose-100'
+                            : 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20'
+                        } focus:outline-none`}
+                        placeholder="••••••••"
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 focus:outline-none cursor-pointer"
                         onClick={() =>
                           setFormState((prev) => ({ ...prev, showPassword: !prev.showPassword }))
                         }
                       >
-                        {formState.showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {formState.showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {formState.errors.password && (
-                      <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" /> {formState.errors.password}
+                      <p className="mt-1.5 text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1 font-medium">
+                        <AlertCircle className="w-3.5 h-3.5" /> {formState.errors.password}
                       </p>
                     )}
                   </div>
 
                   {/* Submit error */}
                   {formState.errors.submit && (
-                    <div className="rounded-md bg-red-50 p-3 flex gap-2">
-                      <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-800">{formState.errors.submit}</p>
+                    <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 p-3 flex gap-2">
+                      <AlertCircle className="h-4 w-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-rose-700 dark:text-rose-300 font-medium">{formState.errors.submit}</p>
                     </div>
                   )}
 
-                  {/* Submit */}
-                  <button
+                  {/* Submit Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     id="login-submit"
                     type="submit"
                     disabled={formState.loading}
-                    className="w-full flex justify-center items-center py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full flex justify-center items-center py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm shadow-blue-500/25 mt-2"
                   >
                     {formState.loading ? (
                       <>
-                        <Loader className="w-5 h-5 mr-2 animate-spin" />
-                        <span>Sending OTP…</span>
+                        <Loader className="w-4 h-4 mr-2 animate-spin" />
+                        <span>Sending code…</span>
                       </>
                     ) : (
-                      <span>Continue →</span>
+                      <span className="flex items-center gap-1.5">
+                        Continue <ArrowRight className="w-4 h-4" />
+                      </span>
                     )}
-                  </button>
+                  </motion.button>
 
-                  <div className="text-center pt-1">
-                    <p className="text-sm text-gray-600">
+                  <div className="text-center pt-2">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
                       Don't have an account?{' '}
-                      <a href="/signin" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                        Sign Up
-                      </a>
+                      <Link to="/signin" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                        Create one now
+                      </Link>
                     </p>
                   </div>
                 </form>
@@ -429,23 +455,24 @@ const Login = () => {
             {/* ═══════════ STEP 2 — OTP ═══════════ */}
             {step === 'otp' && (
               <motion.div key="otp" {...slideIn}>
-                {/* Back button */}
                 <button
                   type="button"
                   onClick={() => { setStep('credentials'); setOtp(Array(6).fill('')); setOtpState({ loading: false, error: '' }); }}
-                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-5 transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white mb-4 transition-colors cursor-pointer"
                 >
-                  <ArrowLeft className="w-4 h-4" /> Back
+                  <ArrowLeft className="w-3.5 h-3.5" /> Back to email
                 </button>
 
                 <div className="text-center mb-4">
-                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <ShieldCheck className="w-7 h-7 text-blue-600" />
+                  <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-800/40 rounded-2xl flex items-center justify-center mx-auto mb-3 text-blue-600 dark:text-blue-400">
+                    <ShieldCheck className="w-6 h-6" />
                   </div>
-                  <h2 className="text-2xl font-extrabold text-gray-900">Verify Your Identity</h2>
-                  <p className="mt-2 text-sm text-gray-600">
-                    We sent a 6-digit code to{' '}
-                    <span className="font-semibold text-gray-800">{formData.email}</span>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-zinc-950 dark:text-white tracking-tight">
+                    Security Code
+                  </h2>
+                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    Enter the 6-digit verification code sent to{' '}
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">{formData.email}</span>
                   </p>
                 </div>
 
@@ -453,29 +480,31 @@ const Login = () => {
                   <OtpInput otp={otp} setOtp={setOtp} hasError={!!otpState.error} />
 
                   {otpState.error && (
-                    <div className="rounded-md bg-red-50 p-3 flex gap-2">
-                      <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-800">{otpState.error}</p>
+                    <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 p-3 flex gap-2">
+                      <AlertCircle className="h-4 w-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-rose-700 dark:text-rose-300 font-medium">{otpState.error}</p>
                     </div>
                   )}
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     id="otp-submit"
                     type="submit"
                     disabled={otpState.loading || otp.join('').length < 6}
-                    className="w-full flex justify-center items-center py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full flex justify-center items-center py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer shadow-sm shadow-blue-500/25"
                   >
                     {otpState.loading ? (
                       <>
-                        <Loader className="w-5 h-5 mr-2 animate-spin" />
-                        <span>Verifying…</span>
+                        <Loader className="w-4 h-4 mr-2 animate-spin" />
+                        <span>Verifying code…</span>
                       </>
                     ) : (
                       <span>Verify & Sign In</span>
                     )}
-                  </button>
+                  </motion.button>
 
-                  <div className="pt-1">
+                  <div className="pt-2">
                     <ResendTimer email={formData.email} onResend={handleResendOtp} />
                   </div>
                 </form>
@@ -483,7 +512,7 @@ const Login = () => {
             )}
 
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

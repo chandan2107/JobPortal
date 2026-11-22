@@ -1,13 +1,7 @@
 import React from "react";
 import { DEFAULT_SECTION_ORDER, DEFAULT_SECTION_VISIBILITY } from "../sectionConfig";
-
-// Clean two-column executive template — no colors, pure black & white
-const Link = ({ href, children }) =>
-  href ? (
-    <a href={href.startsWith("http") ? href : `https://${href}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>
-      {children}
-    </a>
-  ) : <span>{children}</span>;
+import { formatDateRange, formatResumeDate } from "../dateUtils";
+import Link from "../ResumeLink";
 
 const TemplateExecutive = ({ data }) => {
   const {
@@ -30,20 +24,20 @@ const TemplateExecutive = ({ data }) => {
   const leftSectionsMap = {
     experience: experience.length > 0 && visibility.experience !== false && (
       <div key="experience" className="mb-5">
-        <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-3">Work Experience</h2>
-        <div className="space-y-4">
+        <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-2.5 text-black">Work Experience</h2>
+        <div className="space-y-3.5">
           {experience.map((exp, i) => (
             <div key={i}>
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-sm font-bold">{exp.title || "Job Title"}</h3>
-                  <p className="text-xs italic text-gray-600">{exp.company}{exp.location ? `, ${exp.location}` : ""}</p>
+                  <h3 className="text-[14px] font-semibold text-black">{exp.title || "Job Title"}</h3>
+                  <p className="text-[13.5px] italic font-medium text-zinc-800">{exp.company}{exp.location ? `, ${exp.location}` : ""}</p>
                 </div>
-                <span className="text-xs text-gray-500 shrink-0 ml-2">
-                  {exp.startDate}{exp.endDate ? ` – ${exp.endDate}` : exp.current ? " – Present" : ""}
+                <span className="text-[13.5px] font-medium text-black shrink-0 ml-2">
+                  {formatDateRange(exp.startDate, exp.endDate, exp.current)}
                 </span>
               </div>
-              {exp.description && <p className="text-xs text-gray-700 mt-1 leading-relaxed whitespace-pre-line">{exp.description}</p>}
+              {exp.description && <p className="text-[13.5px] text-black mt-1 leading-relaxed whitespace-pre-line font-normal">{exp.description}</p>}
             </div>
           ))}
         </div>
@@ -52,20 +46,24 @@ const TemplateExecutive = ({ data }) => {
 
     projects: projects.length > 0 && visibility.projects !== false && (
       <div key="projects" className="mb-5">
-        <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-3">Key Projects</h2>
+        <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-2.5 text-black">Key Projects</h2>
         <div className="space-y-3">
           {projects.map((proj, i) => (
             <div key={i}>
               <div className="flex justify-between items-baseline">
-                <h3 className="text-xs font-bold">{proj.name}</h3>
-                {proj.link && <Link href={proj.link}><span className="text-[10px] text-gray-600">View</span></Link>}
+                <h3 className="text-[13.5px] font-semibold text-black">{proj.name}</h3>
+                {proj.link && (
+                  <Link href={proj.link} className="text-black font-medium text-[11px] underline underline-offset-2">
+                    Link
+                  </Link>
+                )}
               </div>
               {proj.technologies?.length > 0 && (
-                <p className="text-[10px] text-gray-500">
+                <p className="text-[13.5px] font-normal text-zinc-800 mt-0.5">
                   {Array.isArray(proj.technologies) ? proj.technologies.join(", ") : proj.technologies}
                 </p>
               )}
-              {proj.description && <p className="text-xs text-gray-700 mt-0.5 leading-relaxed">{proj.description}</p>}
+              {proj.description && <p className="text-[13.5px] text-black mt-0.5 leading-relaxed font-normal">{proj.description}</p>}
             </div>
           ))}
         </div>
@@ -76,14 +74,14 @@ const TemplateExecutive = ({ data }) => {
   const rightSectionsMap = {
     education: education.length > 0 && visibility.education !== false && (
       <div key="education" className="mb-5">
-        <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-2">Education</h2>
-        <div className="space-y-3">
+        <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-2 text-black">Education</h2>
+        <div className="space-y-2.5">
           {education.map((edu, i) => (
             <div key={i}>
-              <p className="text-xs font-bold leading-tight">{edu.degree}</p>
-              <p className="text-xs text-gray-600">{edu.school}</p>
-              <p className="text-xs text-gray-400">{edu.startDate}{edu.endDate ? ` – ${edu.endDate}` : ""}</p>
-              {edu.gpa && <p className="text-xs text-gray-500">GPA: {edu.gpa}</p>}
+              <p className="text-[13.5px] font-semibold text-black leading-tight">{edu.degree}</p>
+              <p className="text-[13.5px] font-normal text-zinc-800">{edu.school}</p>
+              <p className="text-[13.5px] font-normal text-black">{formatDateRange(edu.startDate, edu.endDate)}</p>
+              {edu.gpa && <p className="text-[11px] text-zinc-700 font-normal">GPA: {edu.gpa}</p>}
             </div>
           ))}
         </div>
@@ -92,20 +90,20 @@ const TemplateExecutive = ({ data }) => {
 
     skills: skills.length > 0 && visibility.skills !== false && (
       <div key="skills" className="mb-5">
-        <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-2">Skills</h2>
-        <p className="text-xs leading-relaxed text-gray-700">{skills.join(", ")}</p>
+        <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-2 text-black">Skills</h2>
+        <p className="text-[13.5px] font-normal leading-relaxed text-black">{skills.join(", ")}</p>
       </div>
     ),
 
     certifications: certifications.length > 0 && visibility.certifications !== false && (
       <div key="certifications" className="mb-5">
-        <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-2">Certifications</h2>
+        <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-2 text-black">Certifications</h2>
         <div className="space-y-1.5">
           {certifications.map((cert, i) => (
             <div key={i}>
-              <p className="text-xs font-semibold leading-tight">{cert.name}</p>
-              {cert.issuer && <p className="text-[11px] text-gray-500">{cert.issuer}</p>}
-              {cert.date && <p className="text-[11px] text-gray-400">{cert.date}</p>}
+              <p className="text-[13.5px] font-semibold text-black leading-tight">{cert.name}</p>
+              {cert.issuer && <p className="text-[13.5px] font-normal text-zinc-800">{cert.issuer}</p>}
+              {cert.date && <p className="text-[11px] font-normal text-black">{formatResumeDate(cert.date)}</p>}
             </div>
           ))}
         </div>
@@ -114,30 +112,30 @@ const TemplateExecutive = ({ data }) => {
   };
 
   return (
-    <div className="bg-white w-full px-10 pt-9 pb-16 min-h-[1123px]" style={{ fontFamily: "'Times New Roman', serif", color: "#111" }}>
+    <div className="bg-white w-full px-10 pt-8 pb-16 min-h-[1123px]" style={{ fontFamily: "'Times New Roman', serif", color: "#000000" }}>
       {/* Header — centered */}
-      <div className="text-center border-b-2 border-black pb-4 mb-5">
-        <h1 className="text-3xl font-bold tracking-tight uppercase letter-spacing-wide">
+      <div className="text-center border-b-4 border-black pb-3 mb-4">
+        <h1 className="text-[26px] font-bold uppercase text-black leading-tight">
           {fullName || "Your Name"}
         </h1>
-        {jobTitle && <p className="text-sm mt-1 italic text-gray-600">{jobTitle}</p>}
-        <div className="flex justify-center flex-wrap gap-x-3 gap-y-0.5 mt-2 text-xs text-gray-700">
-          {email && <span>{email}</span>}
-          {phone && <span>| {phone}</span>}
-          {location && <span>| {location}</span>}
-          {linkedin && <span>| <Link href={linkedin}>LinkedIn</Link></span>}
-          {website && <span>| <Link href={website}>Portfolio</Link></span>}
+        {jobTitle && <p className="text-[13.5px] mt-1 italic font-medium text-black">{jobTitle}</p>}
+        <div className="flex justify-center flex-wrap gap-x-3 gap-y-1 mt-2 text-[13.5px] font-normal text-black">
+          {email && <Link href={`mailto:${email.trim()}`} className="text-black">{email}</Link>}
+          {phone && <Link href={`tel:${phone.trim()}`} className="text-black">{phone}</Link>}
+          {location && <span>{location}</span>}
+          {linkedin && <Link href={linkedin} className="text-black font-medium underline underline-offset-2">LinkedIn</Link>}
+          {website && <Link href={website} className="text-black font-medium underline underline-offset-2">Portfolio</Link>}
         </div>
       </div>
 
       {summary && visibility.summary !== false && (
-        <div className="mb-5">
-          <h2 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 mb-2">Objective / Summary</h2>
-          <p className="text-sm leading-relaxed text-gray-800">{summary}</p>
+        <div className="mb-4">
+          <h2 className="text-[15px] font-bold uppercase border-b-2 border-black pb-0.5 mb-1.5 text-black">Objective / Summary</h2>
+          <p className="text-[13.5px] leading-relaxed text-black font-normal">{summary}</p>
         </div>
       )}
 
-      <div className="grid grid-cols-[1fr_170px] gap-8">
+      <div className="grid grid-cols-[1fr_170px] gap-6">
         {/* Left */}
         <div>
           {order.filter(key => leftSectionsMap[key]).map(key => leftSectionsMap[key])}

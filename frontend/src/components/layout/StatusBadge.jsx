@@ -1,24 +1,45 @@
 const statusConfig = {
   Applied: {
-    bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-200", dot: "bg-gray-400",
+    bg: "bg-zinc-100 dark:bg-zinc-800",
+    text: "text-zinc-700 dark:text-zinc-300",
+    border: "border-zinc-200 dark:border-zinc-700",
+    dot: "bg-zinc-400 dark:bg-zinc-500",
   },
   "In Review": {
-    bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-100", dot: "bg-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-950/40",
+    text: "text-blue-700 dark:text-blue-300",
+    border: "border-blue-200 dark:border-blue-800/60",
+    dot: "bg-blue-500",
   },
   Shortlisted: {
-    bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-500",
+    bg: "bg-purple-50 dark:bg-purple-950/40",
+    text: "text-purple-700 dark:text-purple-300",
+    border: "border-purple-200 dark:border-purple-800/60",
+    dot: "bg-purple-500",
   },
   Interview: {
-    bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-100", dot: "bg-yellow-400",
+    bg: "bg-amber-50 dark:bg-amber-950/40",
+    text: "text-amber-700 dark:text-amber-300",
+    border: "border-amber-200 dark:border-amber-800/60",
+    dot: "bg-amber-500",
   },
   Accepted: {
-    bg: "bg-green-50", text: "text-green-700", border: "border-green-100", dot: "bg-green-500",
+    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    text: "text-emerald-700 dark:text-emerald-300",
+    border: "border-emerald-200 dark:border-emerald-800/60",
+    dot: "bg-emerald-500",
   },
   Hired: {
-    bg: "bg-green-50", text: "text-green-700", border: "border-green-100", dot: "bg-green-500",
+    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    text: "text-emerald-700 dark:text-emerald-300",
+    border: "border-emerald-200 dark:border-emerald-800/60",
+    dot: "bg-emerald-500",
   },
   Rejected: {
-    bg: "bg-red-50", text: "text-red-700", border: "border-red-100", dot: "bg-red-400",
+    bg: "bg-rose-50 dark:bg-rose-950/40",
+    text: "text-rose-700 dark:text-rose-300",
+    border: "border-rose-200 dark:border-rose-800/60",
+    dot: "bg-rose-500",
   },
 };
 

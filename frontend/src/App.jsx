@@ -17,6 +17,10 @@ import UserProfile from "./pages/JobSeeker/UserProfile";
 import ResumeListPage from "./pages/JobSeeker/ResumeBuilder/ResumeListPage";
 import ResumeEditorPage from "./pages/JobSeeker/ResumeBuilder/ResumeEditorPage";
 import ATSScanner from "./pages/JobSeeker/ATSScanner";
+import InterviewSetupPage from "./pages/JobSeeker/MockInterview/InterviewSetupPage";
+import InterviewRoomPage from "./pages/JobSeeker/MockInterview/InterviewRoomPage";
+import InterviewReportPage from "./pages/JobSeeker/MockInterview/InterviewReportPage";
+import InterviewHistoryPage from "./pages/JobSeeker/MockInterview/InterviewHistoryPage";
 
 import EmployerDashboard from "./pages/Employer/EmployerDashboard";
 import JobPostingForm from "./pages/Employer/JobPostingForm";
@@ -29,14 +33,16 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 import { AuthProvider } from "./context/AuthContext";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 
 const App = () => {
   return (
-    <AuthProvider>
-      <AdminAuthProvider>
-        <Router>
+    <ThemeProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
@@ -51,6 +57,10 @@ const App = () => {
             <Route path="/resume-builder/:id" element={<ResumeEditorPage />} />
             <Route path="/ats-scanner" element={<ATSScanner />} />
             <Route path="/ats-score" element={<ATSScanner />} />
+            <Route path="/mock-interview" element={<InterviewSetupPage />} />
+            <Route path="/mock-interview/:id/room" element={<InterviewRoomPage />} />
+            <Route path="/mock-interview/:id/report" element={<InterviewReportPage />} />
+            <Route path="/mock-interview/history" element={<InterviewHistoryPage />} />
 
             {/* Protected Employer Routes */}
             <Route element={<ProtectedRoute requiredRole="employer" />}>
@@ -80,6 +90,7 @@ const App = () => {
         />
       </AdminAuthProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 };
 

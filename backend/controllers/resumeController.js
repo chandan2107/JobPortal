@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Resume = require("../models/Resume");
+const { generatePdfFromHtml } = require("../services/pdfService");
 
 // Helper to check valid MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -224,5 +225,33 @@ exports.syncResumes = async (req, res) => {
   } catch (error) {
     console.error("[ResumeController] syncResumes error:", error);
     res.status(500).json({ message: "Failed to sync resumes", error: error.message });
+  }
+};
+
+// @desc    Generate razor-sharp vector PDF using Puppeteer
+// @route   POST /api/resumes/export-pdf
+// @access  Public (Allows logged-in and guest drafting users)
+exports.exportResumePdf = async (req, res) => {
+  try {
+    const { html, title = "Resume", fontScale = 105, styles = "" } = req.body;
+
+    if (!html || typeof html !== "string") {
+      return res.status(400).json({ message: "HTML content is required to generate PDF" });
+    }
+
+    const pdfBuffer = await generatePdfFromHtml(html, { fontScale, styles });
+
+    const cleanFilename = (title || "Resume").replace(/[^a-zA-Z0-9_-]/g, "_");
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${cleanFilename}_Resume.pdf"`,
+      "Content-Length": pdfBuffer.length,
+    });
+
+    return res.end(pdfBuffer);
+  } catch (error) {
+    console.error("[ResumeController] exportResumePdf error:", error);
+    return res.status(500).json({ message: "Failed to generate PDF", error: error.message });
   }
 };

@@ -127,9 +127,9 @@ const LocationInput = ({
     <div ref={containerRef} className={`flex flex-col gap-1 w-full relative ${className}`}>
       {/* Label */}
       {label && (
-        <label htmlFor={id} className="text-sm font-semibold text-gray-700">
+        <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-rose-500 ml-1">*</span>}
         </label>
       )}
 
@@ -137,7 +137,7 @@ const LocationInput = ({
       <div className="relative">
         {/* Left Icon */}
         {Icon && (
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-400 dark:text-zinc-500">
             <Icon className="w-4 h-4" />
           </div>
         )}
@@ -158,14 +158,14 @@ const LocationInput = ({
           onKeyDown={handleKeyDown}
           disabled={disabled}
           autoComplete="off"
-          className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all
+          className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all
             ${Icon ? "pl-10" : "pl-4"}
             ${isLoading ? "pr-10" : "pr-4"}
-            ${disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : "bg-gray-50 focus:bg-white"}
+            ${disabled ? "bg-zinc-100 dark:bg-zinc-800/40 cursor-not-allowed text-zinc-400" : "bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:bg-white dark:focus:bg-zinc-800"}
             ${
               error
-                ? "border-red-500 focus:ring-2 focus:ring-red-100"
-                : "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                ? "border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                : "border-zinc-200 dark:border-zinc-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
             }
           `}
         />
@@ -180,21 +180,23 @@ const LocationInput = ({
 
       {/* Suggestions Dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-100 animate-in fade-in zoom-in-95 duration-150">
+        <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800/80 animate-in fade-in zoom-in-95 duration-150">
           {suggestions.map((item, index) => (
             <li
               key={item.id}
               onClick={() => handleSelectSuggestion(item)}
               onMouseEnter={() => setHighlightedIndex(index)}
-              className={`px-4 py-3 cursor-pointer flex items-start gap-3 transition-colors ${
-                highlightedIndex === index ? "bg-blue-50/80 text-blue-900" : "hover:bg-gray-50 text-gray-700"
+              className={`px-4 py-2.5 cursor-pointer flex items-start gap-3 transition-colors ${
+                highlightedIndex === index
+                  ? "bg-blue-50/80 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200"
+                  : "hover:bg-zinc-50 dark:hover:bg-zinc-800/60 text-zinc-700 dark:text-zinc-300"
               }`}
             >
               <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold truncate text-gray-900">{item.mainText}</p>
+                <p className="text-sm font-semibold truncate text-zinc-900 dark:text-zinc-100">{item.mainText}</p>
                 {item.subText && item.subText !== item.mainText && (
-                  <p className="text-xs text-gray-500 truncate mt-0.5">{item.subText}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">{item.subText}</p>
                 )}
               </div>
             </li>
@@ -204,7 +206,7 @@ const LocationInput = ({
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-1 text-red-600 text-xs mt-1">
+        <div className="flex items-center gap-1 text-rose-600 dark:text-rose-400 text-xs mt-1">
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -212,7 +214,7 @@ const LocationInput = ({
 
       {/* Helper text */}
       {helperText && !error && (
-        <p className="text-xs text-gray-500 mt-1">{helperText}</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{helperText}</p>
       )}
     </div>
   );
