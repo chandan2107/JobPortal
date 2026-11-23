@@ -1,4 +1,3 @@
-const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
 
@@ -36,6 +35,12 @@ let browserInstance = null;
 
 const getBrowser = async () => {
   if (!browserInstance || !browserInstance.connected) {
+    let puppeteer;
+    try {
+      puppeteer = require("puppeteer");
+    } catch (err) {
+      throw new Error("PDF export service (puppeteer) is not installed on this server.");
+    }
     const executablePath = getChromeExecutablePath();
     const launchOptions = {
       headless: "new",
