@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   AlertTriangle,
   FileText,
-  Key,
   HelpCircle,
 } from "lucide-react";
 import axiosInstance from "../../../utils/axiosInstance";
@@ -73,10 +72,6 @@ const InterviewRoomPage = () => {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Manual API Key entry if not in env
-  const [customKeyModal, setCustomKeyModal] = useState(false);
-  const [tempKeyInput, setTempKeyInput] = useState("");
-
   // Scroll to bottom of chat
   const chatBottomRef = useRef(null);
 
@@ -100,8 +95,8 @@ const InterviewRoomPage = () => {
           if (configRes.data?.vapiPublicKey) {
             setVapiPublicKey(configRes.data.vapiPublicKey);
           } else {
-            // Need public key from user
-            setCustomKeyModal(true);
+            setErrorMessage("Vapi public key is not configured on the server.");
+            setCallStatus("error");
           }
         }
       } catch (err) {
@@ -597,60 +592,6 @@ const InterviewRoomPage = () => {
           <div ref={chatBottomRef} />
         </div>
       </div>
-
-      {/* Error or Missing Public Key Modal */}
-      {customKeyModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-amber-400">
-              <Key className="w-6 h-6" />
-              <h3 className="font-bold text-lg text-white">Vapi Public Key Required</h3>
-            </div>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              To connect to Vapi voice servers, enter your free <strong>Public Key</strong> from{" "}
-              <a
-                href="https://vapi.ai"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-400 underline"
-              >
-                vapi.ai
-              </a>{" "}
-              dashboard, or save it to your <code>.env</code> file as <code>VAPI_PUBLIC_KEY</code>.
-            </p>
-
-            <input
-              type="text"
-              placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
-              value={tempKeyInput}
-              onChange={(e) => setTempKeyInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-zinc-700 bg-zinc-800 text-white font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => navigate("/mock-interview")}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (!tempKeyInput.trim()) {
-                    toast.error("Please enter a valid Vapi key.");
-                    return;
-                  }
-                  setVapiPublicKey(tempKeyInput.trim());
-                  setCustomKeyModal(false);
-                }}
-                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-md"
-              >
-                Save & Connect
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Call Error Banner */}
       {callStatus === "error" && (
