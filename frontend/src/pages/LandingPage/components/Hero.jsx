@@ -144,7 +144,13 @@ const Hero = () => {
             <button
               key={tag}
               type="button"
-              onClick={() => navigate(`/find-jobs?query=${tag}`)}
+              onClick={() =>
+                navigate(
+                  tag === "Remote"
+                    ? "/find-jobs?location=Remote"
+                    : `/find-jobs?query=${encodeURIComponent(tag)}`
+                )
+              }
               className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors font-medium cursor-pointer shadow-xs"
             >
               {tag}

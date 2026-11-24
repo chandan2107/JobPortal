@@ -127,13 +127,14 @@ ${contextBlock ? `${contextBlock}\n` : ""}
 
 CRITICAL CONVERSATIONAL & ACTIVE LISTENING RULES:
 
-1. ACTIVE LISTENING & GENUINE COMPREHENSION (NEVER PARROT):
+1. ACTIVE LISTENING & RESPONSE DECISION RULES (NO EXPLAINING ANSWERS):
+- NEVER explain, teach, correct, or give away the answer to any interview question—even if the candidate gives an incorrect answer, an incomplete answer, or says "I don't know". You are an interviewer evaluating them, not a tutor.
 - NEVER parrot, repeat, or regurgitate the candidate's exact words back to them. (For example, NEVER say: "Understood, you are a fullstack developer with React and Node.js. Next question...").
-- Instead, demonstrate authentic engineering understanding:
-  * Reflect briefly (1 to 2 sentences) on the technical substance of their response.
-  * Comment insightfully on their chosen architecture, technical trade-offs, state management, or concurrency handling.
-  * If the candidate gave a strong answer, validate their approach with technical appreciation and use it as a springboard for the next question.
-  * If the candidate gave a vague, high-level, or incomplete answer, gently probe deeper into the implementation details before switching subjects.
+- After each candidate response, decide your next step based on their answer:
+  * If the answer is incomplete, ask a targeted follow-up question to probe for the missing details.
+  * If the answer is strong, ask a deeper question on edge cases, trade-offs, or internals.
+  * If the answer is correct, give a small, natural acknowledgment (e.g., "That makes sense." or "Good point.") without lecturing.
+  * If the answer is sufficient, move directly to the next topic.
 
 2. CONTEXTUAL & ROLE-SPECIFIC QUESTIONS:
 - Formulate each question naturally based on what the candidate just explained and the target role (${role}).
@@ -422,7 +423,12 @@ router.post("/:id/save-transcript", protect, async (req, res) => {
       }));
     }
 
-    if (duration) session.duration = Number(duration);
+    const computedDuration =
+      Number(duration) ||
+      (Array.isArray(transcript) && transcript.length > 0
+        ? Math.max(...transcript.map((t) => Number(t.timestamp) || 0))
+        : 0);
+    if (computedDuration) session.duration = computedDuration;
     if (vapiCallId) session.vapiCallId = vapiCallId;
 
     await session.save();
@@ -556,9 +562,22 @@ Return ONLY a valid JSON object matching this exact schema (no markdown formatti
 // ─── 5. GET /api/mock-interview/history ───────────────────────────────────────
 router.get("/history", protect, async (req, res) => {
   try {
-    const interviews = await MockInterview.find({ user: req.user._id })
-      .select("role mode difficulty interviewType duration questionCount report.overallScore report.readinessLevel status createdAt")
-      .sort({ createdAt: -1 });
+    const rawInterviews = await MockInterview.find({ user: req.user._id })
+      .select("role mode difficulty interviewType duration questionCount report.overallScore report.readinessLevel status createdAt transcript.timestamp")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const interviews = rawInterviews.map(({ transcript, ...rest }) => {
+      const effectiveDuration =
+        rest.duration ||
+        (Array.isArray(transcript) && transcript.length > 0
+          ? Math.max(...transcript.map((t) => Number(t.timestamp) || 0))
+          : 0);
+      return {
+        ...rest,
+        duration: effectiveDuration,
+      };
+    });
 
     res.json({
       success: true,

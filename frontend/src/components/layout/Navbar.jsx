@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bookmark, Sun, Moon } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -11,7 +11,13 @@ const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  const getNavLinkClass = (isActive) =>
+    isActive
+      ? "text-blue-600 dark:text-blue-400 font-bold text-sm transition-colors flex items-center gap-1.5"
+      : "text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors flex items-center gap-1.5";
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -35,7 +41,7 @@ const Navbar = () => {
               initial="initial"
               whileHover="hover"
               whileTap="tap"
-              className="flex items-center gap-2.5"
+              className="group flex items-center gap-2.5"
             >
               <motion.div
                 variants={{
@@ -49,24 +55,12 @@ const Navbar = () => {
                 <AppLogo className="h-6 sm:h-[26px] w-auto" />
               </motion.div>
               <span className="text-xl sm:text-[22px] font-extrabold tracking-tight select-none flex items-center">
-                <motion.span
-                  variants={{
-                    initial: { color: isDark ? "#ffffff" : "#09090b" },
-                    hover: { color: "#0ea5e9" },
-                  }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
+                <span className="text-zinc-950 dark:text-white group-hover:text-sky-500 transition-colors duration-300">
                   Job
-                </motion.span>
-                <motion.span
-                  variants={{
-                    initial: { color: "#0ea5e9" },
-                    hover: { color: isDark ? "#ffffff" : "#09090b" },
-                  }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
+                </span>
+                <span className="text-sky-500 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors duration-300">
                   Portal
-                </motion.span>
+                </span>
               </span>
             </motion.div>
           </Link>
@@ -75,13 +69,15 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/"
-              className="text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors"
+              className={getNavLinkClass(pathname === "/")}
             >
               Home
             </Link>
             <Link
               to="/find-jobs"
-              className="text-blue-600 dark:text-blue-400 font-bold text-sm transition-colors"
+              className={getNavLinkClass(
+                pathname === "/find-jobs" || pathname.startsWith("/job/")
+              )}
             >
               Find Jobs
             </Link>
@@ -89,19 +85,22 @@ const Navbar = () => {
               <>
                 <Link
                   to="/resume-builder"
-                  className="text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors flex items-center gap-1.5"
+                  className={getNavLinkClass(pathname.startsWith("/resume-builder"))}
                 >
                   Resume Builder
                 </Link>
                 <Link
                   to="/ats-scanner"
-                  className="text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors flex items-center gap-1.5"
+                  className={getNavLinkClass(
+                    pathname.startsWith("/ats-scanner") ||
+                      pathname.startsWith("/ats-score")
+                  )}
                 >
                   ATS Score
                 </Link>
                 <Link
                   to="/mock-interview"
-                  className="text-zinc-600 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold text-sm transition-colors flex items-center gap-1.5"
+                  className={getNavLinkClass(pathname.startsWith("/mock-interview"))}
                 >
                   Mock Interview
                 </Link>

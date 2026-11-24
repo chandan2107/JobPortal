@@ -45,29 +45,34 @@ exports.getJobs = async (req, res) => {
 
 const query = {
   isClosed: false,
-  ...(keyword && { title: { $regex: keyword, $options: "i" } }),
   ...(location && { location: { $regex: location, $options: "i" } }),
   ...(category && { category }),
   ...(type && { type }),
 };
-   if (minSalary || maxSalary) {
-  query.$and = [];
-}
 
+const andConditions = [];
+if (keyword) {
+  andConditions.push({
+    $or: [
+      { title: { $regex: keyword, $options: "i" } },
+      { category: { $regex: keyword, $options: "i" } },
+      { description: { $regex: keyword, $options: "i" } },
+      { requirements: { $regex: keyword, $options: "i" } },
+    ],
+  });
+}
 if (minSalary) {
-  query.$and.push({
+  andConditions.push({
     salaryMax: { $gte: Number(minSalary) },
   });
 }
-
 if (maxSalary) {
-  query.$and.push({
+  andConditions.push({
     salaryMin: { $lte: Number(maxSalary) },
   });
 }
-
-if (query.$and && query.$and.length === 0) {
-  delete query.$and;
+if (andConditions.length > 0) {
+  query.$and = andConditions;
 }
   try {
     const jobs = await Job.find(query).populate("company", "name companyName companyLogo");
@@ -393,6 +398,145 @@ exports.getRecommendedJobs = async (req, res) => {
     });
   } catch (err) {
     console.error("[Job Recommendations] Error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc Get live market trends aggregated from active jobs
+// @route GET /api/jobs/trends?track=All|Engineering|Design|Data/AI|DevOps
+exports.getJobTrends = async (req, res) => {
+  try {
+    const track = req.query.track || "All";
+    const allJobs = await Job.find({ isClosed: false }).lean();
+
+    const TRACK_KEYWORDS = {
+      Engineering: ["engineer", "developer", "frontend", "backend", "full stack", "fullstack", "software", "react", "node", "java", "web", "mobile", "it"],
+      Design: ["design", "ui", "ux", "figma", "product design", "graphic", "creative"],
+      "Data/AI": ["data", "ai", "ml", "machine learning", "analytics", "python", "llm", "science", "deep learning", "nlp"],
+      DevOps: ["devops", "cloud", "aws", "docker", "kubernetes", "ci/cd", "sre", "infrastructure", "terraform", "linux"],
+    };
+
+    const matchesTrack = (job, selectedTrack) => {
+      if (selectedTrack === "All" || !TRACK_KEYWORDS[selectedTrack]) return true;
+      const haystack = `${job.title || ""} ${job.category || ""} ${job.requirements || ""} ${job.description || ""}`.toLowerCase();
+      return TRACK_KEYWORDS[selectedTrack].some((kw) => haystack.includes(kw));
+    };
+
+    const filteredJobs = allJobs.filter((job) => matchesTrack(job, track));
+
+    const SKILL_CATALOG = [
+      "React",
+      "TypeScript",
+      "JavaScript",
+      "Node.js",
+      "Python",
+      "Next.js",
+      "SQL",
+      "MongoDB",
+      "AWS",
+      "Docker",
+      "Kubernetes",
+      "Tailwind CSS",
+      "Figma",
+      "UI/UX",
+      "GraphQL",
+      "REST APIs",
+      "Git",
+      "CI/CD",
+      "Machine Learning",
+      "TensorFlow",
+      "PyTorch",
+      "Java",
+      "Go",
+      "PostgreSQL",
+      "Redis",
+      "Linux",
+      "Terraform",
+    ];
+
+    const skillCounts = {};
+    SKILL_CATALOG.forEach((s) => {
+      skillCounts[s] = 0;
+    });
+
+    let salaryMinSum = 0;
+    let salaryMaxSum = 0;
+    let salaryCount = 0;
+    let remoteCount = 0;
+    const roleMap = {};
+
+    filteredJobs.forEach((job) => {
+      const text = `${job.title || ""} ${job.requirements || ""} ${job.description || ""}`.toLowerCase();
+      SKILL_CATALOG.forEach((skill) => {
+        const escaped = skill.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+        if (regex.test(text)) {
+          skillCounts[skill] += 1;
+        }
+      });
+
+      if (job.salaryMin || job.salaryMax) {
+        salaryMinSum += Number(job.salaryMin || job.salaryMax || 0);
+        salaryMaxSum += Number(job.salaryMax || job.salaryMin || 0);
+        salaryCount += 1;
+      }
+
+      if (job.type === "Remote" || /remote/i.test(job.location || "")) {
+        remoteCount += 1;
+      }
+
+      const roleName = (job.category || job.title || "General").trim();
+      if (!roleMap[roleName]) {
+        roleMap[roleName] = { role: roleName, count: 0, minSum: 0, maxSum: 0, salCount: 0 };
+      }
+      roleMap[roleName].count += 1;
+      if (job.salaryMin || job.salaryMax) {
+        roleMap[roleName].minSum += Number(job.salaryMin || job.salaryMax || 0);
+        roleMap[roleName].maxSum += Number(job.salaryMax || job.salaryMin || 0);
+        roleMap[roleName].salCount += 1;
+      }
+    });
+
+    const totalJobs = filteredJobs.length;
+    const rankedSkills = Object.entries(skillCounts)
+      .filter(([, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: totalJobs > 0 ? Math.min(100, Math.round((count / totalJobs) * 100)) : 0,
+      }));
+
+    const roleDemand = Object.values(roleMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+      .map((r) => ({
+        role: r.role,
+        count: r.count,
+        share: totalJobs > 0 ? Math.round((r.count / totalJobs) * 100) : 0,
+        avgSalaryMin: r.salCount > 0 ? Math.round(r.minSum / r.salCount) : 0,
+        avgSalaryMax: r.salCount > 0 ? Math.round(r.maxSum / r.salCount) : 0,
+      }));
+
+    const avgSalaryMin = salaryCount > 0 ? Math.round(salaryMinSum / salaryCount) : 0;
+    const avgSalaryMax = salaryCount > 0 ? Math.round(salaryMaxSum / salaryCount) : 0;
+    const remoteShare = totalJobs > 0 ? Math.round((remoteCount / totalJobs) * 100) : 0;
+    const fastestGrowingRole = roleDemand[0]?.role || (track === "All" ? "Full Stack" : track);
+
+    res.json({
+      track,
+      activeJobs: totalJobs,
+      avgSalaryMin,
+      avgSalaryMax,
+      remoteCount,
+      remoteShare,
+      fastestGrowingRole,
+      topSkills: rankedSkills,
+      roleDemand,
+    });
+  } catch (err) {
+    console.error("[Job Trends] Error:", err.message);
     res.status(500).json({ message: err.message });
   }
 };

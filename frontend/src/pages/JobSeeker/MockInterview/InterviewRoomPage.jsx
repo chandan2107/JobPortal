@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 import toast from "react-hot-toast";
 import Vapi from "@vapi-ai/web";
 import {
@@ -21,7 +20,8 @@ import {
   Key,
   HelpCircle,
 } from "lucide-react";
-import { API_PATHS, BASE_URL } from "../../../utils/apiPaths";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 
 const InterviewRoomPage = () => {
   const { id } = useParams();
@@ -89,20 +89,14 @@ const InterviewRoomPage = () => {
     const initSessionData = async () => {
       try {
         if (!session) {
-          const res = await axios.get(
-            `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.GET_BY_ID(id)}`,
-            { withCredentials: true }
-          );
+          const res = await axiosInstance.get(API_PATHS.MOCK_INTERVIEW.GET_BY_ID(id));
           if (res.data?.session) {
             setSession(res.data.session);
           }
         }
 
         if (!vapiPublicKey) {
-          const configRes = await axios.get(
-            `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.GET_CONFIG}`,
-            { withCredentials: true }
-          );
+          const configRes = await axiosInstance.get(API_PATHS.MOCK_INTERVIEW.GET_CONFIG);
           if (configRes.data?.vapiPublicKey) {
             setVapiPublicKey(configRes.data.vapiPublicKey);
           } else {
@@ -167,14 +161,18 @@ const InterviewRoomPage = () => {
   useEffect(() => {
     if (!vapiPublicKey || !vapiAssistant) return;
 
+    let isCleanedUp = false;
     let vapi = null;
     try {
       vapi = new Vapi(vapiPublicKey);
       vapiRef.current = vapi;
       setCallStatus("connecting");
+      setErrorMessage("");
 
       // Register Vapi Listeners
       vapi.on("call-start", () => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
+        setErrorMessage("");
         setCallStatus("active");
         toast.success("AI Interviewer joined the room!");
         // Start Timer
@@ -184,25 +182,30 @@ const InterviewRoomPage = () => {
       });
 
       vapi.on("call-end", () => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         setCallStatus("ended");
         clearInterval(timerRef.current);
         handleEndCallCleanup();
       });
 
       vapi.on("speech-start", () => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         // AI started speaking
         setIsAiSpeaking(true);
       });
 
       vapi.on("speech-end", () => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         setIsAiSpeaking(false);
       });
 
       vapi.on("volume-level", (volume) => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         setVolumeLevel(volume || 0);
       });
 
       vapi.on("message", (message) => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         if (message.type === "transcript") {
           const isUser = message.role === "user";
           const isAi = message.role === "assistant";
@@ -231,6 +234,7 @@ const InterviewRoomPage = () => {
       });
 
       vapi.on("error", (error) => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         console.error("Vapi call error:", error);
         let msg =
           error?.message ||
@@ -248,16 +252,23 @@ const InterviewRoomPage = () => {
 
       // Launch the call with the assistant configuration
       vapi.start(vapiAssistant).catch((startErr) => {
+        if (isCleanedUp || vapiRef.current !== vapi) return;
         console.error("vapi.start error:", startErr);
       });
     } catch (err) {
-      console.error("Vapi init error:", err);
-      setErrorMessage(err.message || "Could not start voice session.");
-      setCallStatus("error");
+      if (!isCleanedUp) {
+        console.error("Vapi init error:", err);
+        setErrorMessage(err.message || "Could not start voice session.");
+        setCallStatus("error");
+      }
     }
 
     return () => {
+      isCleanedUp = true;
       if (timerRef.current) clearInterval(timerRef.current);
+      if (vapiRef.current === vapi) {
+        vapiRef.current = null;
+      }
       if (vapi) {
         try {
           vapi.stop();
@@ -275,13 +286,12 @@ const InterviewRoomPage = () => {
     const currentTranscript = transcriptRef.current;
     if (currentTranscript.length > 0) {
       try {
-        await axios.post(
-          `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.SAVE_TRANSCRIPT(id)}`,
+        await axiosInstance.post(
+          API_PATHS.MOCK_INTERVIEW.SAVE_TRANSCRIPT(id),
           {
             transcript: currentTranscript,
-            duration: secondsElapsed,
-          },
-          { withCredentials: true }
+            duration: secondsElapsedRef.current,
+          }
         );
       } catch (saveErr) {
         console.error("Failed to save transcript:", saveErr);

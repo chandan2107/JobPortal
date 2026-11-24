@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import axios from "axios";
 import toast from "react-hot-toast";
 import {
   History,
@@ -9,6 +8,7 @@ import {
   Award,
   Clock,
   Sparkles,
+  ArrowLeft,
   ArrowRight,
   Trash2,
   Filter,
@@ -19,7 +19,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Navbar from "../../../components/layout/Navbar";
-import { API_PATHS, BASE_URL } from "../../../utils/apiPaths";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 
 const InterviewHistoryPage = () => {
   const navigate = useNavigate();
@@ -34,10 +35,7 @@ const InterviewHistoryPage = () => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.GET_HISTORY}`,
-        { withCredentials: true }
-      );
+      const res = await axiosInstance.get(API_PATHS.MOCK_INTERVIEW.GET_HISTORY);
       if (res.data?.interviews) {
         setInterviews(res.data.interviews);
       }
@@ -54,10 +52,7 @@ const InterviewHistoryPage = () => {
     if (!window.confirm("Are you sure you want to delete this interview record?")) return;
 
     try {
-      const res = await axios.delete(
-        `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.DELETE(id)}`,
-        { withCredentials: true }
-      );
+      const res = await axiosInstance.delete(API_PATHS.MOCK_INTERVIEW.DELETE(id));
       if (res.data?.success) {
         toast.success("Interview deleted.");
         setInterviews((prev) => prev.filter((item) => item._id !== id));
@@ -95,6 +90,15 @@ const InterviewHistoryPage = () => {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-semibold text-xs uppercase tracking-wider group transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back
+        </button>
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
           <div>

@@ -2,12 +2,12 @@ import { Bookmark, Building, Building2, Calendar, MapPin, Sparkles } from "lucid
 import moment from "moment";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
-import StatusBadge from "../layout/StatusBadge";
 
 const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
   const { user } = useAuth();
 
   const isSaved = Boolean(job?.isSaved || saved);
+  const isApplied = Boolean(job?.applicationStatus);
 
   const formatSalary = (min, max) => {
     if (!min && !max) return "Salary negotiable";
@@ -147,19 +147,20 @@ const JobCard = ({ job, onClick, onToggleSave, onApply, saved, hideApply }) => {
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {!saved && job?.applicationStatus && (
-            <StatusBadge status={job?.applicationStatus} />
-          )}
-
           {!saved && !hideApply && (
             <button
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+              disabled={isApplied}
+              className={`px-4 py-2 font-bold text-xs sm:text-sm rounded-xl transition-all ${
+                isApplied
+                  ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20 cursor-pointer"
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
-                onApply();
+                if (!isApplied) onApply();
               }}
             >
-              Apply Now
+              {isApplied ? "Applied" : "Apply Now"}
             </button>
           )}
         </div>

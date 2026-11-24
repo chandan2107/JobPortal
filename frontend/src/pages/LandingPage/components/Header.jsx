@@ -27,7 +27,7 @@ const Header = () => {
             initial="initial"
             whileHover="hover"
             whileTap="tap"
-            className="flex items-center gap-2.5"
+            className="group flex items-center gap-2.5"
           >
             <motion.div
               variants={{
@@ -41,24 +41,12 @@ const Header = () => {
               <AppLogo className="h-6 sm:h-[26px] w-auto" />
             </motion.div>
             <span className="text-xl sm:text-[22px] font-extrabold tracking-tight select-none flex items-center">
-              <motion.span
-                variants={{
-                  initial: { color: isDark ? "#ffffff" : "#09090b" },
-                  hover: { color: "#0ea5e9" },
-                }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
+              <span className="text-zinc-950 dark:text-white group-hover:text-sky-500 transition-colors duration-300">
                 Job
-              </motion.span>
-              <motion.span
-                variants={{
-                  initial: { color: "#0ea5e9" },
-                  hover: { color: isDark ? "#ffffff" : "#09090b" },
-                }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
+              </span>
+              <span className="text-sky-500 group-hover:text-zinc-950 dark:group-hover:text-white transition-colors duration-300">
                 Portal
-              </motion.span>
+              </span>
             </span>
           </motion.div>
         </Link>
@@ -71,18 +59,20 @@ const Header = () => {
           >
             Find Jobs
           </Link>
-          <button
-            onClick={() =>
-              navigate(
-                isAuthenticated && user?.role === "employer"
-                  ? "/employer-dashboard"
-                  : "/login"
-              )
-            }
-            className="text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer"
-          >
-            For Employers
-          </button>
+          {(!isAuthenticated || user?.role === "employer") && (
+            <button
+              onClick={() =>
+                navigate(
+                  isAuthenticated && user?.role === "employer"
+                    ? "/employer-dashboard"
+                    : "/login"
+                )
+              }
+              className="text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              For Employers
+            </button>
+          )}
         </nav>
 
         {/* Right side: Theme toggle + Auth */}
@@ -180,19 +170,21 @@ const Header = () => {
             >
               Find Jobs
             </Link>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                navigate(
-                  isAuthenticated && user?.role === "employer"
-                    ? "/employer-dashboard"
-                    : "/login"
-                );
-              }}
-              className="block text-zinc-700 dark:text-zinc-300 py-1 text-left w-full cursor-pointer"
-            >
-              For Employers
-            </button>
+            {(!isAuthenticated || user?.role === "employer") && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate(
+                    isAuthenticated && user?.role === "employer"
+                      ? "/employer-dashboard"
+                      : "/login"
+                  );
+                }}
+                className="block text-zinc-700 dark:text-zinc-300 py-1 text-left w-full cursor-pointer"
+              >
+                For Employers
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -40,6 +40,7 @@ export const API_PATHS = {
     UNSAVE_JOB: (id) => `/api/save-jobs/${id}`,
     GET_SAVED_JOBS: "/api/save-jobs/my",
     GET_RECOMMENDED: "/api/jobs/recommended",
+    GET_TRENDS: "/api/jobs/trends",
   },
 
   SAVED_JOBS: {

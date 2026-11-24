@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 import toast from "react-hot-toast";
 import {
   Bot,
@@ -23,7 +22,8 @@ import {
   BookOpen,
 } from "lucide-react";
 import Navbar from "../../../components/layout/Navbar";
-import { API_PATHS, BASE_URL } from "../../../utils/apiPaths";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 import { useAuth } from "../../../context/AuthContext";
 
 const PRESET_ROLES = [
@@ -97,9 +97,7 @@ const InterviewSetupPage = () => {
   const fetchResumes = async () => {
     try {
       setLoadingResumes(true);
-      const res = await axios.get(`${BASE_URL}${API_PATHS.RESUMES.GET_ALL}`, {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.get(API_PATHS.RESUMES.GET_ALL);
       if (res.data?.success) {
         setResumes(res.data.resumes || []);
         if (res.data.resumes?.length > 0) {
@@ -120,9 +118,7 @@ const InterviewSetupPage = () => {
   const fetchJobDetails = async (id) => {
     try {
       setLoadingJob(true);
-      const res = await axios.get(`${BASE_URL}${API_PATHS.JOBS.GET_JOB_BY_ID(id)}`, {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.get(API_PATHS.JOBS.GET_JOB_BY_ID(id));
       if (res.data) {
         setJobDetails(res.data);
         if (res.data.title) {
@@ -139,9 +135,7 @@ const InterviewSetupPage = () => {
 
   const fetchSavedJobs = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}${API_PATHS.SAVED_JOBS.GET_SAVED_JOBS}`, {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.get(API_PATHS.SAVED_JOBS.GET_SAVED_JOBS);
       if (res.data) {
         // saved jobs might return array of objects with .job
         const list = Array.isArray(res.data)
@@ -187,10 +181,9 @@ const InterviewSetupPage = () => {
         jobId: mode === "job" ? selectedJobId : undefined,
       };
 
-      const res = await axios.post(
-        `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.START}`,
-        payload,
-        { withCredentials: true }
+      const res = await axiosInstance.post(
+        API_PATHS.MOCK_INTERVIEW.START,
+        payload
       );
 
       if (res.data?.success) {
@@ -215,7 +208,7 @@ const InterviewSetupPage = () => {
     <div className="min-h-screen bg-zinc-50 dark:bg-[#090c15] text-zinc-900 dark:text-zinc-100 transition-colors pb-16">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-10">
         {/* Header Banner */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800/80 pb-6">
           <div>
@@ -346,13 +339,16 @@ const InterviewSetupPage = () => {
           </div>
         </div>
 
-        {/* Dynamic Setup Controls */}
-        <div className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+        {/* Step 2: Role & Interview Format */}
+        <div className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-7 shadow-sm">
           <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4">
             <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-500" />
-              Step 2: Customize Your Interview Session
+              Step 2: Role & Interview Format
             </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              Set your target role, difficulty level, and round structure.
+            </p>
           </div>
 
           {/* Mode 2 Specific: Resume Picker */}
@@ -500,11 +496,11 @@ const InterviewSetupPage = () => {
           )}
 
           {/* Job Role Selection */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
               Target Role / Job Title
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <select
                   value={role}
@@ -535,13 +531,13 @@ const InterviewSetupPage = () => {
           </div>
 
           {/* Difficulty & Type Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Difficulty Level */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
                 Experience Level
               </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
+              <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
                 {[
                   { id: "fresher", label: "Fresher" },
                   { id: "mid", label: "Mid-Level" },
@@ -551,7 +547,7 @@ const InterviewSetupPage = () => {
                     key={item.id}
                     type="button"
                     onClick={() => setDifficulty(item.id)}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    className={`py-2.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                       difficulty === item.id
                         ? "bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-xs"
                         : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -564,11 +560,11 @@ const InterviewSetupPage = () => {
             </div>
 
             {/* Interview Type */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
                 Focus Area
               </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
+              <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
                 {[
                   { id: "mixed", label: "Mixed" },
                   { id: "technical", label: "Technical" },
@@ -578,7 +574,7 @@ const InterviewSetupPage = () => {
                     key={item.id}
                     type="button"
                     onClick={() => setInterviewType(item.id)}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    className={`py-2.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                       interviewType === item.id
                         ? "bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-xs"
                         : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -591,11 +587,11 @@ const InterviewSetupPage = () => {
             </div>
 
             {/* Question Count (Configurable: 3, 5, 10) */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
                 Questions Count
               </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
+              <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700/80">
                 {[
                   { count: 3, label: "3 Quick" },
                   { count: 5, label: "5 Standard" },
@@ -605,7 +601,7 @@ const InterviewSetupPage = () => {
                     key={item.count}
                     type="button"
                     onClick={() => setQuestionCount(item.count)}
-                    className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    className={`py-2.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                       questionCount === item.count
                         ? "bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-xs"
                         : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -617,26 +613,39 @@ const InterviewSetupPage = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Step 3: Voice & Pacing Preferences */}
+        <div className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-7 shadow-sm">
+          <div className="border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <Volume2 className="w-5 h-5 text-indigo-500" />
+              Step 3: Voice & Pacing Preferences
+            </h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              Choose your interviewer voice, speaking speed, and thinking pause buffer.
+            </p>
+          </div>
 
           {/* Voice Persona & Speech Pace Controls */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Interviewer Persona & Tone */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span>Interviewer Voice</span>
-                <span className="text-[10px] text-blue-500 font-semibold lowercase">Deepgram Aura-2</span>
+                <span className="text-[10px] text-blue-500 font-semibold">Deepgram Aura-2</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: "orpheus", label: "Alex", desc: "Calm & Professional (Male)" },
-                  { id: "luna", label: "Sarah", desc: "Warm & Natural (Female)" },
-                  { id: "asteria", label: "Asteria", desc: "Upbeat & Dynamic (Female)" },
+                  { id: "orpheus", label: "Alex", desc: "Calm (Male)" },
+                  { id: "luna", label: "Sarah", desc: "Warm (Female)" },
+                  { id: "asteria", label: "Asteria", desc: "Dynamic (Female)" },
                 ].map((v) => (
                   <button
                     key={v.id}
                     type="button"
                     onClick={() => setVoiceId(v.id)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                       voiceId === v.id
                         ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 dark:border-blue-500 ring-2 ring-blue-500/20"
                         : "bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
@@ -648,7 +657,7 @@ const InterviewSetupPage = () => {
                         <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
                       )}
                     </div>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1.5">
                       {v.desc}
                     </span>
                   </button>
@@ -657,22 +666,22 @@ const InterviewSetupPage = () => {
             </div>
 
             {/* Speaking Speed / Pace */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
                 <span>Speaking Cadence</span>
-                <span className="text-[10px] text-emerald-500 font-semibold">Adaptive turn-taking</span>
+                <span className="text-[10px] text-emerald-500 font-semibold">Adaptive pacing</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[
-                  { speed: 0.85, label: "Calm (0.85x)", desc: "Best for thinking & clarity" },
-                  { speed: 0.95, label: "Balanced (0.95x)", desc: "Natural conversational rhythm" },
-                  { speed: 1.0, label: "Standard (1.0x)", desc: "Direct baseline speed" },
+                  { speed: 0.85, label: "Calm", desc: "0.85x clarity" },
+                  { speed: 0.95, label: "Balanced", desc: "0.95x natural" },
+                  { speed: 1.0, label: "Standard", desc: "1.0x baseline" },
                 ].map((s) => (
                   <button
                     key={s.speed}
                     type="button"
                     onClick={() => setVoiceSpeed(s.speed)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                       voiceSpeed === s.speed
                         ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 dark:border-emerald-500 ring-2 ring-emerald-500/20"
                         : "bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
@@ -684,7 +693,7 @@ const InterviewSetupPage = () => {
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                       )}
                     </div>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1.5">
                       {s.desc}
                     </span>
                   </button>
@@ -693,35 +702,35 @@ const InterviewSetupPage = () => {
             </div>
           </div>
 
-          {/* Candidate Thinking Pause Tolerance (Allows 5-6 seconds gap in talking) */}
-          <div className="space-y-2 pt-1">
+          {/* Candidate Thinking Pause Tolerance */}
+          <div className="space-y-3">
             <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
-              <span>Candidate Pause Allowance (Gap in Talking)</span>
-              <span className="text-[10px] text-amber-500 font-semibold">Allows silent thinking without getting cut off</span>
+              <span>Thinking Pause Allowance</span>
+              <span className="text-[10px] text-amber-500 font-semibold">Prevents premature cut-offs</span>
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 {
                   buffer: 5.5,
                   label: "5 - 6s Gap (Recommended)",
-                  desc: "Generous thinking buffer: pause, think, and explain without being interrupted",
+                  desc: "Generous buffer for structured technical thinking",
                 },
                 {
                   buffer: 4.0,
                   label: "4s Gap (Balanced)",
-                  desc: "Moderate pause tolerance for steady, natural flow",
+                  desc: "Moderate pause tolerance for steady flow",
                 },
                 {
                   buffer: 2.5,
                   label: "2 - 3s Gap (Snappy)",
-                  desc: "Quick conversational back-and-forth drill pace",
+                  desc: "Quick conversational back-and-forth pace",
                 },
               ].map((b) => (
                 <button
                   key={b.buffer}
                   type="button"
                   onClick={() => setPauseBuffer(b.buffer)}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     pauseBuffer === b.buffer
                       ? "bg-amber-50 dark:bg-amber-950/40 border-amber-500 dark:border-amber-500 ring-2 ring-amber-500/20"
                       : "bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300"
@@ -733,7 +742,7 @@ const InterviewSetupPage = () => {
                       <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" />
                     )}
                   </div>
-                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1.5">
                     {b.desc}
                   </span>
                 </button>
@@ -741,30 +750,16 @@ const InterviewSetupPage = () => {
             </div>
           </div>
 
-          {/* Quick Tips Box */}
-          <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60 flex items-start gap-3">
-            <Volume2 className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-zinc-600 dark:text-zinc-300 space-y-1.5">
-              <div className="font-bold text-zinc-900 dark:text-white">
-                How Voice Interviews Work:
-              </div>
-              <p>
-                • <strong>5-6 Second Thinking Gap:</strong> Take your time. You can comfortably pause for up to 5-6 seconds mid-sentence to think through your answer—the AI will patiently wait and will not interrupt you prematurely.
-              </p>
-              <p>
-                • <strong>Active Listening:</strong> The interviewer truly understands your technical stack (React, Node, databases, APIs) and asks tailored follow-ups without repeating your words.
-              </p>
-              <p>
-                • <strong>Paced Conversation:</strong> The agent speaks calmly at an unhurried tempo so you can absorb questions clearly.
-              </p>
-              <p>
-                • <strong>High-Fidelity Audio:</strong> Technical terms like <em>"fullstack"</em>, <em>"REST"</em>, and <em>"architecture"</em> are boosted for accurate real-time transcription.
-              </p>
-            </div>
+          {/* Compact Tip Strip */}
+          <div className="px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/60 flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-300">
+            <Volume2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+            <span>
+              Allow microphone access when prompted. The AI listens patiently for your full answer and generates a detailed scorecard afterward.
+            </span>
           </div>
 
           {/* Start CTA Button */}
-          <div className="pt-2">
+          <div className="pt-1">
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}

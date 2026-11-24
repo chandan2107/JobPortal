@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
 import toast from "react-hot-toast";
 import {
   Award,
@@ -23,7 +22,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import Navbar from "../../../components/layout/Navbar";
-import { API_PATHS, BASE_URL } from "../../../utils/apiPaths";
+import axiosInstance from "../../../utils/axiosInstance";
+import { API_PATHS } from "../../../utils/apiPaths";
 
 const InterviewReportPage = () => {
   const { id } = useParams();
@@ -48,10 +48,7 @@ const InterviewReportPage = () => {
       setError(null);
 
       // 1. Fetch current session
-      const res = await axios.get(
-        `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.GET_BY_ID(id)}`,
-        { withCredentials: true }
-      );
+      const res = await axiosInstance.get(API_PATHS.MOCK_INTERVIEW.GET_BY_ID(id));
 
       const sessionData = res.data?.session;
       if (!sessionData) {
@@ -71,10 +68,9 @@ const InterviewReportPage = () => {
       // 3. If transcript exists but report is missing, call generate-report
       if (sessionData.transcript && sessionData.transcript.length > 0) {
         setGenerating(true);
-        const reportRes = await axios.post(
-          `${BASE_URL}${API_PATHS.MOCK_INTERVIEW.GENERATE_REPORT(id)}`,
-          {},
-          { withCredentials: true }
+        const reportRes = await axiosInstance.post(
+          API_PATHS.MOCK_INTERVIEW.GENERATE_REPORT(id),
+          {}
         );
         if (reportRes.data?.session) {
           setSession(reportRes.data.session);
@@ -120,12 +116,12 @@ const InterviewReportPage = () => {
         {/* Top Back / Action Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
           <button
-            onClick={() => navigate("/mock-interview")}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Interview Setup</span>
-          </button>
+                    onClick={() => navigate(-1)}
+                    className="inline-flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-semibold text-xs uppercase tracking-wider group transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    Back
+                  </button>
 
           <div className="flex items-center gap-3">
             <Link
@@ -205,9 +201,15 @@ const InterviewReportPage = () => {
                   </h1>
                   <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-zinc-400" />
-                    <span>Duration: {formatTimer(session.duration)}</span>
-                    <span>•</span>
-                    <span>{session.transcript?.length || 0} conversation turns</span>
+                    <span>
+                      Duration:{" "}
+                      {formatTimer(
+                        session.duration ||
+                          (session.transcript?.length
+                            ? Math.max(...session.transcript.map((t) => Number(t.timestamp) || 0))
+                            : 0)
+                      )}
+                    </span>
                   </p>
                 </div>
 
@@ -265,67 +267,6 @@ const InterviewReportPage = () => {
                 </div>
               )}
             </div>
-
-            {/* 4 Core Competency Progress Bars */}
-            {session.report.skillBreakdown && (
-              <div className="bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
-                <h3 className="font-bold text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-blue-500" />
-                  Skill & Competency Breakdown
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {[
-                    {
-                      label: "Technical Accuracy",
-                      score: session.report.skillBreakdown.technicalAccuracy || 0,
-                      desc: "Depth, correctness, and domain concepts",
-                    },
-                    {
-                      label: "Communication & Articulation",
-                      score: session.report.skillBreakdown.communication || 0,
-                      desc: "Structure, clarity, and conciseness (STAR method)",
-                    },
-                    {
-                      label: "Confidence & Poise",
-                      score: session.report.skillBreakdown.confidence || 0,
-                      desc: "Tone of voice, delivery pace, and composure",
-                    },
-                    {
-                      label: "Problem Solving",
-                      score: session.report.skillBreakdown.problemSolving || 0,
-                      desc: "Analytical reasoning and architectural trade-offs",
-                    },
-                  ].map((skill, idx) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2"
-                    >
-                      <div className="flex items-center justify-between text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                        <span>{skill.label}</span>
-                        <span className="text-blue-600 dark:text-blue-400">{skill.score}%</span>
-                      </div>
-
-                      <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${skill.score}%` }}
-                          transition={{ duration: 0.8, delay: idx * 0.1 }}
-                          className={`h-full rounded-full ${
-                            skill.score >= 75
-                              ? "bg-emerald-500"
-                              : skill.score >= 50
-                              ? "bg-blue-500"
-                              : "bg-amber-500"
-                          }`}
-                        />
-                      </div>
-                      <p className="text-[11px] text-zinc-400">{skill.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Strengths & Weaknesses 2-Column Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

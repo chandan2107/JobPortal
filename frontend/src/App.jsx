@@ -14,6 +14,8 @@ import JobSeekerDashboard from "./pages/JobSeeker/JobSeekerDashboard";
 import JobDetails from "./pages/JobSeeker/JobDetails";
 import SavedJobs from "./pages/JobSeeker/SavedJobs";
 import UserProfile from "./pages/JobSeeker/UserProfile";
+import Applications from "./pages/JobSeeker/Applications";
+import CurrentTrends from "./pages/JobSeeker/CurrentTrends";
 import ResumeListPage from "./pages/JobSeeker/ResumeBuilder/ResumeListPage";
 import ResumeEditorPage from "./pages/JobSeeker/ResumeBuilder/ResumeEditorPage";
 import ATSScanner from "./pages/JobSeeker/ATSScanner";
@@ -53,6 +55,8 @@ const App = () => {
             <Route path="/job/:jobId" element={<JobDetails />} />
             <Route path="/saved-jobs" element={<SavedJobs />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/applications" element={<Applications />} />
+            <Route path="/current-trends" element={<CurrentTrends />} />
             <Route path="/resume-builder" element={<ResumeListPage />} />
             <Route path="/resume-builder/:id" element={<ResumeEditorPage />} />
             <Route path="/ats-scanner" element={<ATSScanner />} />

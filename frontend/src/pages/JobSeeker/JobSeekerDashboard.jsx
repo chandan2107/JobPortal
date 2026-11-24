@@ -8,7 +8,7 @@ import {
 import LoadingSpinner from "../../components/layout/LoadingSpinner";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import Navbar from "../../components/layout/Navbar";
@@ -30,16 +30,33 @@ const JobSeekerDashboard = () => {
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter states
-  const [filters, setFilters] = useState({
-    keyword: "",
-    location: "",
-    category: "",
-    type: "",
-    minSalary: "",
-    maxSalary: "",
-  });
+  // Filter states (initialized from URL search params)
+  const [filters, setFilters] = useState(() => ({
+    keyword: searchParams.get("query") || searchParams.get("keyword") || "",
+    location: searchParams.get("location") || "",
+    category: searchParams.get("category") || "",
+    type: searchParams.get("type") || "",
+    minSalary: searchParams.get("minSalary") || "",
+    maxSalary: searchParams.get("maxSalary") || "",
+  }));
+
+  useEffect(() => {
+    const queryKeyword = searchParams.get("query") || searchParams.get("keyword") || "";
+    const queryLocation = searchParams.get("location") || "";
+    const queryCategory = searchParams.get("category") || "";
+    const queryType = searchParams.get("type") || "";
+    if (queryKeyword || queryLocation || queryCategory || queryType) {
+      setFilters((prev) => ({
+        ...prev,
+        keyword: queryKeyword,
+        location: queryLocation,
+        category: queryCategory,
+        type: queryType,
+      }));
+    }
+  }, [searchParams]);
 
   // Sidebar collapse states
   const [expandedSections, setExpandedSections] = useState({
@@ -147,6 +164,7 @@ const JobSeekerDashboard = () => {
       minSalary: "",
       maxSalary: "",
     });
+    setSearchParams({});
   };
 
   const MobileFilterOverlay = () => (
