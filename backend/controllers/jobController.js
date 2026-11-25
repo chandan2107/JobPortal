@@ -463,6 +463,7 @@ exports.getJobTrends = async (req, res) => {
     let salaryMaxSum = 0;
     let salaryCount = 0;
     let remoteCount = 0;
+    const jobTypeCounts = {};
     const roleMap = {};
 
     filteredJobs.forEach((job) => {
@@ -484,6 +485,9 @@ exports.getJobTrends = async (req, res) => {
       if (job.type === "Remote" || /remote/i.test(job.location || "")) {
         remoteCount += 1;
       }
+
+      const typeLabel = (job.type || "Full-Time").trim();
+      jobTypeCounts[typeLabel] = (jobTypeCounts[typeLabel] || 0) + 1;
 
       const roleName = (job.category || job.title || "General").trim();
       if (!roleMap[roleName]) {
@@ -522,6 +526,9 @@ exports.getJobTrends = async (req, res) => {
     const avgSalaryMin = salaryCount > 0 ? Math.round(salaryMinSum / salaryCount) : 0;
     const avgSalaryMax = salaryCount > 0 ? Math.round(salaryMaxSum / salaryCount) : 0;
     const remoteShare = totalJobs > 0 ? Math.round((remoteCount / totalJobs) * 100) : 0;
+    const [topJobType = "Full-Time", topJobTypeCount = 0] =
+      Object.entries(jobTypeCounts).sort((a, b) => b[1] - a[1])[0] || [];
+    const topJobTypeShare = totalJobs > 0 ? Math.round((topJobTypeCount / totalJobs) * 100) : 0;
     const fastestGrowingRole = roleDemand[0]?.role || (track === "All" ? "Full Stack" : track);
 
     res.json({
@@ -531,6 +538,8 @@ exports.getJobTrends = async (req, res) => {
       avgSalaryMax,
       remoteCount,
       remoteShare,
+      topJobType,
+      topJobTypeShare,
       fastestGrowingRole,
       topSkills: rankedSkills,
       roleDemand,

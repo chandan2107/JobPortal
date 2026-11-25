@@ -118,8 +118,8 @@ const ManageJobs = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Job Management</h2>
-            <p className="text-gray-500 text-sm mt-0.5">Manage your postings and track applications</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Job Management</h2>
+            <p className="text-gray-500 dark:text-zinc-400 text-sm mt-0.5">Manage your postings and track applications</p>
           </div>
           <button
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm"
@@ -131,29 +131,29 @@ const ManageJobs = () => {
         </div>
 
         {/* Table Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 p-5 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row items-center gap-3 p-5 border-b border-gray-200 dark:border-zinc-800">
             <div className="relative flex-1 max-w-sm w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search by job title or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-zinc-800 rounded-xl bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm"
               />
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-40 pl-3 pr-8 py-2.5 text-sm border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all cursor-pointer appearance-none"
+              className="w-full sm:w-40 pl-3 pr-8 py-2.5 text-sm border border-gray-300 dark:border-zinc-800 rounded-xl bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all cursor-pointer appearance-none"
             >
               <option value="All">All Status</option>
               <option value="Active">Active</option>
               <option value="Closed">Closed</option>
             </select>
-            <p className="text-sm text-gray-400 font-medium ml-auto whitespace-nowrap hidden lg:block">
+            <p className="text-sm text-gray-400 dark:text-zinc-500 font-medium ml-auto whitespace-nowrap hidden lg:block">
               {filteredAndSortedJobs.length} job{filteredAndSortedJobs.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -162,18 +162,18 @@ const ManageJobs = () => {
           <div className="overflow-x-auto">
             {filteredAndSortedJobs.length === 0 && !isLoading ? (
               <div className="py-20 flex flex-col items-center justify-center">
-                <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-2xl flex items-center justify-center mb-4">
                   <Briefcase className="w-7 h-7 text-blue-400" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-700 mb-1">No jobs found</h3>
-                <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
+                <h3 className="text-base font-semibold text-gray-700 dark:text-zinc-200 mb-1">No jobs found</h3>
+                <p className="text-sm text-gray-400 dark:text-zinc-500">Try adjusting your search or filters</p>
               </div>
             ) : (
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
+                  <tr className="bg-gray-50 dark:bg-zinc-950/70 border-b border-gray-200 dark:border-zinc-800">
                     <th
-                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800/70 transition-colors select-none"
                       onClick={() => handleSort("title")}
                     >
                       <div className="flex items-center gap-1.5">
@@ -181,7 +181,7 @@ const ManageJobs = () => {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800/70 transition-colors select-none"
                       onClick={() => handleSort("status")}
                     >
                       <div className="flex items-center gap-1.5">
@@ -189,48 +189,48 @@ const ManageJobs = () => {
                       </div>
                     </th>
                     <th
-                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                      className="px-6 py-3.5 text-left text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800/70 transition-colors select-none"
                       onClick={() => handleSort("applicants")}
                     >
                       <div className="flex items-center gap-1.5">
                         Applicants <SortIcon field="applicants" />
                       </div>
                     </th>
-                    <th className="px-6 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3.5 text-right text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                   {isLoading
                     ? Array.from({ length: 5 }).map((_, i) => (
                         <tr key={i} className="animate-pulse">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 bg-gray-100 rounded-xl" />
+                              <div className="w-9 h-9 bg-gray-100 dark:bg-zinc-800 rounded-xl" />
                               <div className="space-y-1.5">
-                                <div className="h-3.5 bg-gray-100 rounded w-36" />
-                                <div className="h-3 bg-gray-100 rounded w-24" />
+                                <div className="h-3.5 bg-gray-100 dark:bg-zinc-800 rounded w-36" />
+                                <div className="h-3 bg-gray-100 dark:bg-zinc-800 rounded w-24" />
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4"><div className="h-6 bg-gray-100 rounded-full w-16" /></td>
-                          <td className="px-6 py-4"><div className="h-3.5 bg-gray-100 rounded w-20" /></td>
-                          <td className="px-6 py-4"><div className="flex justify-end gap-2"><div className="h-8 bg-gray-100 rounded-lg w-8" /><div className="h-8 bg-gray-100 rounded-lg w-8" /></div></td>
+                          <td className="px-6 py-4"><div className="h-6 bg-gray-100 dark:bg-zinc-800 rounded-full w-16" /></td>
+                          <td className="px-6 py-4"><div className="h-3.5 bg-gray-100 dark:bg-zinc-800 rounded w-20" /></td>
+                          <td className="px-6 py-4"><div className="flex justify-end gap-2"><div className="h-8 bg-gray-100 dark:bg-zinc-800 rounded-lg w-8" /><div className="h-8 bg-gray-100 dark:bg-zinc-800 rounded-lg w-8" /></div></td>
                         </tr>
                       ))
                     : paginatedJobs.map((job) => (
-                        <tr key={job.id} className="hover:bg-blue-50/30 transition-colors group">
+                        <tr key={job.id} className="hover:bg-blue-50/30 dark:hover:bg-zinc-800/40 transition-colors group">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <Briefcase className="w-4 h-4 text-blue-500" />
+                              <div className="w-9 h-9 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <Briefcase className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                               </div>
                               <div>
-                                <p className="text-sm font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                                   {job.title}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-0.5">{job.company}</p>
+                                <p className="text-xs text-gray-400 dark:text-zinc-400 mt-0.5">{job.company}</p>
                               </div>
                             </div>
                           </td>
@@ -238,13 +238,13 @@ const ManageJobs = () => {
                             <span
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${
                                 job.status === "Active"
-                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                  : "bg-gray-100 text-gray-500 border border-gray-300"
+                                  ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
+                                  : "bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border border-gray-300 dark:border-zinc-700"
                               }`}
                             >
                               <span
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  job.status === "Active" ? "bg-emerald-500" : "bg-gray-400"
+                                  job.status === "Active" ? "bg-emerald-500" : "bg-gray-400 dark:bg-zinc-500"
                                 }`}
                               />
                               {job.status}
@@ -252,7 +252,7 @@ const ManageJobs = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <button
-                              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-semibold hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-transparent hover:border-blue-200 transition-colors"
+                              className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold hover:bg-blue-50 dark:hover:bg-blue-950/40 px-3 py-1.5 rounded-lg border border-transparent hover:border-blue-200 dark:hover:border-blue-800/60 transition-colors"
                               onClick={() => navigate("/applicants", { state: { jobId: job.id } })}
                             >
                               <Users className="w-3.5 h-3.5" />
@@ -262,7 +262,7 @@ const ManageJobs = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center justify-end gap-1.5">
                               <button
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+                                className="p-2 text-gray-400 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 rounded-lg transition-colors border border-transparent hover:border-blue-200 dark:hover:border-blue-800/60"
                                 onClick={() => navigate(`/post-job?jobId=${job.id}`, { state: { jobId: job.id, jobData: job.rawJob } })}
                                 title="Edit Job"
                               >
@@ -271,7 +271,7 @@ const ManageJobs = () => {
                               {job.status === "Active" ? (
                                 <button
                                   onClick={() => handleStatusChange(job.id)}
-                                  className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors border border-transparent hover:border-orange-200"
+                                  className="p-2 text-gray-400 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-amber-400 hover:bg-orange-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors border border-transparent hover:border-orange-200 dark:hover:border-amber-800/60"
                                   title="Close Job"
                                 >
                                   <X className="w-4 h-4" />
@@ -280,14 +280,14 @@ const ManageJobs = () => {
                                 <>
                                   <button
                                     onClick={() => handleStatusChange(job.id)}
-                                    className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-200"
+                                    className="p-2 text-gray-400 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800/60"
                                     title="Activate Job"
                                   >
                                     <Plus className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteJob(job.id)}
-                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200"
+                                    className="p-2 text-gray-400 dark:text-zinc-400 hover:text-red-600 dark:hover:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors border border-transparent hover:border-red-200 dark:hover:border-rose-800/60"
                                     title="Delete Job"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -305,19 +305,19 @@ const ManageJobs = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50/50">
-              <p className="text-sm text-gray-500">
-                Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span>–
-                <span className="font-semibold text-gray-900">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50">
+              <p className="text-sm text-gray-500 dark:text-zinc-400">
+                Showing <span className="font-semibold text-gray-900 dark:text-white">{startIndex + 1}</span>–
+                <span className="font-semibold text-gray-900 dark:text-white">
                   {Math.min(startIndex + itemsPerPage, filteredAndSortedJobs.length)}
                 </span>{" "}
-                of <span className="font-semibold text-gray-900">{filteredAndSortedJobs.length}</span>
+                of <span className="font-semibold text-gray-900 dark:text-white">{filteredAndSortedJobs.length}</span>
               </p>
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 text-gray-400 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -328,7 +328,7 @@ const ManageJobs = () => {
                     className={`w-8 h-8 text-sm font-semibold rounded-lg transition-colors ${
                       currentPage === page
                         ? "bg-blue-600 text-white shadow-sm"
-                        : "text-gray-600 hover:bg-gray-100"
+                        : "text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800"
                     }`}
                   >
                     {page}
@@ -337,7 +337,7 @@ const ManageJobs = () => {
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 text-gray-400 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

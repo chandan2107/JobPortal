@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, FileText, Clock, Trash2, Edit3,
   Sparkles, Loader2, Search, Copy, ArrowUpDown, X,
-  ArrowUpRight, Check, ChevronDown
+  ArrowUpRight, Check, ChevronDown, ArrowLeft
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../../../context/AuthContext";
@@ -274,14 +274,20 @@ const ResumeListPage = () => {
       {/* Global Navbar */}
       <Navbar />
 
-      <main className="relative z-10 flex-1 container mx-auto px-4 sm:px-6 lg:px-9 py-8 sm:py-10 max-w-6xl">
+      <main className="relative z-10 flex-1 container mx-auto px-4 sm:px-6 py-8 sm:py-10 max-w-7xl">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-semibold text-xs uppercase tracking-wider mb-5 group transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back
+        </button>
+
         {/* Page Hero Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 pb-6 border-b border-zinc-300 dark:border-zinc-800">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
-              <FileText className="w-3.5 h-3.5" />
-              <span>RESUME BUILDER</span>
-            </div>
+            
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white">
               Create clean, ATS-optimized{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-400">

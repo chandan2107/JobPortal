@@ -89,7 +89,7 @@ const InterviewHistoryPage = () => {
     <div className="min-h-screen bg-zinc-50 dark:bg-[#090c15] text-zinc-900 dark:text-zinc-100 transition-colors pb-16">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -102,12 +102,12 @@ const InterviewHistoryPage = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <History className="w-3.5 h-3.5" />
-              Practice Records
-            </div>
-            <h1 className="text-3xl font-extrabold text-zinc-900 dark:text-white">
-              Mock Interview History
+            
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white">
+              Interview{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-400 dark:to-blue-400">
+                History
+              </span>
             </h1>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Review your past voice interviews, score trends, and personalized feedback reports.
@@ -116,7 +116,7 @@ const InterviewHistoryPage = () => {
 
           <Link
             to="/mock-interview"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3c8ee0] hover:bg-[#2d7bc9] text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
           >
             <Bot className="w-4 h-4" />
             <span>Start New Interview</span>
@@ -202,7 +202,7 @@ const InterviewHistoryPage = () => {
             </div>
             <Link
               to="/mock-interview"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3c8ee0]  text-white text-xs font-bold"
             >
               Start Interview Now
             </Link>

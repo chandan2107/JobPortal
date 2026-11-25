@@ -173,7 +173,7 @@ const JobPostingForm = () => {
       <DashboardLayout activeMenu="post-job">
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500 font-medium">Verifying access...</p>
+          <p className="text-sm text-gray-500 dark:text-zinc-400 font-medium">Verifying access...</p>
         </div>
       </DashboardLayout>
     );
@@ -182,9 +182,9 @@ const JobPostingForm = () => {
   // ─── Verification Gate ───
   if (!isVerified) {
     const STATUS = {
-      none:     { icon: ShieldAlert, color: "text-gray-500",  bg: "bg-gray-50",   border: "border-gray-200", title: "Company Not Verified",    msg: "You need to get your company verified before you can post jobs." },
-      pending:  { icon: ShieldAlert, color: "text-amber-500", bg: "bg-amber-50",  border: "border-amber-200",title: "Verification Pending",      msg: "Your company verification is under review. You can post jobs once approved." },
-      rejected: { icon: ShieldAlert, color: "text-red-500",   bg: "bg-red-50",    border: "border-red-200",  title: "Verification Rejected",    msg: "Your company verification was rejected. Please update your profile and re-submit." },
+      none:     { icon: ShieldAlert, color: "text-gray-500 dark:text-zinc-400",  bg: "bg-gray-50 dark:bg-zinc-900",   border: "border-gray-200 dark:border-zinc-800", title: "Company Not Verified",    msg: "You need to get your company verified before you can post jobs." },
+      pending:  { icon: ShieldAlert, color: "text-amber-500 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30",  border: "border-amber-200 dark:border-amber-800/60",title: "Verification Pending",      msg: "Your company verification is under review. You can post jobs once approved." },
+      rejected: { icon: ShieldAlert, color: "text-red-500 dark:text-rose-400",   bg: "bg-red-50 dark:bg-rose-950/30",    border: "border-red-200 dark:border-rose-800/60",  title: "Verification Rejected",    msg: "Your company verification was rejected. Please update your profile and re-submit." },
     };
     const cfg = STATUS[verificationStatus] || STATUS.none;
     const Icon = cfg.icon;
@@ -195,8 +195,8 @@ const JobPostingForm = () => {
             <div className={`w-16 h-16 rounded-full ${cfg.bg} border ${cfg.border} flex items-center justify-center mx-auto mb-4`}>
               <Icon className={`w-8 h-8 ${cfg.color}`} />
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">{cfg.title}</h2>
-            <p className="text-gray-600 text-sm mb-6 max-w-sm mx-auto">{cfg.msg}</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{cfg.title}</h2>
+            <p className="text-gray-600 dark:text-zinc-300 text-sm mb-6 max-w-sm mx-auto">{cfg.msg}</p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <button onClick={() => navigate("/company-profile")}
                 className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
@@ -204,7 +204,7 @@ const JobPostingForm = () => {
                 Go to Company Profile
               </button>
               <button onClick={() => navigate(-1)}
-                className="flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+                className="flex items-center gap-2 px-5 py-2.5 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 text-sm font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors">
                 <ArrowLeft className="w-4 h-4" /> Go Back
               </button>
             </div>
@@ -220,17 +220,17 @@ const JobPostingForm = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {jobId ? "Edit Job Posting" : "Post a New Job"}
             </h2>
-            <p className="text-gray-500 text-sm mt-0.5">
+            <p className="text-gray-500 dark:text-zinc-400 text-sm mt-0.5">
               {jobId ? "Update the details for this listing" : "Fill in the details to create your job posting"}
             </p>
           </div>
           <button
             onClick={() => setIsPreview(true)}
             disabled={!isFormValid()}
-            className="flex items-center gap-2 px-4 py-2 border border-blue-500 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm"
+            className="flex items-center gap-2 px-4 py-2 border border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm"
           >
             <Eye className="w-4 h-4" />
             Preview
@@ -238,7 +238,7 @@ const JobPostingForm = () => {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
           <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-700" />
           <div className="p-6 sm:p-8 space-y-6">
             <InputField
@@ -322,33 +322,33 @@ const JobPostingForm = () => {
 
             {/* Salary Range */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
                 Salary Range (INR ₹) <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
-                  <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 w-4 h-4" />
                   <input
                     type="number"
                     placeholder="Min salary (₹)"
                     value={formData.salaryMin}
                     onChange={(e) => handleInputChange("salaryMin", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none text-sm"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 rounded-xl text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all outline-none text-sm"
                   />
                 </div>
                 <div className="relative">
-                  <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 w-4 h-4" />
                   <input
                     type="number"
                     placeholder="Max salary (₹)"
                     value={formData.salaryMax}
                     onChange={(e) => handleInputChange("salaryMax", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none text-sm"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 rounded-xl text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all outline-none text-sm"
                   />
                 </div>
               </div>
               {errors.salary && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">
+                <div className="flex items-center gap-2 mt-2 text-sm text-red-600 dark:text-rose-400 bg-red-50 dark:bg-rose-950/40 border border-red-100 dark:border-rose-800/60 px-3 py-2 rounded-lg">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
                   {errors.salary}
                 </div>
@@ -356,11 +356,11 @@ const JobPostingForm = () => {
             </div>
 
             {/* Submit */}
-            <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
+            <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-sm"
+                className="px-6 py-2.5 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors font-semibold text-sm"
               >
                 Cancel
               </button>

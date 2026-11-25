@@ -13,14 +13,14 @@ import LoadingSpinner from "../../components/layout/LoadingSpinner";
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color = "blue" }) => {
   const colorMap = {
-    blue: { bg: "bg-blue-50", icon: "text-blue-600", border: "border-blue-100", badge: "bg-blue-50 text-blue-700 border-blue-100" },
-    green: { bg: "bg-emerald-50", icon: "text-emerald-600", border: "border-emerald-100", badge: "bg-emerald-50 text-emerald-700 border-emerald-100" },
-    purple: { bg: "bg-purple-50", icon: "text-purple-600", border: "border-purple-100", badge: "bg-purple-50 text-purple-700 border-purple-100" },
+    blue: { bg: "bg-blue-50 dark:bg-blue-950/40", icon: "text-blue-600 dark:text-blue-400", border: "border-blue-100 dark:border-blue-800/60", badge: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800/60" },
+    green: { bg: "bg-emerald-50 dark:bg-emerald-950/40", icon: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-100 dark:border-emerald-800/60", badge: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800/60" },
+    purple: { bg: "bg-purple-50 dark:bg-purple-950/40", icon: "text-purple-600 dark:text-purple-400", border: "border-purple-100 dark:border-purple-800/60", badge: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-100 dark:border-purple-800/60" },
   };
   const c = colorMap[color] || colorMap.blue;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 p-6 relative overflow-hidden group">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 p-6 relative overflow-hidden group">
       <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-5 group-hover:opacity-10 transition-opacity duration-300 bg-blue-600" />
       <div className="flex justify-between items-start mb-5">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.bg} border ${c.border}`}>
@@ -33,8 +33,8 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color = "blue" 
           </span>
         )}
       </div>
-      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-      <p className="text-4xl font-extrabold text-gray-900 tracking-tight">{value}</p>
+      <p className="text-xs font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest mb-1">{title}</p>
+      <p className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{value}</p>
     </div>
   );
 };
@@ -69,14 +69,14 @@ const EmployerDashboard = () => {
           {/* Page title */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
-              <p className="text-gray-500 text-sm mt-0.5">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h2>
+              <p className="text-gray-500 dark:text-zinc-400 text-sm mt-0.5">
                 Track your job postings and applicants
               </p>
             </div>
             <button
               onClick={() => navigate("/post-job")}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200 text-sm cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Post a Job
@@ -114,15 +114,15 @@ const EmployerDashboard = () => {
           {/* Recent Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Jobs */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">Recent Job Posts</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Your latest postings</p>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">Recent Job Posts</h3>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Your latest postings</p>
                 </div>
                 <button
                   onClick={() => navigate("/manage-jobs")}
-                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                 >
                   View all
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -135,23 +135,23 @@ const EmployerDashboard = () => {
                   ))
                 ) : (
                   <div className="py-8 text-center">
-                    <Briefcase className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                    <p className="text-sm text-gray-400 font-medium">No job posts yet</p>
+                    <Briefcase className="w-10 h-10 text-gray-200 dark:text-zinc-700 mx-auto mb-3" />
+                    <p className="text-sm text-gray-400 dark:text-zinc-500 font-medium">No job posts yet</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Recent Applications */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">Recent Applications</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Latest candidate activity</p>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">Recent Applications</h3>
+                  <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Latest candidate activity</p>
                 </div>
                 <button
                   onClick={() => navigate("/manage-jobs")}
-                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                  className="flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                 >
                   View all
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -169,8 +169,8 @@ const EmployerDashboard = () => {
                   ))
                 ) : (
                   <div className="py-8 text-center">
-                    <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                    <p className="text-sm text-gray-400 font-medium">No applications yet</p>
+                    <Users className="w-10 h-10 text-gray-200 dark:text-zinc-700 mx-auto mb-3" />
+                    <p className="text-sm text-gray-400 dark:text-zinc-500 font-medium">No applications yet</p>
                   </div>
                 )}
               </div>
@@ -178,10 +178,10 @@ const EmployerDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-base font-bold text-gray-900">Quick Actions</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Common tasks to help you get started</p>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-zinc-800">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">Quick Actions</h3>
+              <p className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">Common tasks to help you get started</p>
             </div>
             <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
@@ -191,17 +191,17 @@ const EmployerDashboard = () => {
               ].map((action) => (
                 <button
                   key={action.path}
-                  className="flex items-center gap-4 p-5 bg-gray-50 hover:bg-blue-50/80 border border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-200 text-left group shadow-sm"
+                  className="flex items-center gap-4 p-5 bg-gray-50 dark:bg-zinc-950/60 hover:bg-blue-50/80 dark:hover:bg-blue-950/30 border border-gray-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-700 rounded-xl transition-all duration-200 text-left group shadow-sm cursor-pointer"
                   onClick={() => navigate(action.path)}
                 >
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-                    <action.icon className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950/60 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/60 transition-colors">
+                    <action.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-sm group-hover:text-blue-700 transition-colors">
+                    <p className="font-semibold text-gray-800 dark:text-zinc-100 text-sm group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
                       {action.title}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">{action.desc}</p>
+                    <p className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5">{action.desc}</p>
                   </div>
                 </button>
               ))}

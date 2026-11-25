@@ -66,7 +66,7 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
       {/* Main Details Container */}
       <div className="space-y-6">
         {/* Hero Header Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
 
           <div className="p-6 sm:p-8">
@@ -76,49 +76,49 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
                   <img
                     src={user.companyLogo}
                     alt="Company Logo"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-contain border border-gray-200 bg-white p-2 shadow-sm flex-shrink-0"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-contain border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-2 shadow-sm flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-8 h-8 text-blue-600" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                   </div>
                 )}
 
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-2">
                     {formData.jobTitle || "Untitled Job"}
                   </h1>
 
-                  <p className="flex items-center text-blue-600 font-semibold text-sm mb-4">
+                  <p className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm mb-4">
                     <Building2 className="w-4 h-4 mr-1.5" />
                     {user?.companyName || user?.name || "Your Company"}
                   </p>
 
                   <div className="flex flex-wrap items-center gap-2">
                     {formData.location && (
-                      <span className="flex items-center gap-1 text-xs text-gray-600 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full font-medium">
-                        <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="flex items-center gap-1 text-xs text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 px-3 py-1.5 rounded-full font-medium">
+                        <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500" />
                         {formData.location}
                       </span>
                     )}
 
-                    <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
                       {jobTypeLabel}
                     </span>
 
-                    <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">
+                    <span className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-50 dark:bg-zinc-950 text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-800">
                       {categoryLabel}
                     </span>
 
                     {formData.vacancies && (
-                      <span className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                      <span className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
                         <Users className="w-3.5 h-3.5" />
                         {formData.vacancies} {Number(formData.vacancies) === 1 ? "Vacancy" : "Vacancies"}
                       </span>
                     )}
 
-                    <span className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-zinc-400 bg-gray-50 dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 px-3 py-1.5 rounded-full">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400 dark:text-zinc-500" />
                       {moment().format("Do MMM YYYY")}
                     </span>
                   </div>
@@ -140,18 +140,18 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
         </div>
 
         {/* Compensation Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl border border-blue-200 flex items-center justify-center flex-shrink-0">
-              <IndianRupee className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800/60 flex items-center justify-center flex-shrink-0">
+              <IndianRupee className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">
+              <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">
                 Compensation
               </p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {formatSalary(formData.salaryMin, formData.salaryMax)}
-                <span className="text-sm font-normal text-gray-500 ml-2">
+                <span className="text-sm font-normal text-gray-500 dark:text-zinc-400 ml-2">
                   per month
                 </span>
               </p>
@@ -160,23 +160,23 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
         </div>
 
         {/* Job Description */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-4">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6 sm:p-8 space-y-4">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <span className="w-1.5 h-6 bg-blue-600 rounded-full inline-block" />
             About This Role
           </h3>
-          <div className="text-gray-700 leading-relaxed text-sm whitespace-pre-line bg-gray-50/50 p-5 rounded-xl border border-gray-200">
+          <div className="text-gray-700 dark:text-zinc-300 leading-relaxed text-sm whitespace-pre-line bg-gray-50/50 dark:bg-zinc-950/60 p-5 rounded-xl border border-gray-200 dark:border-zinc-800">
             {formData.description || "No description provided."}
           </div>
         </div>
 
         {/* Requirements */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 space-y-4">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 p-6 sm:p-8 space-y-4">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <span className="w-1.5 h-6 bg-indigo-600 rounded-full inline-block" />
             What We're Looking For
           </h3>
-          <div className="text-gray-700 leading-relaxed text-sm whitespace-pre-line bg-indigo-50/30 p-5 rounded-xl border border-indigo-200">
+          <div className="text-gray-700 dark:text-zinc-300 leading-relaxed text-sm whitespace-pre-line bg-indigo-50/30 dark:bg-indigo-950/20 p-5 rounded-xl border border-indigo-200 dark:border-indigo-800/60">
             {formData.requirements || "No requirements provided."}
           </div>
         </div>
@@ -185,7 +185,7 @@ const JobPostingPreview = ({ formData, setIsPreview }) => {
         <div className="flex justify-end pt-4">
           <button
             onClick={() => setIsPreview(false)}
-            className="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-sm transition-all flex items-center gap-2 text-sm"
+            className="px-6 py-2.5 bg-gray-900 dark:bg-zinc-800 hover:bg-gray-800 dark:hover:bg-zinc-700 text-white rounded-xl font-semibold shadow-sm transition-all flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Return to Form

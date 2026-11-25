@@ -344,24 +344,6 @@ const JobSeekerDashboard = () => {
                 filters={filters}
                 handleFilterChange={handleFilterChange}
               />
-
-              {/* AI Mock Interview Promotion Widget */}
-              <div className="mt-5 p-4 rounded-xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-200/80 dark:border-blue-900/50 space-y-2.5">
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                  <Bot className="w-4 h-4" />
-                  <span>AI Mock Interview</span>
-                </div>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Practice voice interviews with real-time feedback before your actual interview.
-                </p>
-                <button
-                  onClick={() => navigate("/mock-interview")}
-                  className="w-full py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  <span>Start Practice</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -380,7 +362,7 @@ const JobSeekerDashboard = () => {
                       : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                   }`}
                 >
-                  All Jobs ({jobs.length})
+                  All Jobs
                 </button>
 
                 {recommendationData?.hasResume && recommendedJobs.length > 0 && (
@@ -393,13 +375,9 @@ const JobSeekerDashboard = () => {
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                    <span>Recommended ({recommendedJobs.length})</span>
+                    <span>Recommended</span>
                   </button>
                 )}
-
-                <span className="hidden md:inline-block text-xs text-zinc-400 dark:text-zinc-500 font-medium pl-1">
-                  • {sortedJobs.length} {sortedJobs.length === 1 ? "job found" : "jobs found"}
-                </span>
               </div>
 
               {/* Right: Sort Dropdown + Mobile Filter + View Mode */}

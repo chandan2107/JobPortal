@@ -1,10 +1,25 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { protect } = require("../middleware/authMiddleware");
+const { extractTextFromPdfBuffer } = require("./atsHelpers");
 const MockInterview = require("../models/MockInterview");
 const Resume = require("../models/Resume");
 const Job = require("../models/Job");
+const { generatePdfFromHtml } = require("../services/pdfService");
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are allowed."), false);
+    }
+  },
+});
 
 // ─── Helper: Gemini Caller with Multi-Model Fallback ─────────────────────────
 const callGemini = async (prompt) => {
@@ -112,7 +127,12 @@ const buildInterviewSystemPrompt = ({
   if (mode === "job" && jobContext) {
     contextBlock = `TARGET JOB POSTING SPECIFICATION:\n${jobContext}\nTailor your questions directly to the technologies, requirements, and responsibilities described in this job description.`;
   } else if (mode === "resume" && resumeContext) {
-    contextBlock = `CANDIDATE'S VERIFIED RESUME BACKGROUND:\n${resumeContext}\nAsk specific questions targeting their real projects, listed tools, technologies, and achievements.`;
+    contextBlock = `CANDIDATE'S VERIFIED RESUME BACKGROUND:\n${resumeContext}
+
+RESUME + ROLE ALIGNMENT INSTRUCTIONS:
+- Conduct this like a real hiring interview for "${role}" using the candidate's resume above.
+- If their resume aligns with "${role}", ask specific questions connecting their real projects, listed tools, technologies, and achievements to "${role}" responsibilities.
+- If "${role}" is significantly different from their resume background (different tech stack or domain), act like a real interviewer: politely point out that their resume focuses on a different area, ask why they are transitioning to "${role}" and what transferable skills or preparation they have, and then evaluate them realistically with role-appropriate questions for "${role}".`;
   }
 
   return `You are ${interviewerName}, an expert, seasoned engineering hiring manager conducting an official, real-time voice mock interview for the position of "${role}".
@@ -241,6 +261,27 @@ router.get("/config", protect, (req, res) => {
   }
 });
 
+// ─── 1b. POST /api/mock-interview/upload-resume ───────────────────────────────
+router.post("/upload-resume", protect, upload.single("resume"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Please upload a PDF resume." });
+    }
+    const resumeText = await extractTextFromPdfBuffer(req.file.buffer);
+    if (!resumeText || resumeText.trim().length < 30) {
+      return res.status(400).json({ message: "Could not read text from the uploaded PDF." });
+    }
+    res.json({
+      success: true,
+      fileName: req.file.originalname || "Uploaded_Resume.pdf",
+      resumeText: resumeText.slice(0, 6000),
+    });
+  } catch (error) {
+    console.error("[MockInterview] upload-resume error:", error);
+    res.status(500).json({ message: error.message || "Failed to process uploaded resume." });
+  }
+});
+
 // ─── 2. POST /api/mock-interview/start ──────────────────────────────────────
 router.post("/start", protect, async (req, res) => {
   try {
@@ -254,6 +295,8 @@ router.post("/start", protect, async (req, res) => {
       voiceSpeed = 0.88,
       pauseBuffer = 5.5,
       resumeId,
+      useProfileResume = false,
+      uploadedResumeText = "",
       jobId,
     } = req.body;
 
@@ -272,8 +315,29 @@ router.post("/start", protect, async (req, res) => {
     let companyName = "";
     let jobTitle = role;
 
-    // Load Resume Context if mode === "resume" or resumeId provided
-    if (resumeId) {
+    // Load Resume Context if mode === "resume" or resumeId/useProfileResume/uploadedResumeText provided
+    const isProfileResume = Boolean(useProfileResume || resumeId === "profile");
+    if (uploadedResumeText && typeof uploadedResumeText === "string" && uploadedResumeText.trim()) {
+      resumeContext = `Uploaded Resume Content:\n${uploadedResumeText.trim().slice(0, 4000)}`;
+    } else if (isProfileResume && req.user) {
+      const parts = [];
+      if (req.user.name) parts.push(`Candidate: ${req.user.name}`);
+      if (req.user.jobTitle || req.user.resumeHeadline) {
+        parts.push(`Headline: ${req.user.jobTitle || req.user.resumeHeadline}`);
+      }
+      if (req.user.bio) parts.push(`Summary: ${req.user.bio}`);
+      const combinedSkills = [
+        ...(Array.isArray(req.user.skills) ? req.user.skills : []),
+        ...(Array.isArray(req.user.resumeSkills) ? req.user.resumeSkills : []),
+      ];
+      if (combinedSkills.length > 0) {
+        parts.push(`Skills: ${[...new Set(combinedSkills)].join(", ")}`);
+      }
+      if (req.user.resumeExtractedText) {
+        parts.push(`Uploaded Resume Content:\n${req.user.resumeExtractedText.slice(0, 3500)}`);
+      }
+      resumeContext = parts.join("\n\n");
+    } else if (resumeId) {
       const resume = await Resume.findOne({ _id: resumeId, user: req.user._id });
       if (resume) {
         resumeContext = formatResumeContext(resume);
@@ -316,7 +380,7 @@ router.post("/start", protect, async (req, res) => {
       voiceSpeed: parsedSpeed,
       pauseBuffer: parsedPauseBuffer,
       interviewerName,
-      resumeId: resumeId || null,
+      resumeId: resumeId && resumeId !== "profile" ? resumeId : null,
       jobId: jobId || null,
       resumeContext,
       jobContext,
@@ -629,6 +693,37 @@ router.delete("/:id", protect, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// ─── 8. POST /api/mock-interview/:id/export-pdf ──────────────────────────────
+router.post("/:id/export-pdf", protect, async (req, res) => {
+  try {
+    const { html, title = "Interview_Report" } = req.body;
+    if (!html || typeof html !== "string") {
+      return res.status(400).json({ message: "HTML content is required to generate PDF." });
+    }
+
+    const pdfBuffer = await generatePdfFromHtml(html, {
+      fontScale: 100,
+      styles: `
+        @page { size: A4 portrait; margin: 12mm; }
+        body { background: #ffffff !important; color: #18181b !important; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .break-inside-avoid { break-inside: avoid !important; page-break-inside: avoid !important; overflow: visible !important; }
+        .pdf-no-border { border: none !important; box-shadow: none !important; background: transparent !important; padding-left: 0 !important; padding-right: 0 !important; }
+      `,
+    });
+
+    const cleanFilename = (title || "Interview_Report").replace(/[^a-zA-Z0-9_-]/g, "_");
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${cleanFilename}_Interview_Report.pdf"`,
+      "Content-Length": pdfBuffer.length,
+    });
+    return res.end(pdfBuffer);
+  } catch (error) {
+    console.error("[MockInterview] Error exporting PDF:", error);
+    return res.status(500).json({ message: "Failed to generate PDF report.", error: error.message });
   }
 });
 

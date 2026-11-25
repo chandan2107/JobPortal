@@ -6,6 +6,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { protect } = require("../middleware/authMiddleware");
 const { extractTextFromPdfBuffer } = require("./atsHelpers");
 const ragService = require("../services/ragService");
+const AtsScan = require("../models/AtsScan");
 
 const router = express.Router();
 
@@ -198,6 +199,29 @@ Respond ONLY with a valid JSON object in this EXACT format (no markdown, no expl
     });
     cleanupOldSessions();
 
+    // Persist scan to MongoDB for ATS Score History
+    try {
+      const firstLine = jobDescription.trim().split(/\r?\n/)[0] || "";
+      const jobSnippet = firstLine.slice(0, 140);
+      await AtsScan.create({
+        user: req.user._id,
+        fileName: req.file.originalname || "Resume.pdf",
+        jobSnippet,
+        score: scoreData.score,
+        label: scoreData.label,
+        formatScore: scoreData.formatScore,
+        formatFeedback: scoreData.formatFeedback,
+        summary: scoreData.summary,
+        strengths: scoreData.strengths || [],
+        weaknesses: scoreData.weaknesses || [],
+        missingSkills: scoreData.missingSkills || [],
+        improvements: scoreData.improvements || [],
+        keywordMatch: scoreData.keywordMatch || { matched: [], missing: [] },
+      });
+    } catch (saveErr) {
+      console.warn("[ATS-Seeker] Failed to save ATS scan history:", saveErr.message);
+    }
+
     // Return the result with the session ID for chatbot use
     res.json({
       ...scoreData,
@@ -337,6 +361,37 @@ Your response:`;
     });
   } catch (err) {
     console.error("[ATS-Chat] Error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ─── GET /api/ats/jobseeker/history ─────────────────────────────────────────
+router.get("/jobseeker/history", protect, async (req, res) => {
+  try {
+    const scans = await AtsScan.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+    res.json({ success: true, scans });
+  } catch (err) {
+    console.error("[ATS-Seeker] History fetch error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ─── DELETE /api/ats/jobseeker/history/:id ──────────────────────────────────
+router.delete("/jobseeker/history/:id", protect, async (req, res) => {
+  try {
+    const deleted = await AtsScan.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+    if (!deleted) {
+      return res.status(404).json({ message: "Scan record not found." });
+    }
+    res.json({ success: true, message: "Scan deleted." });
+  } catch (err) {
+    console.error("[ATS-Seeker] History delete error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });

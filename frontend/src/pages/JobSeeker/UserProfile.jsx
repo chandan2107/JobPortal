@@ -280,23 +280,6 @@ const UserProfile = () => {
                     </span>
                   )}
                 </div>
-
-                {(hasResume || profileData.skills?.length > 0) && (
-                  <div className="flex flex-wrap items-center gap-2 pt-2">
-                    {hasResume && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                        Resume Uploaded
-                      </span>
-                    )}
-
-                    {profileData.skills?.length > 0 && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/60">
-                        {profileData.skills.length} Skill{profileData.skills.length > 1 ? "s" : ""}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -304,20 +287,6 @@ const UserProfile = () => {
             <div className="flex flex-wrap items-center gap-3 pt-4 md:pt-0 border-t md:border-0 border-slate-100 dark:border-zinc-800">
               {!isEditing ? (
                 <>
-                  <button
-                    onClick={() => navigate("/resume-builder")}
-                    className="px-4 py-2.5 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 rounded-xl font-bold transition-all text-xs flex items-center gap-2 cursor-pointer shadow-2xs"
-                  >
-                    <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    Resume Builder
-                  </button>
-                  <button
-                    onClick={() => navigate("/find-jobs")}
-                    className="px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 rounded-xl font-bold transition-all text-xs flex items-center gap-2 cursor-pointer"
-                  >
-                    <Briefcase className="w-4 h-4" />
-                    Browse Jobs
-                  </button>
                   <button
                     onClick={() => {
                       setFormData({ ...profileData });
@@ -523,7 +492,7 @@ const UserProfile = () => {
                 <div className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                   <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    Primary Resume Document (PDF)
+                    Primary Resume Document
                   </h2>
                 </div>
 
@@ -836,7 +805,7 @@ const UserProfile = () => {
               <div className="border-b border-slate-100 dark:border-zinc-800 pb-4">
                 <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  Primary Resume Document (PDF)
+                  Primary Resume Document 
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                   Used for quick job submissions, RAG AI resume queries, and ATS compatibility scans.

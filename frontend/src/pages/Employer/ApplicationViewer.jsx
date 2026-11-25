@@ -16,20 +16,20 @@ import StatusBadge from "../../components/layout/StatusBadge";
 
 // ATS score color/label helpers
 const getScoreColor = (score) => {
-  if (score >= 80) return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", badge: "bg-green-100 text-green-700", icon: CheckCircle };
-  if (score >= 60) return { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", badge: "bg-blue-100 text-blue-700", icon: CheckCircle };
-  if (score >= 40) return { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700", badge: "bg-yellow-100 text-yellow-700", icon: AlertCircle };
-  return { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", badge: "bg-red-100 text-red-700", icon: XCircle };
+  if (score >= 80) return { bg: "bg-green-50 dark:bg-emerald-950/40", border: "border-green-200 dark:border-emerald-800/60", text: "text-green-700 dark:text-emerald-300", badge: "bg-green-100 text-green-700 dark:bg-emerald-950/60 dark:text-emerald-300", icon: CheckCircle };
+  if (score >= 60) return { bg: "bg-blue-50 dark:bg-blue-950/40", border: "border-blue-200 dark:border-blue-800/60", text: "text-blue-700 dark:text-blue-300", badge: "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300", icon: CheckCircle };
+  if (score >= 40) return { bg: "bg-yellow-50 dark:bg-amber-950/40", border: "border-yellow-200 dark:border-amber-800/60", text: "text-yellow-700 dark:text-amber-300", badge: "bg-yellow-100 text-yellow-700 dark:bg-amber-950/60 dark:text-amber-300", icon: AlertCircle };
+  return { bg: "bg-red-50 dark:bg-rose-950/40", border: "border-red-200 dark:border-rose-800/60", text: "text-red-700 dark:text-rose-300", badge: "bg-red-100 text-red-700 dark:bg-rose-950/60 dark:text-rose-300", icon: XCircle };
 };
 
 // Kanban Pipeline Stages Configuration
 const KANBAN_STAGES = [
-  { id: "Applied", label: "Applied", dot: "bg-slate-400", badge: "bg-slate-100 text-slate-700", border: "border-slate-200", headerBg: "bg-slate-50 text-slate-800" },
-  { id: "In Review", label: "In Review", dot: "bg-blue-500", badge: "bg-blue-100 text-blue-700", border: "border-blue-200", headerBg: "bg-blue-50/80 text-blue-900" },
-  { id: "Shortlisted", label: "Shortlisted", dot: "bg-purple-500", badge: "bg-purple-100 text-purple-700", border: "border-purple-200", headerBg: "bg-purple-50/80 text-purple-900" },
-  { id: "Interview", label: "Interview", dot: "bg-amber-500", badge: "bg-amber-100 text-amber-700", border: "border-amber-200", headerBg: "bg-amber-50/80 text-amber-900" },
-  { id: "Accepted", label: "Accepted", dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700", border: "border-emerald-200", headerBg: "bg-emerald-50/80 text-emerald-900" },
-  { id: "Rejected", label: "Rejected", dot: "bg-rose-500", badge: "bg-rose-100 text-rose-700", border: "border-rose-200", headerBg: "bg-rose-50/80 text-rose-900" },
+  { id: "Applied", label: "Applied", dot: "bg-slate-400", badge: "bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300", border: "border-slate-200 dark:border-zinc-800", headerBg: "bg-slate-50 text-slate-800 dark:bg-zinc-900 dark:text-zinc-200" },
+  { id: "In Review", label: "In Review", dot: "bg-blue-500", badge: "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300", border: "border-blue-200 dark:border-blue-800/60", headerBg: "bg-blue-50/80 text-blue-900 dark:bg-blue-950/30 dark:text-blue-200" },
+  { id: "Shortlisted", label: "Shortlisted", dot: "bg-purple-500", badge: "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300", border: "border-purple-200 dark:border-purple-800/60", headerBg: "bg-purple-50/80 text-purple-900 dark:bg-purple-950/30 dark:text-purple-200" },
+  { id: "Interview", label: "Interview", dot: "bg-amber-500", badge: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300", border: "border-amber-200 dark:border-amber-800/60", headerBg: "bg-amber-50/80 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200" },
+  { id: "Accepted", label: "Accepted", dot: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800/60", headerBg: "bg-emerald-50/80 text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200" },
+  { id: "Rejected", label: "Rejected", dot: "bg-rose-500", badge: "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300", border: "border-rose-200 dark:border-rose-800/60", headerBg: "bg-rose-50/80 text-rose-900 dark:bg-rose-950/30 dark:text-rose-200" },
 ];
 
 // ATS Result Modal
@@ -42,24 +42,24 @@ const ATSModal = ({ atsResult, applicantName, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className={`${colors.bg} ${colors.border} border-b px-5 py-3.5 flex items-center justify-between`}>
           <div>
-            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">ATS Match Score</p>
-            <h3 className="text-sm font-bold text-gray-900">{applicantName}</h3>
+            <p className="text-[11px] font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-0.5">ATS Match Score</p>
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">{applicantName}</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/60 transition-colors">
-            <X className="w-4 h-4 text-gray-500" />
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/60 transition-colors">
+            <X className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
           </button>
         </div>
 
         <div className="p-4 space-y-3 max-h-[75vh] overflow-y-auto">
           {/* Score Circle & Summary */}
-          <div className="flex items-center gap-4 bg-gray-50/70 p-3 rounded-xl border border-gray-100">
+          <div className="flex items-center gap-4 bg-gray-50/70 dark:bg-zinc-950/60 p-3 rounded-xl border border-gray-100 dark:border-zinc-800">
             <div className="relative flex-shrink-0">
               <svg width="68" height="68" viewBox="0 0 68 68">
-                <circle cx="34" cy="34" r="28" fill="none" stroke="#e5e7eb" strokeWidth="6" />
+                <circle cx="34" cy="34" r="28" fill="none" stroke="currentColor" className="text-gray-200 dark:text-zinc-800" strokeWidth="6" />
                 <circle
                   cx="34" cy="34" r="28" fill="none"
                   stroke={atsResult.score >= 80 ? "#16a34a" : atsResult.score >= 60 ? "#2563eb" : atsResult.score >= 40 ? "#d97706" : "#dc2626"}
@@ -73,7 +73,7 @@ const ATSModal = ({ atsResult, applicantName, onClose }) => {
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className={`text-lg font-extrabold ${colors.text}`}>{atsResult.score}</span>
-                <span className="text-[10px] text-gray-400 font-medium">/ 100</span>
+                <span className="text-[10px] text-gray-400 dark:text-zinc-500 font-medium">/ 100</span>
               </div>
             </div>
             <div className="min-w-0 flex-1">
@@ -81,20 +81,20 @@ const ATSModal = ({ atsResult, applicantName, onClose }) => {
                 <Icon className="w-3 h-3" />
                 {atsResult.label}
               </span>
-              <p className="text-xs text-gray-600 leading-snug line-clamp-3">{atsResult.summary}</p>
+              <p className="text-xs text-gray-600 dark:text-zinc-300 leading-snug line-clamp-3">{atsResult.summary}</p>
             </div>
           </div>
 
           {/* Strengths */}
           {atsResult.strengths?.length > 0 && (
-            <div className="bg-green-50/40 p-3 rounded-xl border border-green-100/60">
-              <p className="text-[11px] font-bold text-green-800 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+            <div className="bg-green-50/40 dark:bg-emerald-950/30 p-3 rounded-xl border border-green-100/60 dark:border-emerald-800/50">
+              <p className="text-[11px] font-bold text-green-800 dark:text-emerald-300 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <span>✅</span> Strengths
               </p>
               <ul className="space-y-1">
                 {atsResult.strengths.map((s, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
-                    <span className="text-green-500 font-bold flex-shrink-0">•</span>
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700 dark:text-zinc-300">
+                    <span className="text-green-500 dark:text-emerald-400 font-bold flex-shrink-0">•</span>
                     <span>{s}</span>
                   </li>
                 ))}
@@ -104,14 +104,14 @@ const ATSModal = ({ atsResult, applicantName, onClose }) => {
 
           {/* Gaps */}
           {atsResult.gaps?.length > 0 && (
-            <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/60">
-              <p className="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+            <div className="bg-amber-50/40 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-100/60 dark:border-amber-800/50">
+              <p className="text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <span>⚠️</span> Skill Gaps
               </p>
               <ul className="space-y-1">
                 {atsResult.gaps.map((g, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
-                    <span className="text-amber-500 font-bold flex-shrink-0">•</span>
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700 dark:text-zinc-300">
+                    <span className="text-amber-500 dark:text-amber-400 font-bold flex-shrink-0">•</span>
                     <span>{g}</span>
                   </li>
                 ))}
@@ -123,7 +123,7 @@ const ATSModal = ({ atsResult, applicantName, onClose }) => {
         <div className="px-4 pb-3.5 pt-1">
           <button
             onClick={onClose}
-            className="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold text-xs transition-colors"
+            className="w-full py-2 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-700 dark:text-zinc-200 rounded-xl font-semibold text-xs transition-colors"
           >
             Close
           </button>
@@ -378,32 +378,32 @@ const ApplicationViewer = () => {
           <div className="flex items-center gap-3.5">
             <button
               onClick={() => navigate("/manage-jobs")}
-              className="p-2.5 text-gray-400 hover:text-gray-900 hover:bg-white rounded-xl border border-transparent hover:border-gray-200 transition-all shadow-sm"
+              className="p-2.5 text-gray-400 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-zinc-900 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-zinc-800 transition-all shadow-sm"
               title="Back to Manage Jobs"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Candidate Pipeline</h2>
-                <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
+                <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Candidate Pipeline</h2>
+                <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-800/60">
                   {filteredApplications.length} Candidates
                 </span>
               </div>
-              <p className="text-gray-500 text-sm mt-0.5">
+              <p className="text-gray-500 dark:text-zinc-400 text-sm mt-0.5">
                 Drag and drop candidates across stages — applicants are automatically notified via Brevo.
               </p>
             </div>
           </div>
 
           {/* View Mode Switcher */}
-          <div className="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-xl border border-gray-200">
+          <div className="flex items-center gap-1.5 bg-gray-100/80 dark:bg-zinc-900 p-1 rounded-xl border border-gray-200 dark:border-zinc-800">
             <button
               onClick={() => setViewMode("kanban")}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "kanban"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -413,8 +413,8 @@ const ApplicationViewer = () => {
               onClick={() => setViewMode("list")}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "list"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <ListFilter className="w-4 h-4" />
@@ -424,22 +424,22 @@ const ApplicationViewer = () => {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="bg-white p-3.5 rounded-2xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-zinc-900 p-3.5 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <div className="flex flex-1 items-center gap-2.5">
             {/* Search Input */}
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-gray-400 dark:text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search candidates by name, email, or role..."
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 hover:bg-gray-100/70 focus:bg-white rounded-xl text-xs font-medium border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100/70 dark:hover:bg-zinc-900 focus:bg-white dark:focus:bg-zinc-950 rounded-xl text-xs font-medium text-gray-900 dark:text-zinc-100 placeholder:text-gray-400 dark:placeholder:text-zinc-500 border border-gray-200 dark:border-zinc-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 outline-none transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -452,7 +452,7 @@ const ApplicationViewer = () => {
                 <select
                   value={selectedJobId}
                   onChange={(e) => setSelectedJobId(e.target.value)}
-                  className="text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100/70 border border-gray-200 rounded-xl px-3 py-2 outline-none cursor-pointer pr-7 transition-colors"
+                  className="text-xs font-semibold text-gray-700 dark:text-zinc-200 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-xl px-3 py-2 outline-none cursor-pointer pr-7 transition-colors"
                 >
                   <option value="all">All Jobs ({uniqueJobs.length})</option>
                   {uniqueJobs.map((j) => (
@@ -465,11 +465,11 @@ const ApplicationViewer = () => {
 
           {/* Sort Selector */}
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4 text-gray-400" />
+            <ArrowUpDown className="w-4 h-4 text-gray-400 dark:text-zinc-500" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100/70 border border-gray-200 rounded-xl px-3 py-2 outline-none cursor-pointer transition-colors"
+              className="text-xs font-semibold text-gray-700 dark:text-zinc-200 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100/70 dark:hover:bg-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-xl px-3 py-2 outline-none cursor-pointer transition-colors"
             >
               <option value="date-desc">Newest Applied</option>
               <option value="date-asc">Oldest Applied</option>
@@ -484,26 +484,26 @@ const ApplicationViewer = () => {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {KANBAN_STAGES.map((s) => (
-              <div key={s.id} className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3 animate-pulse h-96">
-                <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
-                <div className="h-28 bg-gray-100 rounded-xl" />
-                <div className="h-28 bg-gray-100 rounded-xl" />
+              <div key={s.id} className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-4 space-y-3 animate-pulse h-96">
+                <div className="h-5 bg-gray-200 dark:bg-zinc-800 rounded w-2/3 mb-4" />
+                <div className="h-28 bg-gray-100 dark:bg-zinc-800/70 rounded-xl" />
+                <div className="h-28 bg-gray-100 dark:bg-zinc-800/70 rounded-xl" />
               </div>
             ))}
           </div>
         ) : filteredApplications.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-16 flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mb-4">
-              <Users className="w-8 h-8 text-blue-500" />
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm p-16 flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-800/60 rounded-2xl flex items-center justify-center mb-4">
+              <Users className="w-8 h-8 text-blue-500 dark:text-blue-400" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-1">No candidates match your criteria</h3>
-            <p className="text-gray-500 text-xs max-w-sm">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No candidates match your criteria</h3>
+            <p className="text-gray-500 dark:text-zinc-400 text-xs max-w-sm">
               {searchQuery ? "Try refining your search terms or clearing the filter." : "Applications will appear here once job seekers apply."}
             </p>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="mt-4 px-4 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-xs font-semibold hover:bg-blue-100 transition-colors"
+                className="mt-4 px-4 py-1.5 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-blue-950/70 transition-colors"
               >
                 Clear Search
               </button>
@@ -527,15 +527,15 @@ const ApplicationViewer = () => {
                     onDrop={(e) => handleDrop(e, stage.id)}
                     className={`flex-1 min-w-[220px] max-w-[260px] rounded-2xl border transition-all duration-200 flex flex-col ${
                       isOver
-                        ? "bg-blue-50/50 border-blue-400 ring-2 ring-blue-300 ring-offset-1"
-                        : "bg-gray-50/70 border-gray-200 hover:border-gray-300"
+                        ? "bg-blue-50/50 dark:bg-blue-950/30 border-blue-400 dark:border-blue-500 ring-2 ring-blue-300 dark:ring-blue-500/40 ring-offset-1 dark:ring-offset-zinc-950"
+                        : "bg-gray-50/70 dark:bg-zinc-950/60 border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700"
                     }`}
                   >
                     {/* Column Header */}
-                    <div className="p-3.5 border-b border-gray-200 flex items-center justify-between">
+                    <div className="p-3.5 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className={`w-2.5 h-2.5 rounded-full ${stage.dot}`} />
-                        <h4 className="text-xs font-bold text-gray-900">{stage.label}</h4>
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white">{stage.label}</h4>
                       </div>
                       <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${stage.badge}`}>
                         {stageApps.length}
@@ -547,10 +547,10 @@ const ApplicationViewer = () => {
                       {stageApps.length === 0 ? (
                         <div
                           className={`h-40 rounded-xl border-2 border-dashed flex flex-col items-center justify-center text-center p-3 transition-colors ${
-                            isOver ? "border-blue-400 bg-blue-50/60" : "border-gray-200 bg-white/40"
+                            isOver ? "border-blue-400 bg-blue-50/60 dark:bg-blue-950/40" : "border-gray-200 dark:border-zinc-800 bg-white/40 dark:bg-zinc-900/40"
                           }`}
                         >
-                          <p className="text-[11px] font-medium text-gray-400">
+                          <p className="text-[11px] font-medium text-gray-400 dark:text-zinc-500">
                             {isOver ? "Drop candidate here" : "No candidates"}
                           </p>
                         </div>
@@ -567,13 +567,13 @@ const ApplicationViewer = () => {
                               key={appId}
                               draggable={true}
                               onDragStart={(e) => handleDragStart(e, appId)}
-                              className={`bg-white rounded-xl border border-gray-200 p-3.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative ${
+                              className={`bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-3.5 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing group relative ${
                                 isBeingDragged ? "opacity-40 scale-95" : "opacity-100"
                               }`}
                             >
                               {/* Drag Handle Indicator */}
                               <div className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-[10px] text-gray-400">⋮⋮</span>
+                                <span className="text-[10px] text-gray-400 dark:text-zinc-500">⋮⋮</span>
                               </div>
 
                               {/* Candidate Info */}
@@ -582,21 +582,21 @@ const ApplicationViewer = () => {
                                   <img
                                     src={app.applicant.avatar}
                                     alt={app.applicant.name || "Applicant"}
-                                    className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm flex-shrink-0"
+                                    className="w-9 h-9 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800 shadow-sm flex-shrink-0"
                                   />
                                 ) : (
-                                  <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                  <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-xs flex-shrink-0">
                                     {getInitials(app.applicant?.name || "Applicant")}
                                   </div>
                                 )}
                                 <div className="min-w-0 flex-1">
                                   <h5
                                     onClick={() => setSelectedApplicant(app)}
-                                    className="text-xs font-bold text-gray-900 truncate hover:text-blue-600 cursor-pointer"
+                                    className="text-xs font-bold text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                                   >
                                     {app.applicant?.name || "Anonymous Candidate"}
                                   </h5>
-                                  <p className="text-[11px] text-gray-500 truncate">
+                                  <p className="text-[11px] text-gray-500 dark:text-zinc-400 truncate">
                                     {app.applicant?.email || "No email"}
                                   </p>
                                 </div>
@@ -604,14 +604,14 @@ const ApplicationViewer = () => {
 
                               {/* Applied Position Badge */}
                               <div className="mb-2">
-                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-md truncate max-w-full">
-                                  <Briefcase className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-700 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 px-2 py-0.5 rounded-md truncate max-w-full">
+                                  <Briefcase className="w-3 h-3 text-gray-400 dark:text-zinc-500 flex-shrink-0" />
                                   <span className="truncate">{app.job?.title || "Role"}</span>
                                 </span>
                               </div>
 
                               {/* ATS Score & Date Row */}
-                              <div className="flex items-center justify-between gap-1 mb-3 pt-1 border-t border-gray-50">
+                              <div className="flex items-center justify-between gap-1 mb-3 pt-1 border-t border-gray-50 dark:border-zinc-800/80">
                                 {cachedScore ? (
                                   <button
                                     onClick={() => setAtsModal({ result: cachedScore, name: app.applicant?.name || "Applicant" })}
@@ -625,24 +625,24 @@ const ApplicationViewer = () => {
                                   <button
                                     onClick={() => handleATSScore(app)}
                                     disabled={isScoring}
-                                    className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-full border border-purple-200 transition-colors disabled:opacity-50"
+                                    className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-600 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800/60 transition-colors disabled:opacity-50"
                                   >
                                     {isScoring ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Sparkles className="w-2.5 h-2.5" />}
                                     Score ATS
                                   </button>
                                 )}
 
-                                <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                                <span className="text-[10px] text-gray-400 dark:text-zinc-500 flex items-center gap-1">
                                   <Clock className="w-2.5 h-2.5" />
                                   {moment(app.createdAt).fromNow(true)}
                                 </span>
                               </div>
 
                               {/* Actions & Move Dropdown */}
-                              <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 w-full min-w-0">
+                              <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 dark:border-zinc-800 w-full min-w-0">
                                 <button
                                   onClick={() => setSelectedApplicant(app)}
-                                  className="flex-1 min-w-0 py-1 px-2 bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 truncate"
+                                  className="flex-1 min-w-0 py-1 px-2 bg-gray-50 dark:bg-zinc-950 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-gray-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 truncate"
                                 >
                                   <Eye className="w-3 h-3 shrink-0" />
                                   <span className="truncate">View</span>
@@ -651,7 +651,7 @@ const ApplicationViewer = () => {
                                 {app.applicant?.resume || app.resume ? (
                                   <button
                                     onClick={() => handleDownloadResume(app.applicant?.resume || app.resume)}
-                                    className="shrink-0 py-1 px-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center"
+                                    className="shrink-0 py-1 px-2 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-zinc-300 text-[11px] font-semibold rounded-lg transition-colors flex items-center justify-center"
                                     title="View Resume"
                                   >
                                     <FileText className="w-3 h-3" />
@@ -663,7 +663,7 @@ const ApplicationViewer = () => {
                                   <select
                                     value={stage.id}
                                     onChange={(e) => handleStatusChange(appId, e.target.value)}
-                                    className="appearance-none w-[68px] text-[10px] font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg pl-2 pr-4 py-1 outline-none cursor-pointer transition-colors truncate"
+                                    className="appearance-none w-[68px] text-[10px] font-bold text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-950 hover:bg-gray-100 dark:hover:bg-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-lg pl-2 pr-4 py-1 outline-none cursor-pointer transition-colors truncate"
                                     title="Move stage directly"
                                   >
                                     <option disabled value={stage.id}>Move</option>
@@ -671,7 +671,7 @@ const ApplicationViewer = () => {
                                       <option key={s.id} value={s.id}>➔ {s.label}</option>
                                     ))}
                                   </select>
-                                  <ChevronDown className="w-2.5 h-2.5 text-gray-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                  <ChevronDown className="w-2.5 h-2.5 text-gray-400 dark:text-zinc-500 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 </div>
                               </div>
                             </div>
@@ -690,33 +690,33 @@ const ApplicationViewer = () => {
           /* ─────────────────────────────────────────────────────────── */
           <div className="space-y-6">
             {Object.values(groupedApplications).map(({ job, applications: jobApps }) => (
-              <div key={job._id || "general"} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div key={job._id || "general"} className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
                 {/* Job Group Header */}
-                <div className="bg-gray-50/80 border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="bg-gray-50/80 dark:bg-zinc-950/70 border-b border-gray-200 dark:border-zinc-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{job.title}</h3>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white">{job.title}</h3>
                     <div className="flex flex-wrap items-center gap-2 mt-1">
                       {job.location && (
-                        <span className="flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded-md">
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-gray-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 px-2 py-0.5 rounded-md">
                           <MapPin className="w-3 h-3" />
                           {job.location}
                         </span>
                       )}
                       {job.type && (
-                        <span className="flex items-center gap-1 text-[11px] font-medium text-gray-600 bg-white border border-gray-200 px-2 py-0.5 rounded-md">
+                        <span className="flex items-center gap-1 text-[11px] font-medium text-gray-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 px-2 py-0.5 rounded-md">
                           <Briefcase className="w-3 h-3" />
                           {job.type}
                         </span>
                       )}
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-gray-600 bg-white border border-gray-200 px-3 py-1 rounded-full shadow-2xs">
+                  <span className="text-xs font-bold text-gray-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 px-3 py-1 rounded-full shadow-2xs">
                     {jobApps.length} Candidates
                   </span>
                 </div>
 
                 {/* Candidate Rows */}
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                   {jobApps.map((application) => {
                     const appId = application._id;
                     const cachedScore = atsScores[appId];
@@ -726,7 +726,7 @@ const ApplicationViewer = () => {
                     return (
                       <div
                         key={appId}
-                        className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-6 py-4 hover:bg-gray-50/60 transition-colors"
+                        className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 px-6 py-4 hover:bg-gray-50/60 dark:hover:bg-zinc-800/40 transition-colors"
                       >
                         {/* Candidate Identity */}
                         <div className="flex items-center gap-3.5 flex-1 min-w-0">
@@ -734,23 +734,23 @@ const ApplicationViewer = () => {
                             <img
                               src={application.applicant.avatar}
                               alt={application.applicant.name || "Applicant"}
-                              className="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow-sm flex-shrink-0"
+                              className="w-11 h-11 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800 shadow-sm flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-11 h-11 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                            <div className="w-11 h-11 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-sm flex-shrink-0">
                               {getInitials(application.applicant?.name || "Applicant")}
                             </div>
                           )}
                           <div className="min-w-0">
                             <h4
                               onClick={() => setSelectedApplicant(application)}
-                              className="text-sm font-bold text-gray-900 truncate hover:text-blue-600 cursor-pointer"
+                              className="text-sm font-bold text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
                             >
                               {application.applicant?.name || "Anonymous Applicant"}
                             </h4>
-                            <p className="text-xs text-gray-500 truncate">{application.applicant?.email || "No email"}</p>
+                            <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">{application.applicant?.email || "No email"}</p>
                             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                              <span className="inline-flex items-center gap-1 text-[11px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                              <span className="inline-flex items-center gap-1 text-[11px] text-gray-400 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
                                 <Calendar className="w-3 h-3" />
                                 Applied {moment(application.createdAt).format("Do MMM YYYY")}
                               </span>
@@ -775,7 +775,7 @@ const ApplicationViewer = () => {
                             <select
                               value={application.status || "Applied"}
                               onChange={(e) => handleStatusChange(appId, e.target.value)}
-                              className="text-xs font-bold px-3 py-1.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 outline-none cursor-pointer transition-colors"
+                              className="text-xs font-bold px-3 py-1.5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950 text-gray-800 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 outline-none cursor-pointer transition-colors"
                             >
                               {KANBAN_STAGES.map((s) => (
                                 <option key={s.id} value={s.id}>{s.label}</option>
@@ -787,7 +787,7 @@ const ApplicationViewer = () => {
                           <button
                             onClick={() => handleATSScore(application)}
                             disabled={isScoring}
-                            className="flex items-center justify-center gap-1.5 px-3 py-1.5 border border-purple-300 text-purple-700 bg-purple-50/60 rounded-xl hover:bg-purple-100 transition-colors text-xs font-semibold disabled:opacity-60"
+                            className="flex items-center justify-center gap-1.5 px-3 py-1.5 border border-purple-300 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 bg-purple-50/60 dark:bg-purple-950/40 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-colors text-xs font-semibold disabled:opacity-60"
                           >
                             {isScoring ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
                             {isScoring ? "Scoring..." : "ATS Score"}

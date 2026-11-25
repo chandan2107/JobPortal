@@ -43,36 +43,35 @@ const SavedJobs = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#090c15] pb-12 transition-colors">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
         {/* Page Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-          <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-700" />
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(-1)}
-                className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
+                className="p-2 text-gray-400 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Saved Jobs</h1>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Saved Jobs</h1>
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
                   {savedJobList.length} saved job{savedJobList.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-200">
+            <div className="flex items-center gap-2 bg-gray-50 dark:bg-zinc-950 p-1 rounded-xl border border-gray-200 dark:border-zinc-800">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-lg transition-all duration-200 ${
                   viewMode === "grid"
-                    ? "bg-white text-blue-600 shadow-sm border border-gray-200"
-                    : "text-gray-400 hover:text-gray-700"
+                    ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm border border-gray-200 dark:border-zinc-700"
+                    : "text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-200"
                 }`}
               >
                 <Grid className="w-4 h-4" />
@@ -81,8 +80,8 @@ const SavedJobs = () => {
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded-lg transition-all duration-200 ${
                   viewMode === "list"
-                    ? "bg-white text-blue-600 shadow-sm border border-gray-200"
-                    : "text-gray-400 hover:text-gray-700"
+                    ? "bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm border border-gray-200 dark:border-zinc-700"
+                    : "text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-200"
                 }`}
               >
                 <List className="w-4 h-4" />
@@ -95,28 +94,28 @@ const SavedJobs = () => {
         {loading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
+              <div key={i} className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 p-6 animate-pulse">
                 <div className="flex gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex-shrink-0" />
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 rounded-xl flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-100 rounded-lg w-3/4" />
-                    <div className="h-3 bg-gray-100 rounded-lg w-1/2" />
+                    <div className="h-4 bg-gray-100 dark:bg-zinc-800 rounded-lg w-3/4" />
+                    <div className="h-3 bg-gray-100 dark:bg-zinc-800 rounded-lg w-1/2" />
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <div className="h-6 bg-gray-100 rounded-full w-24" />
-                  <div className="h-6 bg-gray-100 rounded-full w-20" />
+                  <div className="h-6 bg-gray-100 dark:bg-zinc-800 rounded-full w-24" />
+                  <div className="h-6 bg-gray-100 dark:bg-zinc-800 rounded-full w-20" />
                 </div>
               </div>
             ))}
           </div>
         ) : savedJobList.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 flex flex-col items-center text-center">
-            <div className="w-20 h-20 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mb-6">
-              <Bookmark className="w-9 h-9 text-blue-500" />
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm p-16 flex flex-col items-center text-center">
+            <div className="w-20 h-20 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-800/60 rounded-2xl flex items-center justify-center mb-6">
+              <Bookmark className="w-9 h-9 text-blue-500 dark:text-blue-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No saved jobs yet</h3>
-            <p className="text-gray-500 text-sm mb-8 max-w-sm">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No saved jobs yet</h3>
+            <p className="text-gray-500 dark:text-zinc-400 text-sm mb-8 max-w-sm">
               Start saving jobs that interest you to view them here later.
             </p>
             <button

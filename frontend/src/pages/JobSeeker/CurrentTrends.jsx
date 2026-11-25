@@ -29,6 +29,8 @@ const BASELINE_BY_TRACK = {
     avgSalaryMax: 165000,
     remoteCount: 9,
     remoteShare: 38,
+    topJobType: "Full-Time",
+    topJobTypeShare: 78,
     fastestGrowingRole: "Full Stack Engineering",
     topSkills: [
       { name: "React", count: 18, percentage: 75 },
@@ -56,6 +58,8 @@ const BASELINE_BY_TRACK = {
     avgSalaryMax: 175000,
     remoteCount: 6,
     remoteShare: 40,
+    topJobType: "Full-Time",
+    topJobTypeShare: 80,
     fastestGrowingRole: "Full Stack Developer",
     topSkills: [
       { name: "React", count: 13, percentage: 87 },
@@ -81,6 +85,8 @@ const BASELINE_BY_TRACK = {
     avgSalaryMax: 135000,
     remoteCount: 3,
     remoteShare: 60,
+    topJobType: "Full-Time",
+    topJobTypeShare: 80,
     fastestGrowingRole: "Product Designer",
     topSkills: [
       { name: "Figma", count: 5, percentage: 100 },
@@ -100,6 +106,8 @@ const BASELINE_BY_TRACK = {
     avgSalaryMax: 195000,
     remoteCount: 2,
     remoteShare: 33,
+    topJobType: "Full-Time",
+    topJobTypeShare: 83,
     fastestGrowingRole: "AI / ML Engineer",
     topSkills: [
       { name: "Python", count: 6, percentage: 100 },
@@ -121,6 +129,8 @@ const BASELINE_BY_TRACK = {
     avgSalaryMax: 180000,
     remoteCount: 3,
     remoteShare: 60,
+    topJobType: "Full-Time",
+    topJobTypeShare: 80,
     fastestGrowingRole: "Cloud & DevOps Engineer",
     topSkills: [
       { name: "AWS", count: 5, percentage: 100 },
@@ -222,23 +232,13 @@ const CurrentTrends = () => {
 
         {/* ── Header + Track Filter ── */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mb-8">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200 dark:shadow-purple-950/50 flex-shrink-0">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                  Current Market Trends
-                </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                  {usingBaseline ? "Market Benchmark" : "Live Portal Data"}
-                </span>
-              </div>
-              <p className="text-sm text-gray-500 dark:text-zinc-400 font-medium mt-0.5">
-                In-demand skills, salary ranges, and hiring momentum across active tech roles
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              Current Market Trends
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-zinc-400 font-medium mt-0.5">
+              In-demand skills, salary ranges, and hiring momentum across active tech roles
+            </p>
           </div>
 
           {/* Track Filter Pills */}
@@ -308,25 +308,25 @@ const CurrentTrends = () => {
             </p>
           </div>
 
-          {/* KPI 3: Remote Share % */}
+          {/* KPI 3: Top Job Type */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-gray-200 dark:border-zinc-800 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">
-                Remote Share
+                Top Job Type
               </span>
               <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 flex items-center justify-center">
-                <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               </div>
             </div>
             {loading ? (
-              <div className="h-8 w-16 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse" />
+              <div className="h-8 w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse" />
             ) : (
-              <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">
-                {data.remoteShare}%
+              <p className="text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 truncate">
+                {data.topJobTypeShare ?? 78}% {data.topJobType || "Full-Time"}
               </p>
             )}
             <p className="text-xs text-gray-500 dark:text-zinc-400 mt-1">
-              {data.remoteCount} remote-friendly positions
+              Dominant employment type across current listings
             </p>
           </div>
 
@@ -497,71 +497,6 @@ const CurrentTrends = () => {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* ── Personalized Skill Match Banner ── */}
-        <div className="rounded-2xl border border-indigo-200 dark:border-indigo-800/60 bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-purple-50/90 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 p-6 sm:p-8 shadow-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3 flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-zinc-900/80 border border-indigo-200 dark:border-indigo-800 text-xs font-bold text-indigo-700 dark:text-indigo-300">
-                <Sparkles className="w-3.5 h-3.5" />
-                Personalized Skill Match
-              </div>
-
-              <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                You match {matchCount}/{matchDenominator} trending skills for{" "}
-                {selectedTrack === "All" ? "Full Stack" : selectedTrack} roles
-              </h2>
-
-              <p className="text-sm text-gray-600 dark:text-zinc-300">
-                {user?.skills?.length > 0
-                  ? `Your profile covers ${matchPercent}% of the top skills employers are hiring for right now.`
-                  : "Add your skills to your profile to see how you stack up against live market demand."}
-              </p>
-
-              {/* Missing Trending Skills Pills */}
-              {missingTrending.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-xs font-semibold text-gray-500 dark:text-zinc-400 mr-1">
-                    Top skills to add:
-                  </span>
-                  {missingTrending.slice(0, 5).map((s) => (
-                    <span
-                      key={s.name}
-                      className="px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-white/80 dark:bg-zinc-900/80 border border-indigo-200/80 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300"
-                    >
-                      + {s.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Links to Profile, Resume Builder, ATS Scanner */}
-            <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
-              <button
-                onClick={() => navigate("/profile")}
-                className="px-4 py-2.5 bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-800 dark:text-zinc-100 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                Update Profile
-              </button>
-              <button
-                onClick={() => navigate("/resume-builder")}
-                className="px-4 py-2.5 bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-800 dark:text-zinc-100 border border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
-              >
-                <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                Resume Builder
-              </button>
-              <button
-                onClick={() => navigate("/ats-scanner")}
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md"
-              >
-                <Shield className="w-4 h-4" />
-                ATS Scanner
-              </button>
-            </div>
           </div>
         </div>
       </div>

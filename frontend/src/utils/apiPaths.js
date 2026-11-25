@@ -60,6 +60,8 @@ export const API_PATHS = {
   ATS: {
     SCAN: "/api/ats/jobseeker/scan",
     CHAT: "/api/ats/jobseeker/chat",
+    HISTORY: "/api/ats/jobseeker/history",
+    DELETE_HISTORY: (id) => `/api/ats/jobseeker/history/${id}`,
   },
 
   IMAGE: {
@@ -86,11 +88,13 @@ export const API_PATHS = {
   MOCK_INTERVIEW: {
     GET_CONFIG: "/api/mock-interview/config",
     START: "/api/mock-interview/start",
+    UPLOAD_RESUME: "/api/mock-interview/upload-resume",
     SAVE_TRANSCRIPT: (id) => `/api/mock-interview/${id}/save-transcript`,
     GENERATE_REPORT: (id) => `/api/mock-interview/${id}/generate-report`,
     GET_HISTORY: "/api/mock-interview/history",
     GET_BY_ID: (id) => `/api/mock-interview/${id}`,
     DELETE: (id) => `/api/mock-interview/${id}`,
+    EXPORT_PDF: (id) => `/api/mock-interview/${id}/export-pdf`,
   },
 };
 

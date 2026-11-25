@@ -180,18 +180,20 @@ const ProfileDropdown = ({
                     </button>
                   )}
 
-                  <button
-                    onClick={(e) => {
-                      navigate(userRole === "employer" ? "/employer-dashboard" : "/find-jobs");
-                      if (onToggle) onToggle(e);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-all cursor-pointer group"
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-950/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      <LayoutDashboard className="w-4 h-4" />
-                    </div>
-                    <span>{userRole === "employer" ? "Employer Dashboard" : "Browse All Jobs"}</span>
-                  </button>
+                  {userRole === "employer" && (
+                    <button
+                      onClick={(e) => {
+                        navigate("/employer-dashboard");
+                        if (onToggle) onToggle(e);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-all cursor-pointer group"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-950/60 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <LayoutDashboard className="w-4 h-4" />
+                      </div>
+                      <span>Employer Dashboard</span>
+                    </button>
+                  )}
 
                   {/* Job Seeker Career Tools Only */}
                   {userRole !== "employer" && (
@@ -213,9 +215,6 @@ const ProfileDropdown = ({
                           </div>
                           <span>Resume Builder</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
-                          New
-                        </span>
                       </button>
 
                       <button
@@ -231,9 +230,6 @@ const ProfileDropdown = ({
                           </div>
                           <span>ATS Score</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800">
-                          AI
-                        </span>
                       </button>
 
                       <button
@@ -249,9 +245,6 @@ const ProfileDropdown = ({
                           </div>
                           <span>Mock Interview</span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
-                          AI
-                        </span>
                       </button>
 
                       <button

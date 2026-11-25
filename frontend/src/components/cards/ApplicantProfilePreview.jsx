@@ -55,16 +55,16 @@ const ApplicantProfilePreview = ({
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-zinc-800 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Blue top accent */}
         <div className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-700" />
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="text-lg font-bold text-gray-900">Applicant Profile</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-zinc-800">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Applicant Profile</h3>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-2 text-gray-400 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -78,27 +78,27 @@ const ApplicantProfilePreview = ({
               <img
                 src={selectedApplicant.applicant.avatar}
                 alt={selectedApplicant.applicant.name || "Applicant"}
-                className="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50 shadow-sm flex-shrink-0"
+                className="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50 dark:ring-blue-950/60 shadow-sm flex-shrink-0"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-lg flex-shrink-0">
                 {getInitials(selectedApplicant?.applicant?.name || "Applicant")}
               </div>
             )}
             <div className="min-w-0">
-              <h4 className="font-bold text-gray-900 text-base truncate">
+              <h4 className="font-bold text-gray-900 dark:text-white text-base truncate">
                 {selectedApplicant?.applicant?.name || "Applicant"}
               </h4>
-              <p className="text-sm text-gray-500 truncate">{selectedApplicant?.applicant?.email || "No email"}</p>
+              <p className="text-sm text-gray-500 dark:text-zinc-400 truncate">{selectedApplicant?.applicant?.email || "No email"}</p>
               <StatusBadge status={currentStatus} />
             </div>
           </div>
 
           {/* Job Info */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
-            <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">Applied Position</p>
-            <p className="font-semibold text-gray-900">{selectedApplicant?.job?.title || "Position"}</p>
-            <div className="flex items-center gap-3 text-sm text-gray-500">
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-800/60 rounded-xl p-4 space-y-2">
+            <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Applied Position</p>
+            <p className="font-semibold text-gray-900 dark:text-white">{selectedApplicant?.job?.title || "Position"}</p>
+            <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-zinc-400">
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
                 {selectedApplicant?.job?.location || "Remote"}
@@ -113,11 +113,11 @@ const ApplicantProfilePreview = ({
           {/* Application Details */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500 flex items-center gap-1.5">
+              <span className="text-gray-500 dark:text-zinc-400 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" />
                 Applied Date
               </span>
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 dark:text-white">
                 {moment(selectedApplicant.createdAt).format("Do MMM YYYY")}
               </span>
             </div>
@@ -125,21 +125,21 @@ const ApplicantProfilePreview = ({
 
           {/* Status Selector */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-2">
               Update Application Status
             </label>
             <select
               value={currentStatus}
               onChange={onChangeStatus}
               disabled={loading}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-sm disabled:opacity-60 cursor-pointer"
+              className="w-full px-4 py-2.5 border border-gray-200 dark:border-zinc-800 rounded-xl bg-gray-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm disabled:opacity-60 cursor-pointer"
             >
               {statusOptions.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
             {loading && (
-              <p className="text-xs text-blue-600 mt-1.5 flex items-center gap-1">
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1.5 flex items-center gap-1">
                 <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />
                 Updating status...
               </p>
@@ -160,7 +160,7 @@ const ApplicantProfilePreview = ({
                 !([selectedApplicant?.applicant?.resume, selectedApplicant?.resume]
                   .find(u => u && typeof u === "string" && !u.startsWith("blob:")))
               }
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-blue-500 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4" />
               View Resume
